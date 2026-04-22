@@ -1,0 +1,44 @@
+{
+  "name": "nexus",
+  "version": "1.0.0",
+  "description": "An intelligent application portfolio hub",
+  "keywords": [
+    "nexus",
+    "insight",
+    "apm",
+    "mcp"
+  ],
+  "homepage": "https://github.com/global/nexus#readme",
+  "bugs": {
+    "url": "https://github.com/global/nexus/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/global/nexus.git"
+  },
+  "license": "MIT",
+  "author": "Anderson Goulart <global@kokre.io>",
+  "type": "commonjs",
+  "main": "main.js",
+  "scripts": {
+    "env:dev": "cross-env NODE_ENV=dev nodemon server.js",
+    "env:test": "cross-env NODE_ENV=test nodemon server.js",
+    "env:prod": "cross-env NODE_ENV=prod node server.js",
+    "test": "cross-env NODE_ENV=dev jest --testTimeout=10000 --runInBand --silent"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "body-parser": "^2.2.2",
+    "cross-env": "^10.1.0",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "joi": "^18.1.2",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.5.0",
+    "nodemon": "^3.1.14"
+  },
+  "devDependencies": {
+    "jest": "^30.3.0",
+    "supertest": "^7.2.2"
+  }
+}
