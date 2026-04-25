@@ -9,5 +9,5 @@ dotenv.config({ path: envFile });
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-  console.log(`Nexus Insight Server is running on port ${PORT}`);
+  console.log(`Nexus Insight Server is running on port http://localhost:${PORT}`);
 });
