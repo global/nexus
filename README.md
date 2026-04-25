@@ -1,2 +1,3 @@
-# nexus
-An intelligent applicaiton portfolio hub
+# Nexus Insight
+
+An Intelligent Applicaiton Portfolio Management Hub.
