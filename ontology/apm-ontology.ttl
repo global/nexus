@@ -149,6 +149,18 @@ apm:CodeRepository a owl:Class ;
     rdfs:label "Code Repository" ;
     rdfs:comment "A source code repository containing the implementation of an application." .
 
+apm:LifecycleStatus a owl:Class ;
+    rdfs:label "Lifecycle Status" ;
+    rdfs:comment "A classification of an application's position in its lifecycle, such as Planned, Development, Operate, or Retired." .
+
+apm:CriticalityTier a owl:Class ;
+    rdfs:label "Criticality Tier" ;
+    rdfs:comment "A classification of an application's business criticality, such as Critical, High, Medium, or Low." .
+
+apm:InvestmentStrategy a owl:Class ;
+    rdfs:label "Investment Strategy" ;
+    rdfs:comment "A classification of the funding decision made for an application, such as Invest, Maintain, or Divest." .
+
 
 ### --------------------------------------------------
 ### RELATIONSHIPS (Object Properties)
@@ -381,6 +393,24 @@ apm:hasRepository a owl:ObjectProperty ;
     rdfs:range apm:CodeRepository ;
     rdfs:comment "An application is linked to a source code repository containing its implementation." .
 
+apm:hasLifecycleStatus a owl:ObjectProperty ;
+    rdfs:label "has lifecycle status" ;
+    rdfs:domain apm:Application ;
+    rdfs:range apm:LifecycleStatus ;
+    rdfs:comment "An application is classified by its current lifecycle status." .
+
+apm:hasCriticalityTier a owl:ObjectProperty ;
+    rdfs:label "has criticality tier" ;
+    rdfs:domain apm:Application ;
+    rdfs:range apm:CriticalityTier ;
+    rdfs:comment "An application is classified by its business criticality tier." .
+
+apm:hasInvestmentStrategy a owl:ObjectProperty ;
+    rdfs:label "has investment strategy" ;
+    rdfs:domain apm:Application ;
+    rdfs:range apm:InvestmentStrategy ;
+    rdfs:comment "An application is classified by the funding decision made for it." .
+
 
 ### --------------------------------------------------
 ### DATATYPE PROPERTIES
@@ -391,3 +421,60 @@ apm:url a owl:DatatypeProperty ;
     rdfs:domain apm:LinkedResource ;
     rdfs:range xsd:anyURI ;
     rdfs:comment "The location at which a linked resource can be accessed." .
+
+
+### --------------------------------------------------
+### INDIVIDUALS (Controlled Vocabulary)
+### --------------------------------------------------
+
+# Lifecycle Status
+
+apm:Planned a apm:LifecycleStatus ;
+    rdfs:label "Planned" ;
+    rdfs:comment "The application is planned but not yet in development." .
+
+apm:Development a apm:LifecycleStatus ;
+    rdfs:label "Development" ;
+    rdfs:comment "The application is being built and is not yet in production use." .
+
+apm:Operate a apm:LifecycleStatus ;
+    rdfs:label "Operate" ;
+    rdfs:comment "The application is in production use." .
+
+apm:Retired a apm:LifecycleStatus ;
+    rdfs:label "Retired" ;
+    rdfs:comment "The application has been decommissioned and is no longer in use." .
+
+
+# Criticality Tier
+
+apm:Critical a apm:CriticalityTier ;
+    rdfs:label "Critical" ;
+    rdfs:comment "An outage would cause severe disruption to the business." .
+
+apm:High a apm:CriticalityTier ;
+    rdfs:label "High" ;
+    rdfs:comment "An outage would cause significant disruption to the business." .
+
+apm:Medium a apm:CriticalityTier ;
+    rdfs:label "Medium" ;
+    rdfs:comment "An outage would cause moderate disruption to the business." .
+
+apm:Low a apm:CriticalityTier ;
+    rdfs:label "Low" ;
+    rdfs:comment "An outage would cause minimal disruption to the business." .
+
+
+# Investment Strategy
+
+apm:Invest a apm:InvestmentStrategy ;
+    rdfs:label "Invest" ;
+    rdfs:comment "Funding is committed to grow or enhance the application." .
+
+apm:Maintain a apm:InvestmentStrategy ;
+    rdfs:label "Maintain" ;
+    rdfs:comment "Funding is limited to keeping the application running as-is." .
+
+apm:Divest a apm:InvestmentStrategy ;
+    rdfs:label "Divest" ;
+    rdfs:comment "No further investment is planned; the application is a candidate for retirement." .
