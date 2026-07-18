@@ -131,6 +131,14 @@ apm:TechnologyDependency a owl:Class ;
     rdfs:label "Technology Dependency" ;
     rdfs:comment "A directed dependency between two physical technology components, capturing how one relies on the other." .
 
+apm:Document a owl:Class ;
+    rdfs:label "Document" ;
+    rdfs:comment "A reference document or link associated with an application, such as an architecture or threat model document." .
+
+apm:DocumentType a owl:Class ;
+    rdfs:label "Document Type" ;
+    rdfs:comment "A classification of a document's purpose, such as Architecture or Threat Model." .
+
 
 ### --------------------------------------------------
 ### RELATIONSHIPS (Object Properties)
@@ -344,3 +352,26 @@ apm:downstreamTechnologyComponent a owl:ObjectProperty ;
     rdfs:domain apm:TechnologyDependency ;
     rdfs:range apm:PhysicalTechnologyComponent ;
     rdfs:comment "A dependency names the technology component that consumes the upstream component's capability." .
+
+apm:hasDocument a owl:ObjectProperty ;
+    rdfs:label "has document" ;
+    rdfs:domain apm:Application ;
+    rdfs:range apm:Document ;
+    rdfs:comment "An application is linked to a reference document, such as an architecture or threat model document." .
+
+apm:hasDocumentType a owl:ObjectProperty ;
+    rdfs:label "has document type" ;
+    rdfs:domain apm:Document ;
+    rdfs:range apm:DocumentType ;
+    rdfs:comment "A document is classified by the type of reference material it represents." .
+
+
+### --------------------------------------------------
+### DATATYPE PROPERTIES
+### --------------------------------------------------
+
+apm:url a owl:DatatypeProperty ;
+    rdfs:label "url" ;
+    rdfs:domain apm:Document ;
+    rdfs:range xsd:anyURI ;
+    rdfs:comment "The location at which a document can be accessed." .
