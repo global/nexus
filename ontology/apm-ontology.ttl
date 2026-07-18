@@ -131,13 +131,23 @@ apm:TechnologyDependency a owl:Class ;
     rdfs:label "Technology Dependency" ;
     rdfs:comment "A directed dependency between two physical technology components, capturing how one relies on the other." .
 
+apm:LinkedResource a owl:Class ;
+    rdfs:label "Linked Resource" ;
+    rdfs:comment "An external reference with an accessible location, such as a document or code repository." .
+
 apm:Document a owl:Class ;
+    rdfs:subClassOf apm:LinkedResource ;
     rdfs:label "Document" ;
     rdfs:comment "A reference document or link associated with an application, such as an architecture or threat model document." .
 
 apm:DocumentType a owl:Class ;
     rdfs:label "Document Type" ;
     rdfs:comment "A classification of a document's purpose, such as Architecture or Threat Model." .
+
+apm:CodeRepository a owl:Class ;
+    rdfs:subClassOf apm:LinkedResource ;
+    rdfs:label "Code Repository" ;
+    rdfs:comment "A source code repository containing the implementation of an application." .
 
 
 ### --------------------------------------------------
@@ -365,6 +375,12 @@ apm:hasDocumentType a owl:ObjectProperty ;
     rdfs:range apm:DocumentType ;
     rdfs:comment "A document is classified by the type of reference material it represents." .
 
+apm:hasRepository a owl:ObjectProperty ;
+    rdfs:label "has repository" ;
+    rdfs:domain apm:Application ;
+    rdfs:range apm:CodeRepository ;
+    rdfs:comment "An application is linked to a source code repository containing its implementation." .
+
 
 ### --------------------------------------------------
 ### DATATYPE PROPERTIES
@@ -372,6 +388,6 @@ apm:hasDocumentType a owl:ObjectProperty ;
 
 apm:url a owl:DatatypeProperty ;
     rdfs:label "url" ;
-    rdfs:domain apm:Document ;
+    rdfs:domain apm:LinkedResource ;
     rdfs:range xsd:anyURI ;
-    rdfs:comment "The location at which a document can be accessed." .
+    rdfs:comment "The location at which a linked resource can be accessed." .
