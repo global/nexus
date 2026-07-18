@@ -157,9 +157,15 @@ apm:CriticalityTier a owl:Class ;
     rdfs:label "Criticality Tier" ;
     rdfs:comment "A classification of an application's business criticality, such as Critical, High, Medium, or Low." .
 
+# [4] R. Kusumarani and R. P. A. Pramesti, "Exploring application portfolio
+#     management in Indonesia: A case study of the Indonesia agency for the
+#     assessment and application of technology," Computer Science and
+#     Information Technologies, vol. 4, no. 1, pp. 76-84, 2023,
+#     doi: 10.11591/csit.v4i1.p76-84.
+
 apm:InvestmentStrategy a owl:Class ;
-    rdfs:label "Investment Strategy" ;
-    rdfs:comment "A classification of the funding decision made for an application, such as Invest, Maintain, or Divest." .
+    rdfs:label "Investment Strategy (Gartner TIME)" ;
+    rdfs:comment "A classification of the funding decision made for an application, per Gartner's Tolerate, Invest, Migrate, Eliminate (TIME) model." .
 
 
 ### --------------------------------------------------
@@ -465,16 +471,20 @@ apm:Low a apm:CriticalityTier ;
     rdfs:comment "An outage would cause minimal disruption to the business." .
 
 
-# Investment Strategy
+# Investment Strategy (Gartner TIME) [4]
+
+apm:Tolerate a apm:InvestmentStrategy ;
+    rdfs:label "Tolerate" ;
+    rdfs:comment "High technical fit but low business fit; kept running as-is since it is cheap to maintain." .
 
 apm:Invest a apm:InvestmentStrategy ;
     rdfs:label "Invest" ;
-    rdfs:comment "Funding is committed to grow or enhance the application." .
+    rdfs:comment "High technical fit and high business fit; funding is committed to grow or enhance the application." .
 
-apm:Maintain a apm:InvestmentStrategy ;
-    rdfs:label "Maintain" ;
-    rdfs:comment "Funding is limited to keeping the application running as-is." .
+apm:Migrate a apm:InvestmentStrategy ;
+    rdfs:label "Migrate" ;
+    rdfs:comment "Low technical fit but high business fit; a valuable capability in need of a technical replacement." .
 
-apm:Divest a apm:InvestmentStrategy ;
-    rdfs:label "Divest" ;
-    rdfs:comment "No further investment is planned; the application is a candidate for retirement." .
+apm:Eliminate a apm:InvestmentStrategy ;
+    rdfs:label "Eliminate" ;
+    rdfs:comment "Low technical fit and low business fit; the application is a candidate for retirement." .
