@@ -23,71 +23,71 @@
 
 apm:Actor a owl:Class ;
     rdfs:label "Actor" ;
-    rdfs:comment "A person, organisation, or system that has a role that initiates or interacts with activities, such as a business stakeholder or system user." .
+    rdfs:comment "A person, organisation, or system that initiates or participates in business activities." .
 
 apm:Role a owl:Class ;
     rdfs:label "Role" ;
-    rdfs:comment "The usual or expected function of an actor, or the part played by an actor in a particular action or process, independent of the identity of the actor performing it." .
+    rdfs:comment "The function an actor performs in a process, independent of who fulfils it." .
 
 apm:OrganizationUnit a owl:Class ;
     rdfs:label "Organization Unit" ;
-    rdfs:comment "A self-contained unit of resources with line management responsibility, possessing goals, objectives, and measures to evaluate its performance within the enterprise structure." .
+    rdfs:comment "A self-contained unit of the enterprise with defined management responsibility." .
 
 apm:Location a owl:Class ;
     rdfs:label "Location" ;
-    rdfs:comment "A point or extent in space at which business activities are performed, or from which architecture elements such as actors, functions, or components operate." .
+    rdfs:comment "A place where business activities are performed or architecture elements operate." .
 
 apm:BusinessFunction a owl:Class ;
     rdfs:label "Business Function" ;
-    rdfs:comment "An abstraction of business behaviour that delivers business capability, defined independently of organisational structure and expressed without reference to a specific process flow." .
+    rdfs:comment "A unit of business behaviour that delivers capability, independent of organisational structure." .
 
 apm:BusinessProcess a owl:Class ;
     rdfs:label "Business Process" ;
-    rdfs:comment "A sequence of business activities undertaken in order to produce a defined set of products or business services, representing the realisation of one or more business functions." .
+    rdfs:comment "A sequence of activities that realises one or more business functions." .
 
 apm:BusinessService a owl:Class ;
     rdfs:label "Business Service" ;
-    rdfs:comment "A discrete element of business functionality, delivered through a well-defined interface to support one or more business capabilities, and consumable by an actor or another service." .
+    rdfs:comment "A unit of business functionality, exposed through a defined interface, that supports a capability." .
 
 apm:BusinessCapability a owl:Class ;
     rdfs:label "Business Capability" ;
-    rdfs:comment "A particular ability that a business may possess or exchange to achieve a specific purpose, defined in terms of the outcomes and value delivered to internal or external stakeholders, independent of the organisation, people, process, or technology that realise it." .
+    rdfs:comment "An ability the business has to deliver value, independent of how it is implemented." .
 
 apm:LogicalApplicationComponent a owl:Class ;
     rdfs:label "Logical Application Component" ;
-    rdfs:comment "An encapsulation of application functionality that is defined independently of any specific vendor, product, or technology implementation, representing an architecture-level abstraction of application capability." .
+    rdfs:comment "An encapsulation of application functionality, independent of vendor or technology." .
 
 apm:PhysicalApplicationComponent a owl:Class ;
     rdfs:label "Physical Application Component" ;
-    rdfs:comment "An explicit, deployable realisation of one or more logical application components, instantiated as a concrete software product, executable package, or system instance." .
+    rdfs:comment "A deployable instance that realises one or more logical application components." .
 
 apm:Application a owl:Class ;
     rdfs:label "Application" ;
-    rdfs:comment "The primary unit of governance within Application Portfolio Management: a business-recognised software system, catalogued and rationalised as a portfolio asset, that realises one or more logical application components and delivers one or more application services in support of a business capability." .
+    rdfs:comment "The core APM asset: a catalogued software system that realises logical components and supports business capabilities." .
 
 apm:DataEntity a owl:Class ;
     rdfs:label "Data Entity" ;
-    rdfs:comment "An encapsulation of data recognisable as a coherent concept by a business domain expert, defined independently of its logical or physical implementation." .
+    rdfs:comment "A business-recognised concept of data, independent of its implementation." .
 
 apm:LogicalDataComponent a owl:Class ;
     rdfs:label "Logical Data Component" ;
-    rdfs:comment "A structured encapsulation of one or more data entities, defined at a level of abstraction independent of any specific data management implementation." .
+    rdfs:comment "A structured grouping of data entities, independent of implementation." .
 
 apm:PhysicalDataComponent a owl:Class ;
     rdfs:label "Physical Data Component" ;
-    rdfs:comment "An explicit, implementation-specific realisation of one or more logical data components, such as a database schema, file, or table." .
+    rdfs:comment "An implementation-specific realisation of a logical data component, such as a database or file." .
 
 apm:TechnologyService a owl:Class ;
     rdfs:label "Technology Service" ;
-    rdfs:comment "A supporting technical capability required to enable the provision of application and infrastructure services, defined independently of any specific technology product." .
+    rdfs:comment "A technical capability supporting application and infrastructure services." .
 
 apm:LogicalTechnologyComponent a owl:Class ;
     rdfs:label "Logical Technology Component" ;
-    rdfs:comment "An encapsulation of technology infrastructure defined independently of vendor or product, constituting the abstract platform upon which application components are deployed." .
+    rdfs:comment "An encapsulation of technology infrastructure, independent of vendor or product." .
 
 apm:PhysicalTechnologyComponent a owl:Class ;
     rdfs:label "Physical Technology Component" ;
-    rdfs:comment "An explicit, deployable realisation of one or more logical technology components, instantiated as a concrete infrastructure product such as a server, operating system instance, or network device." .
+    rdfs:comment "A deployable technology product, such as a server or network device, that realises a logical technology component." .
 
 
 ## ISO/IEC 19770 Standard Classes
@@ -99,16 +99,163 @@ apm:PhysicalTechnologyComponent a owl:Class ;
 #     Information technology -- IT asset management -- Part 3: Entitlement
 #     schema," ISO, Geneva, Switzerland, 2016. [Online]. Available:
 #     https://www.iso.org/standard/52293.html
-# Reference: https://www.iso.org/standard/52293.html
 
 apm:SoftwareProduct a owl:Class ; # ISO-19770-2
     rdfs:label "Software Product (ISO 19770-2)" ;
-    rdfs:comment "A discrete software asset formally identified in accordance with the Software Identification (SWID) tag specification defined under ISO/IEC 19770-2, enabling standardised discovery and inventory of installed software." .
+    rdfs:comment "A software asset identified via a SWID tag, per ISO/IEC 19770-2." .
 
 apm:SoftwareEntitlement a owl:Class ; # ISO-19770-3
     rdfs:label "Software Entitlement (ISO 19770-3)" ;
-    rdfs:comment "The documented legal rights and usage constraints governing a software asset, expressed with respect to a defined entitlement metric, in accordance with ISO/IEC 19770-3." .
+    rdfs:comment "The legal usage rights held for a software asset, per ISO/IEC 19770-3." .
 
 apm:Metric a owl:Class ; # ISO-19770-3
     rdfs:label "Metric" ;
-    rdfs:comment "The unit of measure against which a software entitlement is defined and consumption is assessed, such as per-user, per-device, per-core, or subscription, in accordance with ISO/IEC 19770-3." .
+    rdfs:comment "The unit used to measure a software entitlement, such as per-user or per-device." .
+
+
+# Extension Classes (Nexus Insight APM Ontology)
+
+
+### --------------------------------------------------
+### RELATIONSHIPS (Object Properties)
+### --------------------------------------------------
+
+# Business Domain Relationships
+
+apm:performsRole a owl:ObjectProperty ;
+    rdfs:label "performs role" ;
+    rdfs:domain apm:Actor ;
+    rdfs:range apm:Role ;
+    rdfs:comment "An actor in the organisation performs a role." .
+
+apm:memberOf a owl:ObjectProperty ;
+    rdfs:label "member of" ;
+    rdfs:domain apm:Actor ;
+    rdfs:range apm:OrganizationUnit ;
+    rdfs:comment "An actor holds a line-management and reporting responsibilities to an organizational Unit." .
+
+apm:locatedAt a owl:ObjectProperty ;
+    rdfs:label "located at" ;
+    rdfs:domain apm:OrganizationUnit ;
+    rdfs:range apm:Location ;
+    rdfs:comment "An organizational unit operates at certain location." .
+
+apm:performsProcess a owl:ObjectProperty ;
+    rdfs:label "performs process" ;
+    rdfs:domain apm:Actor ;
+    rdfs:range apm:BusinessProcess ;
+    rdfs:comment "An actor carries out activities in a business process." .
+
+apm:realizesFunction a owl:ObjectProperty ;
+    rdfs:label "realizes function" ;
+    rdfs:domain apm:BusinessProcess ;
+    rdfs:range apm:BusinessFunction ;
+    rdfs:comment "A business process operationalises one or more business functions through a defined sequence of activities." .
+
+apm:supportsCapability a owl:ObjectProperty ;
+    rdfs:label "supports capability" ;
+    rdfs:domain apm:BusinessService ;
+    rdfs:range apm:BusinessCapability ;
+    rdfs:comment "A business service enables a capability through its well defined interface." .
+
+
+# Application Domain Relationships
+
+apm:realizesLogicalComponent a owl:ObjectProperty ;
+    rdfs:label "realizes logical component" ;
+    rdfs:domain apm:PhysicalApplicationComponent ;
+    rdfs:range apm:LogicalApplicationComponent ;
+    rdfs:comment "A physical application component implements its logical abstraction." .
+
+apm:comprisesLogicalComponent a owl:ObjectProperty ;
+    rdfs:label "comprises logical component" ;
+    rdfs:domain apm:Application ;
+    rdfs:range apm:LogicalApplicationComponent ;
+    rdfs:comment "An application, as a portfolio asset, is linked to one or more logical application components it is composed of. This is a whole/part relationship" .
+
+apm:enablesCapability a owl:ObjectProperty ;
+    rdfs:label "enables capability" ;
+    rdfs:domain apm:Application ;
+    rdfs:range apm:BusinessCapability ;
+    rdfs:comment "An application enables business capabilities, providing traceability from the technology portfolio to business value." .
+
+apm:accessesData a owl:ObjectProperty ;
+    rdfs:label "accesses data" ;
+    rdfs:domain apm:Application ;
+    rdfs:range apm:DataEntity ;
+    rdfs:comment "An application has to access the data entities it creates, reads, updates, or deletes in the course of its operation." .
+
+apm:hasOwner a owl:ObjectProperty ;
+    rdfs:label "has owner" ;
+    rdfs:domain apm:Application ;
+    rdfs:range apm:Actor ;
+    rdfs:comment "An application has an owner who maintains its lifecycle." .
+
+apm:managedByOrganizationUnit a owl:ObjectProperty ;
+    rdfs:label "managed by organization unit" ;
+    rdfs:domain apm:Application ;
+    rdfs:range apm:OrganizationUnit ;
+    rdfs:comment "An organizational unit is responsible for its application operation and governance." .
+
+
+# Data Domain Relationships
+
+apm:encapsulatesDataEntity a owl:ObjectProperty ;
+    rdfs:label "encapsulates data entity" ;
+    rdfs:domain apm:LogicalDataComponent ;
+    rdfs:range apm:DataEntity ;
+    rdfs:comment "Relates a logical data component to the one or more data entities it structures and manages." .
+
+apm:realizesLogicalDataComponent a owl:ObjectProperty ;
+    rdfs:label "realizes logical data component" ;
+    rdfs:domain apm:PhysicalDataComponent ;
+    rdfs:range apm:LogicalDataComponent ;
+    rdfs:comment "Relates a physical data component to the logical data component it implements." .
+
+
+# Technology Domain Relationships
+
+apm:deployedOn a owl:ObjectProperty ;
+    rdfs:label "deployed on" ;
+    rdfs:domain apm:PhysicalApplicationComponent ;
+    rdfs:range apm:PhysicalTechnologyComponent ;
+    rdfs:comment "Physical componentns hosts application components execution." .
+
+apm:realizesLogicalTechnologyComponent a owl:ObjectProperty ;
+    rdfs:label "realizes logical technology component" ;
+    rdfs:domain apm:PhysicalTechnologyComponent ;
+    rdfs:range apm:LogicalTechnologyComponent ;
+    rdfs:comment Physical technology component implements its logical counterpart." .
+
+apm:providesTechnologyService a owl:ObjectProperty ;
+    rdfs:label "provides technology service" ;
+    rdfs:domain apm:LogicalTechnologyComponent ;
+    rdfs:range apm:TechnologyService ;
+    rdfs:comment "Make technology components available to consuming applications." .
+
+apm:usesTechnologyService a owl:ObjectProperty ;
+    rdfs:label "uses technology service" ;
+    rdfs:domain apm:Application ;
+    rdfs:range apm:TechnologyService ;
+    rdfs:comment "Application consumes technology services to operate." .
+
+
+# ISO/IEC 19770 Cross-Cutting Relationships
+
+apm:identifiedBy a owl:ObjectProperty ;
+    rdfs:label "identified by" ;
+    rdfs:domain apm:PhysicalApplicationComponent ;
+    rdfs:range apm:SoftwareProduct ;
+    rdfs:comment "An installed software assert record relates to the physical application component it constitutes" .
+
+apm:coveredByEntitlement a owl:ObjectProperty ;
+    rdfs:label "covered by entitlement" ;
+    rdfs:domain apm:SoftwareProduct ;
+    rdfs:range apm:SoftwareEntitlement ;
+    rdfs:comment "An entitlement documents the legal rights authorising the software product's use." .
+
+apm:measuredByMetric a owl:ObjectProperty ;
+    rdfs:label "measured by metric" ;
+    rdfs:domain apm:SoftwareEntitlement ;
+    rdfs:range apm:Metric ;
+    rdfs:comment "The grant of rights and consumption are assessed by a metric." .
