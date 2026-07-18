@@ -115,6 +115,10 @@ apm:Metric a owl:Class ; # ISO-19770-3
 
 # Extension Classes (Nexus Insight APM Ontology)
 
+apm:Portfolio a owl:Class ;
+    rdfs:label "Portfolio" ;
+    rdfs:comment "A curated grouping of applications, managed together for strategic, budgetary, or governance purposes." .
+
 
 ### --------------------------------------------------
 ### RELATIONSHIPS (Object Properties)
@@ -259,3 +263,24 @@ apm:measuredByMetric a owl:ObjectProperty ;
     rdfs:domain apm:SoftwareEntitlement ;
     rdfs:range apm:Metric ;
     rdfs:comment "The grant of rights and consumption are assessed by a metric." .
+
+
+# Extension Relationships (Nexus Insight APM Ontology)
+
+apm:containsApplication a owl:ObjectProperty ;
+    rdfs:label "contains application" ;
+    rdfs:domain apm:Portfolio ;
+    rdfs:range apm:Application ;
+    rdfs:comment "A portfolio groups an application for governance purposes." .
+
+apm:portfolioOwner a owl:ObjectProperty ;
+    rdfs:label "portfolio owner" ;
+    rdfs:domain apm:Portfolio ;
+    rdfs:range apm:Actor ;
+    rdfs:comment "An actor is accountable for a portfolio's strategic governance." .
+
+apm:alignsToCapability a owl:ObjectProperty ;
+    rdfs:label "aligns to capability" ;
+    rdfs:domain apm:Portfolio ;
+    rdfs:range apm:BusinessCapability ;
+    rdfs:comment "A portfolio is organised around a business capability." .
