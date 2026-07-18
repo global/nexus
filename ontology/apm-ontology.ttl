@@ -119,6 +119,10 @@ apm:Portfolio a owl:Class ;
     rdfs:label "Portfolio" ;
     rdfs:comment "A curated grouping of applications, managed together for strategic, budgetary, or governance purposes." .
 
+apm:ApplicationContact a owl:Class ;
+    rdfs:label "Application Contact" ;
+    rdfs:comment "An assignment of an actor to a specific contact role for an application, such as CTO or Information Owner." .
+
 
 ### --------------------------------------------------
 ### RELATIONSHIPS (Object Properties)
@@ -284,3 +288,21 @@ apm:alignsToCapability a owl:ObjectProperty ;
     rdfs:domain apm:Portfolio ;
     rdfs:range apm:BusinessCapability ;
     rdfs:comment "A portfolio is organised around a business capability." .
+
+apm:forApplication a owl:ObjectProperty ;
+    rdfs:label "for application" ;
+    rdfs:domain apm:ApplicationContact ;
+    rdfs:range apm:Application ;
+    rdfs:comment "A contact assignment is made for a specific application." .
+
+apm:contactActor a owl:ObjectProperty ;
+    rdfs:label "contact actor" ;
+    rdfs:domain apm:ApplicationContact ;
+    rdfs:range apm:Actor ;
+    rdfs:comment "A contact assignment names the actor who fulfils it." .
+
+apm:contactRole a owl:ObjectProperty ;
+    rdfs:label "contact role" ;
+    rdfs:domain apm:ApplicationContact ;
+    rdfs:range apm:Role ;
+    rdfs:comment "A contact assignment specifies the role the actor serves in, such as CTO or Information Owner." .
