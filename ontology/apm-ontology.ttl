@@ -123,6 +123,14 @@ apm:ApplicationContact a owl:Class ;
     rdfs:label "Application Contact" ;
     rdfs:comment "An assignment of an actor to a specific contact role for an application, such as CTO or Information Owner." .
 
+apm:ApplicationDependency a owl:Class ;
+    rdfs:label "Application Dependency" ;
+    rdfs:comment "A directed dependency between two applications, capturing how one relies on the other." .
+
+apm:TechnologyDependency a owl:Class ;
+    rdfs:label "Technology Dependency" ;
+    rdfs:comment "A directed dependency between two physical technology components, capturing how one relies on the other." .
+
 
 ### --------------------------------------------------
 ### RELATIONSHIPS (Object Properties)
@@ -180,6 +188,12 @@ apm:comprisesLogicalComponent a owl:ObjectProperty ;
     rdfs:domain apm:Application ;
     rdfs:range apm:LogicalApplicationComponent ;
     rdfs:comment "An application, as a portfolio asset, is linked to one or more logical application components it is composed of. This is a whole/part relationship" .
+
+apm:hasDeployment a owl:ObjectProperty ;
+    rdfs:label "has deployment" ;
+    rdfs:domain apm:Application ;
+    rdfs:range apm:PhysicalApplicationComponent ;
+    rdfs:comment "An application, as a portfolio asset, is directly linked to each of its concrete deployed instances." .
 
 apm:enablesCapability a owl:ObjectProperty ;
     rdfs:label "enables capability" ;
@@ -306,3 +320,27 @@ apm:contactRole a owl:ObjectProperty ;
     rdfs:domain apm:ApplicationContact ;
     rdfs:range apm:Role ;
     rdfs:comment "A contact assignment specifies the role the actor serves in, such as CTO or Information Owner." .
+
+apm:upstreamApplication a owl:ObjectProperty ;
+    rdfs:label "upstream application" ;
+    rdfs:domain apm:ApplicationDependency ;
+    rdfs:range apm:Application ;
+    rdfs:comment "A dependency names the application that provides the capability being relied upon." .
+
+apm:downstreamApplication a owl:ObjectProperty ;
+    rdfs:label "downstream application" ;
+    rdfs:domain apm:ApplicationDependency ;
+    rdfs:range apm:Application ;
+    rdfs:comment "A dependency names the application that consumes the upstream application's capability." .
+
+apm:upstreamTechnologyComponent a owl:ObjectProperty ;
+    rdfs:label "upstream technology component" ;
+    rdfs:domain apm:TechnologyDependency ;
+    rdfs:range apm:PhysicalTechnologyComponent ;
+    rdfs:comment "A dependency names the technology component that provides the capability being relied upon." .
+
+apm:downstreamTechnologyComponent a owl:ObjectProperty ;
+    rdfs:label "downstream technology component" ;
+    rdfs:domain apm:TechnologyDependency ;
+    rdfs:range apm:PhysicalTechnologyComponent ;
+    rdfs:comment "A dependency names the technology component that consumes the upstream component's capability." .
