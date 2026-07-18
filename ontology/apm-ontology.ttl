@@ -167,6 +167,10 @@ apm:InvestmentStrategy a owl:Class ;
     rdfs:label "Investment Strategy (Gartner TIME)" ;
     rdfs:comment "A classification of the funding decision made for an application, per Gartner's Tolerate, Invest, Migrate, Eliminate (TIME) model." .
 
+apm:ComplianceStandard a owl:Class ;
+    rdfs:label "Compliance Standard" ;
+    rdfs:comment "An industry-wide compliance standard, such as SOC 2 or HIPAA, that an application may be required to meet." .
+
 
 ### --------------------------------------------------
 ### RELATIONSHIPS (Object Properties)
@@ -417,6 +421,12 @@ apm:hasInvestmentStrategy a owl:ObjectProperty ;
     rdfs:range apm:InvestmentStrategy ;
     rdfs:comment "An application is classified by the funding decision made for it." .
 
+apm:requiresCompliance a owl:ObjectProperty ;
+    rdfs:label "requires compliance" ;
+    rdfs:domain apm:Application ;
+    rdfs:range apm:ComplianceStandard ;
+    rdfs:comment "An application is subject to an industry-wide compliance standard, based on its regulatory or contractual obligations." .
+
 
 ### --------------------------------------------------
 ### DATATYPE PROPERTIES
@@ -488,3 +498,26 @@ apm:Migrate a apm:InvestmentStrategy ;
 apm:Eliminate a apm:InvestmentStrategy ;
     rdfs:label "Eliminate" ;
     rdfs:comment "Low technical fit and low business fit; the application is a candidate for retirement." .
+
+
+# Compliance Standard
+
+apm:SOC2 a apm:ComplianceStandard ;
+    rdfs:label "SOC 2" ;
+    rdfs:comment "AICPA Service Organization Control 2, covering security, availability, and privacy of customer data." .
+
+apm:HIPAA a apm:ComplianceStandard ;
+    rdfs:label "HIPAA" ;
+    rdfs:comment "U.S. Health Insurance Portability and Accountability Act, covering the protection of health information." .
+
+apm:GDPR a apm:ComplianceStandard ;
+    rdfs:label "GDPR" ;
+    rdfs:comment "EU General Data Protection Regulation, covering the processing of personal data." .
+
+apm:PCIDSS a apm:ComplianceStandard ;
+    rdfs:label "PCI DSS" ;
+    rdfs:comment "Payment Card Industry Data Security Standard, covering the handling of cardholder data." .
+
+apm:ISO27001 a apm:ComplianceStandard ;
+    rdfs:label "ISO/IEC 27001" ;
+    rdfs:comment "International standard for information security management systems." .
