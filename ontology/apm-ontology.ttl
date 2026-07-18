@@ -171,6 +171,18 @@ apm:ComplianceStandard a owl:Class ;
     rdfs:label "Compliance Standard" ;
     rdfs:comment "An industry-wide compliance standard, such as SOC 2 or HIPAA, that an application may be required to meet." .
 
+apm:HostingModel a owl:Class ;
+    rdfs:label "Hosting Model" ;
+    rdfs:comment "A classification of where an application's infrastructure is hosted, such as Externally Hosted, Internally Hosted, or Hybrid." .
+
+apm:CostRecord a owl:Class ;
+    rdfs:label "Cost Record" ;
+    rdfs:comment "A recorded cost incurred by an application for a specific fiscal year and cost category." .
+
+apm:CostCategory a owl:Class ;
+    rdfs:label "Cost Category" ;
+    rdfs:comment "A classification of cost type, such as Licensing, Infrastructure, Support, or Labor." .
+
 
 ### --------------------------------------------------
 ### RELATIONSHIPS (Object Properties)
@@ -427,6 +439,24 @@ apm:requiresCompliance a owl:ObjectProperty ;
     rdfs:range apm:ComplianceStandard ;
     rdfs:comment "An application is subject to an industry-wide compliance standard, based on its regulatory or contractual obligations." .
 
+apm:hasHostingModel a owl:ObjectProperty ;
+    rdfs:label "has hosting model" ;
+    rdfs:domain apm:Application ;
+    rdfs:range apm:HostingModel ;
+    rdfs:comment "An application is classified by where its infrastructure is hosted." .
+
+apm:incurredByApplication a owl:ObjectProperty ;
+    rdfs:label "incurred by application" ;
+    rdfs:domain apm:CostRecord ;
+    rdfs:range apm:Application ;
+    rdfs:comment "A cost record names the application that incurred the cost." .
+
+apm:hasCostCategory a owl:ObjectProperty ;
+    rdfs:label "has cost category" ;
+    rdfs:domain apm:CostRecord ;
+    rdfs:range apm:CostCategory ;
+    rdfs:comment "A cost record is classified by the type of cost it represents." .
+
 
 ### --------------------------------------------------
 ### DATATYPE PROPERTIES
@@ -437,6 +467,24 @@ apm:url a owl:DatatypeProperty ;
     rdfs:domain apm:LinkedResource ;
     rdfs:range xsd:anyURI ;
     rdfs:comment "The location at which a linked resource can be accessed." .
+
+apm:costAmount a owl:DatatypeProperty ;
+    rdfs:label "cost amount" ;
+    rdfs:domain apm:CostRecord ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "The monetary amount recorded for a cost record." .
+
+apm:costCurrency a owl:DatatypeProperty ;
+    rdfs:label "cost currency" ;
+    rdfs:domain apm:CostRecord ;
+    rdfs:range xsd:string ;
+    rdfs:comment "The ISO 4217 currency code in which the cost amount is denominated, such as USD or EUR." .
+
+apm:fiscalYear a owl:DatatypeProperty ;
+    rdfs:label "fiscal year" ;
+    rdfs:domain apm:CostRecord ;
+    rdfs:range xsd:gYear ;
+    rdfs:comment "The fiscal year in which the cost was incurred." .
 
 
 ### --------------------------------------------------
@@ -521,3 +569,37 @@ apm:PCIDSS a apm:ComplianceStandard ;
 apm:ISO27001 a apm:ComplianceStandard ;
     rdfs:label "ISO/IEC 27001" ;
     rdfs:comment "International standard for information security management systems." .
+
+
+# Hosting Model
+
+apm:ExternallyHosted a apm:HostingModel ;
+    rdfs:label "Externally Hosted" ;
+    rdfs:comment "The application's infrastructure is hosted and operated by an external vendor, such as a SaaS or cloud provider." .
+
+apm:InternallyHosted a apm:HostingModel ;
+    rdfs:label "Internally Hosted" ;
+    rdfs:comment "The application's infrastructure is hosted and operated within the organization's own environment." .
+
+apm:Hybrid a apm:HostingModel ;
+    rdfs:label "Hybrid" ;
+    rdfs:comment "The application's infrastructure is split between externally hosted and internally hosted components." .
+
+
+# Cost Category
+
+apm:Licensing a apm:CostCategory ;
+    rdfs:label "Licensing" ;
+    rdfs:comment "Cost incurred from software licenses and entitlements." .
+
+apm:Infrastructure a apm:CostCategory ;
+    rdfs:label "Infrastructure" ;
+    rdfs:comment "Cost incurred from hosting and technology infrastructure." .
+
+apm:Support a apm:CostCategory ;
+    rdfs:label "Support" ;
+    rdfs:comment "Cost incurred from vendor or internal support and maintenance." .
+
+apm:Labor a apm:CostCategory ;
+    rdfs:label "Labor" ;
+    rdfs:comment "Cost incurred from personnel who build, operate, or support the application." .
