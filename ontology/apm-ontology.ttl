@@ -1,0 +1,88 @@
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix apm: <http://nexus-apm.org/ontology/apm#> .
+
+
+###################################################################
+# Nexus Insight — Application Portfolio Management (APM) Ontology #
+###################################################################
+
+<http://nexus-apm.org> a owl:Ontology ;
+    rdfs:comment "A unified ontology for Application Portfolio Management (APM), formalising the entity taxonomy of The Open Group Architecture Framework (TOGAF) Content Metamodel and integrating it with the software asset management concepts defined by the ISO/IEC 19770 standard family." .
+
+### --------------------------------------------------
+### CLASSES (Taxonomy)
+### --------------------------------------------------
+
+# TOGAF Content Metamodel Classes
+# Reference: https://pubs.opengroup.org/architecture/togaf9-doc/arch/chap30.html
+
+apm:Actor a owl:Class ;
+    rdfs:label "Actor" ;
+    rdfs:comment "A person, organisation, or system that has a role that initiates or interacts with activities, such as a business stakeholder or system user." .
+
+apm:Role a owl:Class ;
+    rdfs:label "Role" ;
+    rdfs:comment "The usual or expected function of an actor, or the part played by an actor in a particular action or process, independent of the identity of the actor performing it." .
+
+apm:OrganizationUnit a owl:Class ;
+    rdfs:label "Organization Unit" ;
+    rdfs:comment "A self-contained unit of resources with line management responsibility, possessing goals, objectives, and measures to evaluate its performance within the enterprise structure." .
+
+apm:Location a owl:Class ;
+    rdfs:label "Location" ;
+    rdfs:comment "A point or extent in space at which business activities are performed, or from which architecture elements such as actors, functions, or components operate." .
+
+apm:BusinessFunction a owl:Class ;
+    rdfs:label "Business Function" ;
+    rdfs:comment "An abstraction of business behaviour that delivers business capability, defined independently of organisational structure and expressed without reference to a specific process flow." .
+
+apm:BusinessProcess a owl:Class ;
+    rdfs:label "Business Process" ;
+    rdfs:comment "A sequence of business activities undertaken in order to produce a defined set of products or business services, representing the realisation of one or more business functions." .
+
+apm:BusinessService a owl:Class ;
+    rdfs:label "Business Service" ;
+    rdfs:comment "A discrete element of business functionality, delivered through a well-defined interface to support one or more business capabilities, and consumable by an actor or another service." .
+
+apm:BusinessCapability a owl:Class ;
+    rdfs:label "Business Capability" ;
+    rdfs:comment "A particular ability that a business may possess or exchange to achieve a specific purpose, defined in terms of the outcomes and value delivered to internal or external stakeholders, independent of the organisation, people, process, or technology that realise it." .
+
+apm:LogicalApplicationComponent a owl:Class ;
+    rdfs:label "Logical Application Component" ;
+    rdfs:comment "An encapsulation of application functionality that is defined independently of any specific vendor, product, or technology implementation, representing an architecture-level abstraction of application capability." .
+
+apm:PhysicalApplicationComponent a owl:Class ;
+    rdfs:label "Physical Application Component" ;
+    rdfs:comment "An explicit, deployable realisation of one or more logical application components, instantiated as a concrete software product, executable package, or system instance." .
+
+apm:Application a owl:Class ;
+    rdfs:label "Application" ;
+    rdfs:comment "The primary unit of governance within Application Portfolio Management: a business-recognised software system, catalogued and rationalised as a portfolio asset, that realises one or more logical application components and delivers one or more application services in support of a business capability." .
+
+apm:DataEntity a owl:Class ;
+    rdfs:label "Data Entity" ;
+    rdfs:comment "An encapsulation of data recognisable as a coherent concept by a business domain expert, defined independently of its logical or physical implementation." .
+
+apm:LogicalDataComponent a owl:Class ;
+    rdfs:label "Logical Data Component" ;
+    rdfs:comment "A structured encapsulation of one or more data entities, defined at a level of abstraction independent of any specific data management implementation." .
+
+apm:PhysicalDataComponent a owl:Class ;
+    rdfs:label "Physical Data Component" ;
+    rdfs:comment "An explicit, implementation-specific realisation of one or more logical data components, such as a database schema, file, or table." .
+
+apm:TechnologyService a owl:Class ;
+    rdfs:label "Technology Service" ;
+    rdfs:comment "A supporting technical capability required to enable the provision of application and infrastructure services, defined independently of any specific technology product." .
+
+apm:LogicalTechnologyComponent a owl:Class ;
+    rdfs:label "Logical Technology Component" ;
+    rdfs:comment "An encapsulation of technology infrastructure defined independently of vendor or product, constituting the abstract platform upon which application components are deployed." .
+
+apm:PhysicalTechnologyComponent a owl:Class ;
+    rdfs:label "Physical Technology Component" ;
+    rdfs:comment "An explicit, deployable realisation of one or more logical technology components, instantiated as a concrete infrastructure product such as a server, operating system instance, or network device." .
