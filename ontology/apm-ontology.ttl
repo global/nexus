@@ -99,6 +99,10 @@ apm:PhysicalTechnologyComponent a owl:Class ;
 #     Information technology -- IT asset management -- Part 3: Entitlement
 #     schema," ISO, Geneva, Switzerland, 2016. [Online]. Available:
 #     https://www.iso.org/standard/52293.html
+# [5] International Organization for Standardization, "ISO/IEC 19770-1:2017 --
+#     Information technology -- IT asset management -- Part 1: IT asset
+#     management systems -- Requirements," ISO, Geneva, Switzerland, 2017.
+#     [Online]. Available: https://www.iso.org/standard/68531.html
 
 apm:SoftwareProduct a owl:Class ; # ISO-19770-2
     rdfs:label "Software Product (ISO 19770-2)" ;
