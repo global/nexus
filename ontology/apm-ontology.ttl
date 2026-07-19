@@ -183,6 +183,18 @@ apm:CostCategory a owl:Class ;
     rdfs:label "Cost Category" ;
     rdfs:comment "A classification of cost type, such as Licensing, Infrastructure, Support, or Labor." .
 
+apm:Finding a owl:Class ;
+    rdfs:label "Finding" ;
+    rdfs:comment "A recorded vulnerability, technical risk, or technical gap identified against an application or technology component, tracked through its remediation lifecycle." .
+
+apm:FindingCategory a owl:Class ;
+    rdfs:label "Finding Category" ;
+    rdfs:comment "A classification of a finding's nature, such as Vulnerability, Technical Risk, or Technical Gap." .
+
+apm:FindingStatus a owl:Class ;
+    rdfs:label "Finding Status" ;
+    rdfs:comment "A classification of a finding's position in its remediation lifecycle, such as Open, In Remediation, Remediated, Risk Accepted, or Closed." .
+
 
 ### --------------------------------------------------
 ### RELATIONSHIPS (Object Properties)
@@ -457,6 +469,36 @@ apm:hasCostCategory a owl:ObjectProperty ;
     rdfs:range apm:CostCategory ;
     rdfs:comment "A cost record is classified by the type of cost it represents." .
 
+apm:affectsApplication a owl:ObjectProperty ;
+    rdfs:label "affects application" ;
+    rdfs:domain apm:Finding ;
+    rdfs:range apm:Application ;
+    rdfs:comment "A finding is raised against an application." .
+
+apm:affectsApplicationComponent a owl:ObjectProperty ;
+    rdfs:label "affects application component" ;
+    rdfs:domain apm:Finding ;
+    rdfs:range apm:PhysicalApplicationComponent ;
+    rdfs:comment "A finding is raised against a specific deployed instance of an application." .
+
+apm:affectsTechnologyComponent a owl:ObjectProperty ;
+    rdfs:label "affects technology component" ;
+    rdfs:domain apm:Finding ;
+    rdfs:range apm:PhysicalTechnologyComponent ;
+    rdfs:comment "A finding is raised against a specific physical technology component." .
+
+apm:hasFindingCategory a owl:ObjectProperty ;
+    rdfs:label "has finding category" ;
+    rdfs:domain apm:Finding ;
+    rdfs:range apm:FindingCategory ;
+    rdfs:comment "A finding is classified by its nature, such as Vulnerability, Technical Risk, or Technical Gap." .
+
+apm:hasFindingStatus a owl:ObjectProperty ;
+    rdfs:label "has finding status" ;
+    rdfs:domain apm:Finding ;
+    rdfs:range apm:FindingStatus ;
+    rdfs:comment "A finding is classified by its current position in the remediation lifecycle." .
+
 
 ### --------------------------------------------------
 ### DATATYPE PROPERTIES
@@ -485,6 +527,24 @@ apm:fiscalYear a owl:DatatypeProperty ;
     rdfs:domain apm:CostRecord ;
     rdfs:range xsd:gYear ;
     rdfs:comment "The fiscal year in which the cost was incurred." .
+
+apm:findingDetails a owl:DatatypeProperty ;
+    rdfs:label "finding details" ;
+    rdfs:domain apm:Finding ;
+    rdfs:range xsd:string ;
+    rdfs:comment "A description of the vulnerability, risk, or gap identified." .
+
+apm:identifiedOn a owl:DatatypeProperty ;
+    rdfs:label "identified on" ;
+    rdfs:domain apm:Finding ;
+    rdfs:range xsd:date ;
+    rdfs:comment "The date on which the finding was identified." .
+
+apm:dueDate a owl:DatatypeProperty ;
+    rdfs:label "due date" ;
+    rdfs:domain apm:Finding ;
+    rdfs:range xsd:date ;
+    rdfs:comment "The date by which the finding must be remediated under its applicable SLA." .
 
 
 ### --------------------------------------------------
@@ -603,3 +663,41 @@ apm:Support a apm:CostCategory ;
 apm:Labor a apm:CostCategory ;
     rdfs:label "Labor" ;
     rdfs:comment "Cost incurred from personnel who build, operate, or support the application." .
+
+
+# Finding Category
+
+apm:Vulnerability a apm:FindingCategory ;
+    rdfs:label "Vulnerability" ;
+    rdfs:comment "A security weakness that could be exploited, such as a CVE or misconfiguration." .
+
+apm:TechnicalRisk a apm:FindingCategory ;
+    rdfs:label "Technical Risk" ;
+    rdfs:comment "A condition that threatens the stability, supportability, or continuity of the technology." .
+
+apm:TechnicalGap a apm:FindingCategory ;
+    rdfs:label "Technical Gap" ;
+    rdfs:comment "A shortfall against an architectural, operational, or best-practice standard." .
+
+
+# Finding Status
+
+apm:Open a apm:FindingStatus ;
+    rdfs:label "Open" ;
+    rdfs:comment "The finding has been identified and remediation has not yet started." .
+
+apm:InRemediation a apm:FindingStatus ;
+    rdfs:label "In Remediation" ;
+    rdfs:comment "Remediation of the finding is actively underway." .
+
+apm:Remediated a apm:FindingStatus ;
+    rdfs:label "Remediated" ;
+    rdfs:comment "The underlying issue has been fixed and verified." .
+
+apm:RiskAccepted a apm:FindingStatus ;
+    rdfs:label "Risk Accepted" ;
+    rdfs:comment "The finding will not be remediated; the associated risk has been formally accepted." .
+
+apm:Closed a apm:FindingStatus ;
+    rdfs:label "Closed" ;
+    rdfs:comment "The finding requires no further action, whether through remediation or accepted risk." .
