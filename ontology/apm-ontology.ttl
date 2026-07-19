@@ -305,6 +305,12 @@ apm:supportsCapability a owl:ObjectProperty ;
     rdfs:range apm:BusinessCapability ;
     rdfs:comment "A business service enables a capability through its well defined interface." .
 
+apm:subCapabilityOf a owl:ObjectProperty ;
+    rdfs:label "sub-capability of" ;
+    rdfs:domain apm:BusinessCapability ;
+    rdfs:range apm:BusinessCapability ;
+    rdfs:comment "Relates a business capability to the parent capability it decomposes, enabling a hierarchical capability map (e.g., L1/L2/L3)." .
+
 
 # Application Domain Relationships
 
