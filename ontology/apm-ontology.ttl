@@ -187,7 +187,15 @@ apm:CostCategory a owl:Class ;
     rdfs:label "Cost Category" ;
     rdfs:comment "A classification of cost type, such as Licensing, Infrastructure, Support, or Labor." .
 
-apm:Finding a owl:Class ;
+# [8] International Organization for Standardization, "ISO/IEC 27005:2022 --
+#     Information security, cybersecurity and privacy protection -- Guidance
+#     on managing information security risks," ISO/IEC, Geneva, Switzerland,
+#     2022. [Online]. Available: https://www.iso.org/standard/80585.html
+# [9] International Organization for Standardization, "ISO 31000:2018 --
+#     Risk management -- Guidelines," ISO, Geneva, Switzerland, 2018.
+#     [Online]. Available: https://www.iso.org/standard/65694.html
+
+apm:Finding a owl:Class ; # [8][9]
     rdfs:label "Finding" ;
     rdfs:comment "A recorded vulnerability, technical risk, business risk, or control gap identified against an application or technology component, tracked through its remediation lifecycle." .
 
@@ -199,7 +207,12 @@ apm:FindingStatus a owl:Class ;
     rdfs:label "Finding Status" ;
     rdfs:comment "A classification of a finding's position in its remediation lifecycle, such as Open, In Remediation, Remediated, Risk Accepted, or Closed." .
 
-apm:Control a owl:Class ;
+# [7] International Organization for Standardization, "ISO/IEC 27002:2022 --
+#     Information security, cybersecurity and privacy protection --
+#     Information security controls," ISO/IEC, Geneva, Switzerland, 2022.
+#     [Online]. Available: https://www.iso.org/standard/75652.html
+
+apm:Control a owl:Class ; # [7]
     rdfs:label "Control" ;
     rdfs:comment "A safeguard or measure implemented to mitigate risk or satisfy a compliance requirement." .
 
@@ -624,6 +637,22 @@ apm:findingDetails a owl:DatatypeProperty ;
     rdfs:range xsd:string ;
     rdfs:comment "A description of the vulnerability, risk, or gap identified." .
 
+apm:cveId a owl:DatatypeProperty ;
+    rdfs:label "CVE ID" ;
+    rdfs:domain apm:Finding ;
+    rdfs:range xsd:string ;
+    rdfs:comment "The Common Vulnerabilities and Exposures identifier associated with a Vulnerability finding, such as CVE-2021-44228." .
+
+apm:cvssScore a owl:DatatypeProperty ;
+    rdfs:label "CVSS score" ;
+    rdfs:domain apm:Finding ;
+    rdfs:range [
+        a rdfs:Datatype ;
+        owl:onDatatype xsd:decimal ;
+        owl:withRestrictions ( [ xsd:minInclusive 0.0 ] [ xsd:maxInclusive 10.0 ] )
+    ] ;
+    rdfs:comment "The raw CVSS base score for a Vulnerability finding, preserved at full precision alongside its bucketed riskScore." .
+
 apm:identifiedOn a owl:DatatypeProperty ;
     rdfs:label "identified on" ;
     rdfs:domain apm:Finding ;
@@ -636,15 +665,25 @@ apm:dueDate a owl:DatatypeProperty ;
     rdfs:range xsd:date ;
     rdfs:comment "The date by which the finding must be remediated under its applicable SLA." .
 
-apm:severityScore a owl:DatatypeProperty ;
-    rdfs:label "severity score" ;
+apm:riskScore a owl:DatatypeProperty ; # [8][9]
+    rdfs:label "risk score" ;
     rdfs:domain apm:Finding ;
     rdfs:range [
         a rdfs:Datatype ;
         owl:onDatatype xsd:integer ;
         owl:withRestrictions ( [ xsd:minInclusive 1 ] [ xsd:maxInclusive 5 ] )
     ] ;
-    rdfs:comment "The urgency of the finding, on a scale of 1 (lowest) to 5 (highest)." .
+    rdfs:comment "The overall risk rating of the finding, informed by its likelihood and impact, on a scale of 1 (lowest) to 5 (highest)." .
+
+apm:likelihoodScore a owl:DatatypeProperty ;
+    rdfs:label "likelihood score" ;
+    rdfs:domain apm:Finding ;
+    rdfs:range [
+        a rdfs:Datatype ;
+        owl:onDatatype xsd:integer ;
+        owl:withRestrictions ( [ xsd:minInclusive 1 ] [ xsd:maxInclusive 5 ] )
+    ] ;
+    rdfs:comment "The probability that the finding's consequence will materialize if left unaddressed, on a scale of 1 (lowest) to 5 (highest)." .
 
 apm:impactScore a owl:DatatypeProperty ;
     rdfs:label "impact score" ;
@@ -678,13 +717,18 @@ apm:endOfSupportDate a owl:DatatypeProperty ;
     rdfs:range xsd:date ;
     rdfs:comment "The date on which the vendor stops providing patches, security updates, or support for the software product." .
 
-apm:recoveryTimeObjective a owl:DatatypeProperty ;
+# [6] International Organization for Standardization, "ISO 22301:2019 --
+#     Security and resilience -- Business continuity management systems --
+#     Requirements," ISO, Geneva, Switzerland, 2019. [Online]. Available:
+#     https://www.iso.org/standard/75106.html
+
+apm:recoveryTimeObjective a owl:DatatypeProperty ; # [6]
     rdfs:label "recovery time objective" ;
     rdfs:domain apm:Application ;
     rdfs:range xsd:duration ;
     rdfs:comment "The maximum acceptable duration within which an application must be restored following a disruption." .
 
-apm:recoveryPointObjective a owl:DatatypeProperty ;
+apm:recoveryPointObjective a owl:DatatypeProperty ; # [6]
     rdfs:label "recovery point objective" ;
     rdfs:domain apm:Application ;
     rdfs:range xsd:duration ;
