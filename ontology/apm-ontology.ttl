@@ -103,6 +103,10 @@ apm:PhysicalTechnologyComponent a owl:Class ;
 #     Information technology -- IT asset management -- Part 1: IT asset
 #     management systems -- Requirements," ISO, Geneva, Switzerland, 2017.
 #     [Online]. Available: https://www.iso.org/standard/68531.html
+# [10] International Organization for Standardization, "ISO/IEC 19770-4:2017 --
+#      Information technology -- IT asset management -- Part 4: Resource
+#      utilization measurement," ISO/IEC, Geneva, Switzerland, 2017.
+#      [Online]. Available: https://www.iso.org/standard/68431.html
 
 apm:SoftwareProduct a owl:Class ; # ISO-19770-2
     rdfs:label "Software Product (ISO 19770-2)" ;
@@ -115,6 +119,10 @@ apm:SoftwareEntitlement a owl:Class ; # ISO-19770-3
 apm:Metric a owl:Class ; # ISO-19770-3
     rdfs:label "Metric" ;
     rdfs:comment "The unit used to measure a software entitlement, such as per-user or per-device." .
+
+apm:ResourceUtilizationRecord a owl:Class ; # ISO-19770-4
+    rdfs:label "Resource Utilization Record (ISO 19770-4)" ;
+    rdfs:comment "A recorded measurement of actual resource consumption for a software product over a specific period, per ISO/IEC 19770-4." .
 
 
 # Extension Classes (Nexus Insight APM Ontology)
@@ -439,6 +447,18 @@ apm:suppliedBy a owl:ObjectProperty ;
     rdfs:domain apm:SoftwareProduct ;
     rdfs:range apm:Supplier ;
     rdfs:comment "A software product is published by a supplier." .
+
+apm:measuresProduct a owl:ObjectProperty ; # ISO-19770-4
+    rdfs:label "measures product" ;
+    rdfs:domain apm:ResourceUtilizationRecord ;
+    rdfs:range apm:SoftwareProduct ;
+    rdfs:comment "A resource utilization record measures actual consumption of a specific software product." .
+
+apm:measuredAgainstMetric a owl:ObjectProperty ; # ISO-19770-4
+    rdfs:label "measured against metric" ;
+    rdfs:domain apm:ResourceUtilizationRecord ;
+    rdfs:range apm:Metric ;
+    rdfs:comment "A resource utilization record is expressed against the same metric used to define the product's entitlement, enabling direct usage-versus-entitlement comparison." .
 
 
 # Extension Relationships (Nexus Insight APM Ontology)
@@ -821,6 +841,24 @@ apm:endOfSupportDate a owl:DatatypeProperty ;
     rdfs:domain apm:SoftwareProduct ;
     rdfs:range xsd:date ;
     rdfs:comment "The date on which the vendor stops providing patches, security updates, or support for the software product." .
+
+apm:measuredValue a owl:DatatypeProperty ; # ISO-19770-4
+    rdfs:label "measured value" ;
+    rdfs:domain apm:ResourceUtilizationRecord ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "The quantity of actual consumption recorded, interpreted according to the record's metric." .
+
+apm:measurementPeriodStart a owl:DatatypeProperty ; # ISO-19770-4
+    rdfs:label "measurement period start" ;
+    rdfs:domain apm:ResourceUtilizationRecord ;
+    rdfs:range xsd:date ;
+    rdfs:comment "The start of the period over which resource utilization was measured." .
+
+apm:measurementPeriodEnd a owl:DatatypeProperty ; # ISO-19770-4
+    rdfs:label "measurement period end" ;
+    rdfs:domain apm:ResourceUtilizationRecord ;
+    rdfs:range xsd:date ;
+    rdfs:comment "The end of the period over which resource utilization was measured." .
 
 apm:assetIdentifier a owl:DatatypeProperty ;
     rdfs:label "asset identifier" ;
