@@ -232,6 +232,18 @@ apm:PerformanceAssessment a owl:Class ;
     rdfs:label "Performance Assessment" ;
     rdfs:comment "A point-in-time evaluation of an application's business and technical fit, enabling trend tracking across assessment cycles." .
 
+apm:ServiceLevelAgreement a owl:Class ;
+    rdfs:label "Service Level Agreement" ;
+    rdfs:comment "A recorded service level agreement for an application, covering a specific effective period and one or more owner-defined metrics." .
+
+apm:SLAMetric a owl:Class ;
+    rdfs:label "SLA Metric" ;
+    rdfs:comment "A single measurable commitment within an SLA, defined by an open category and a target value with its unit of measure." .
+
+apm:SLACategory a owl:Class ;
+    rdfs:label "SLA Category" ;
+    rdfs:comment "An open, extensible classification of the kind of service level being measured. Application owners may define new categories, such as Availability, Throughput, or Response Time, as needed." .
+
 
 ### --------------------------------------------------
 ### RELATIONSHIPS (Object Properties)
@@ -530,6 +542,24 @@ apm:assessedBy a owl:ObjectProperty ;
     rdfs:range apm:Actor ;
     rdfs:comment "A performance assessment names the actor who conducted it." .
 
+apm:appliesToApplication a owl:ObjectProperty ;
+    rdfs:label "applies to application" ;
+    rdfs:domain apm:ServiceLevelAgreement ;
+    rdfs:range apm:Application ;
+    rdfs:comment "A service level agreement is made for a specific application." .
+
+apm:hasSLAMetric a owl:ObjectProperty ;
+    rdfs:label "has SLA metric" ;
+    rdfs:domain apm:ServiceLevelAgreement ;
+    rdfs:range apm:SLAMetric ;
+    rdfs:comment "A service level agreement is composed of one or more owner-defined metrics." .
+
+apm:hasSLACategory a owl:ObjectProperty ;
+    rdfs:label "has SLA category" ;
+    rdfs:domain apm:SLAMetric ;
+    rdfs:range apm:SLACategory ;
+    rdfs:comment "An SLA metric is classified by the kind of service level it measures." .
+
 apm:incurredByApplication a owl:ObjectProperty ;
     rdfs:label "incurred by application" ;
     rdfs:domain apm:CostRecord ;
@@ -760,6 +790,30 @@ apm:assessedOn a owl:DatatypeProperty ;
     rdfs:range xsd:date ;
     rdfs:comment "The date on which the performance assessment was conducted." .
 
+apm:targetValue a owl:DatatypeProperty ;
+    rdfs:label "target value" ;
+    rdfs:domain apm:SLAMetric ;
+    rdfs:range xsd:decimal ;
+    rdfs:comment "The numeric target committed to for an SLA metric, interpreted according to its unit of measure." .
+
+apm:unitOfMeasure a owl:DatatypeProperty ;
+    rdfs:label "unit of measure" ;
+    rdfs:domain apm:SLAMetric ;
+    rdfs:range xsd:string ;
+    rdfs:comment "The unit in which an SLA metric's target value is expressed, such as %, requests/second, or milliseconds." .
+
+apm:effectiveFrom a owl:DatatypeProperty ;
+    rdfs:label "effective from" ;
+    rdfs:domain apm:ServiceLevelAgreement ;
+    rdfs:range xsd:date ;
+    rdfs:comment "The date from which a service level agreement's terms take effect." .
+
+apm:effectiveTo a owl:DatatypeProperty ;
+    rdfs:label "effective to" ;
+    rdfs:domain apm:ServiceLevelAgreement ;
+    rdfs:range xsd:date ;
+    rdfs:comment "The date on which a service level agreement's terms expire." .
+
 ### --------------------------------------------------
 ### INDIVIDUALS (Controlled Vocabulary)
 ### --------------------------------------------------
@@ -976,3 +1030,22 @@ apm:PII a apm:DataSensitivity ;
 apm:PHI a apm:DataSensitivity ;
     rdfs:label "PHI" ;
     rdfs:comment "Protected health information relating to an individual's health status or care, as defined under HIPAA." .
+
+
+# SLA Category
+
+apm:Availability a apm:SLACategory ;
+    rdfs:label "Availability" ;
+    rdfs:comment "The proportion of time an application is operational and accessible, typically expressed as a percentage." .
+
+apm:Throughput a apm:SLACategory ;
+    rdfs:label "Throughput" ;
+    rdfs:comment "The volume of work an application can process in a given period, such as requests or transactions per second." .
+
+apm:ResponseTime a apm:SLACategory ;
+    rdfs:label "Response Time" ;
+    rdfs:comment "The time taken for an application to respond to a request." .
+
+apm:ResolutionTime a apm:SLACategory ;
+    rdfs:label "Resolution Time" ;
+    rdfs:comment "The time taken to resolve a reported incident affecting an application." .
