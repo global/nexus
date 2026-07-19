@@ -185,15 +185,19 @@ apm:CostCategory a owl:Class ;
 
 apm:Finding a owl:Class ;
     rdfs:label "Finding" ;
-    rdfs:comment "A recorded vulnerability, technical risk, or technical gap identified against an application or technology component, tracked through its remediation lifecycle." .
+    rdfs:comment "A recorded vulnerability, technical risk, business risk, or control gap identified against an application or technology component, tracked through its remediation lifecycle." .
 
 apm:FindingCategory a owl:Class ;
     rdfs:label "Finding Category" ;
-    rdfs:comment "A classification of a finding's nature, such as Vulnerability, Technical Risk, or Technical Gap." .
+    rdfs:comment "A classification of a finding's nature, such as Vulnerability, Technical Risk, Business Risk, or Control Gap." .
 
 apm:FindingStatus a owl:Class ;
     rdfs:label "Finding Status" ;
     rdfs:comment "A classification of a finding's position in its remediation lifecycle, such as Open, In Remediation, Remediated, Risk Accepted, or Closed." .
+
+apm:Control a owl:Class ;
+    rdfs:label "Control" ;
+    rdfs:comment "A safeguard or measure implemented to mitigate risk or satisfy a compliance requirement." .
 
 
 ### --------------------------------------------------
@@ -491,13 +495,37 @@ apm:hasFindingCategory a owl:ObjectProperty ;
     rdfs:label "has finding category" ;
     rdfs:domain apm:Finding ;
     rdfs:range apm:FindingCategory ;
-    rdfs:comment "A finding is classified by its nature, such as Vulnerability, Technical Risk, or Technical Gap." .
+    rdfs:comment "A finding is classified by its nature, such as Vulnerability, Technical Risk, Business Risk, or Control Gap." .
 
 apm:hasFindingStatus a owl:ObjectProperty ;
     rdfs:label "has finding status" ;
     rdfs:domain apm:Finding ;
     rdfs:range apm:FindingStatus ;
     rdfs:comment "A finding is classified by its current position in the remediation lifecycle." .
+
+apm:threatensCapability a owl:ObjectProperty ;
+    rdfs:label "threatens capability" ;
+    rdfs:domain apm:Finding ;
+    rdfs:range apm:BusinessCapability ;
+    rdfs:comment "A finding, typically one categorized as a Business Risk, threatens a specific business capability." .
+
+apm:relatesToControl a owl:ObjectProperty ;
+    rdfs:label "relates to control" ;
+    rdfs:domain apm:Finding ;
+    rdfs:range apm:Control ;
+    rdfs:comment "A finding, typically one categorized as a Control Gap, identifies a deficiency in a specific control." .
+
+apm:supportsComplianceStandard a owl:ObjectProperty ;
+    rdfs:label "supports compliance standard" ;
+    rdfs:domain apm:Control ;
+    rdfs:range apm:ComplianceStandard ;
+    rdfs:comment "A control satisfies or contributes to meeting a compliance standard." .
+
+apm:implementsControl a owl:ObjectProperty ;
+    rdfs:label "implements control" ;
+    rdfs:domain apm:Application ;
+    rdfs:range apm:Control ;
+    rdfs:comment "An application has implemented a specific control." .
 
 
 ### --------------------------------------------------
@@ -675,9 +703,13 @@ apm:TechnicalRisk a apm:FindingCategory ;
     rdfs:label "Technical Risk" ;
     rdfs:comment "A condition that threatens the stability, supportability, or continuity of the technology." .
 
-apm:TechnicalGap a apm:FindingCategory ;
-    rdfs:label "Technical Gap" ;
-    rdfs:comment "A shortfall against an architectural, operational, or best-practice standard." .
+apm:BusinessRisk a apm:FindingCategory ;
+    rdfs:label "Business Risk" ;
+    rdfs:comment "A condition that threatens the delivery of a business capability." .
+
+apm:ControlGap a apm:FindingCategory ;
+    rdfs:label "Control Gap" ;
+    rdfs:comment "A missing or deficient control against an architectural, operational, or compliance requirement." .
 
 
 # Finding Status
