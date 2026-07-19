@@ -211,6 +211,10 @@ apm:Supplier a owl:Class ;
     rdfs:label "Supplier" ;
     rdfs:comment "A third-party vendor that publishes a software product or hosts an application on the organization's behalf." .
 
+apm:PerformanceAssessment a owl:Class ;
+    rdfs:label "Performance Assessment" ;
+    rdfs:comment "A point-in-time evaluation of an application's business and technical fit, enabling trend tracking across assessment cycles." .
+
 
 ### --------------------------------------------------
 ### RELATIONSHIPS (Object Properties)
@@ -497,6 +501,18 @@ apm:hasCertification a owl:ObjectProperty ;
     rdfs:range apm:ComplianceStandard ;
     rdfs:comment "A supplier holds certification against an industry-wide compliance standard." .
 
+apm:assessesApplication a owl:ObjectProperty ;
+    rdfs:label "assesses application" ;
+    rdfs:domain apm:PerformanceAssessment ;
+    rdfs:range apm:Application ;
+    rdfs:comment "A performance assessment evaluates a specific application." .
+
+apm:assessedBy a owl:ObjectProperty ;
+    rdfs:label "assessed by" ;
+    rdfs:domain apm:PerformanceAssessment ;
+    rdfs:range apm:Actor ;
+    rdfs:comment "A performance assessment names the actor who conducted it." .
+
 apm:incurredByApplication a owl:ObjectProperty ;
     rdfs:label "incurred by application" ;
     rdfs:domain apm:CostRecord ;
@@ -669,6 +685,32 @@ apm:recoveryPointObjective a owl:DatatypeProperty ;
     rdfs:domain apm:Application ;
     rdfs:range xsd:duration ;
     rdfs:comment "The maximum acceptable amount of data loss, expressed as a duration, that can be tolerated following a disruption." .
+
+apm:businessFitScore a owl:DatatypeProperty ;
+    rdfs:label "business fit score" ;
+    rdfs:domain apm:PerformanceAssessment ;
+    rdfs:range [
+        a rdfs:Datatype ;
+        owl:onDatatype xsd:integer ;
+        owl:withRestrictions ( [ xsd:minInclusive 1 ] [ xsd:maxInclusive 5 ] )
+    ] ;
+    rdfs:comment "How well the application meets current and future business needs, on a scale of 1 (lowest) to 5 (highest)." .
+
+apm:technicalFitScore a owl:DatatypeProperty ;
+    rdfs:label "technical fit score" ;
+    rdfs:domain apm:PerformanceAssessment ;
+    rdfs:range [
+        a rdfs:Datatype ;
+        owl:onDatatype xsd:integer ;
+        owl:withRestrictions ( [ xsd:minInclusive 1 ] [ xsd:maxInclusive 5 ] )
+    ] ;
+    rdfs:comment "How current, stable, and maintainable the application's technology is, on a scale of 1 (lowest) to 5 (highest)." .
+
+apm:assessedOn a owl:DatatypeProperty ;
+    rdfs:label "assessed on" ;
+    rdfs:domain apm:PerformanceAssessment ;
+    rdfs:range xsd:date ;
+    rdfs:comment "The date on which the performance assessment was conducted." .
 
 ### --------------------------------------------------
 ### INDIVIDUALS (Controlled Vocabulary)
