@@ -127,13 +127,27 @@ apm:ApplicationContact a owl:Class ;
     rdfs:label "Application Contact" ;
     rdfs:comment "An assignment of an actor to a specific contact role for an application, such as CTO or Information Owner." .
 
+apm:Dependency a owl:Class ;
+    rdfs:label "Dependency" ;
+    rdfs:comment "A directed reliance of one asset on another, describing the protocol(s) used and the synchronicity of the interaction." .
+
 apm:ApplicationDependency a owl:Class ;
+    rdfs:subClassOf apm:Dependency ;
     rdfs:label "Application Dependency" ;
     rdfs:comment "A directed dependency between two applications, capturing how one relies on the other." .
 
 apm:TechnologyDependency a owl:Class ;
+    rdfs:subClassOf apm:Dependency ;
     rdfs:label "Technology Dependency" ;
     rdfs:comment "A directed dependency between two physical technology components, capturing how one relies on the other." .
+
+apm:DependencyProtocol a owl:Class ;
+    rdfs:label "Dependency Protocol" ;
+    rdfs:comment "An open, extensible classification of the technical protocol used by a dependency, such as REST API, Message Queue, or File Transfer." .
+
+apm:Synchronicity a owl:Class ;
+    rdfs:label "Synchronicity" ;
+    rdfs:comment "A classification of how a dependency's interaction is timed, such as Synchronous, Asynchronous, or Batch." .
 
 apm:LinkedResource a owl:Class ;
     rdfs:label "Linked Resource" ;
@@ -482,6 +496,18 @@ apm:downstreamTechnologyComponent a owl:ObjectProperty ;
     rdfs:domain apm:TechnologyDependency ;
     rdfs:range apm:PhysicalTechnologyComponent ;
     rdfs:comment "A dependency names the technology component that consumes the upstream component's capability." .
+
+apm:usesProtocol a owl:ObjectProperty ;
+    rdfs:label "uses protocol" ;
+    rdfs:domain apm:Dependency ;
+    rdfs:range apm:DependencyProtocol ;
+    rdfs:comment "A dependency is carried over one or more technical protocols." .
+
+apm:hasSynchronicity a owl:ObjectProperty ;
+    rdfs:label "has synchronicity" ;
+    rdfs:domain apm:Dependency ;
+    rdfs:range apm:Synchronicity ;
+    rdfs:comment "A dependency is classified by the timing of its interaction, such as Synchronous, Asynchronous, or Batch." .
 
 apm:hasDocument a owl:ObjectProperty ;
     rdfs:label "has document" ;
@@ -1130,3 +1156,45 @@ apm:Test a apm:Environment ;
 apm:DisasterRecovery a apm:Environment ;
     rdfs:label "Disaster Recovery" ;
     rdfs:comment "A standby environment maintained to restore production operations following a disruption." .
+
+
+# Dependency Protocol
+
+apm:RESTAPI a apm:DependencyProtocol ;
+    rdfs:label "REST API" ;
+    rdfs:comment "Interaction over a RESTful HTTP API." .
+
+apm:SOAP a apm:DependencyProtocol ;
+    rdfs:label "SOAP" ;
+    rdfs:comment "Interaction over the SOAP messaging protocol." .
+
+apm:MessageQueue a apm:DependencyProtocol ;
+    rdfs:label "Message Queue" ;
+    rdfs:comment "Interaction via an asynchronous message broker or queue." .
+
+apm:FileTransfer a apm:DependencyProtocol ;
+    rdfs:label "File Transfer" ;
+    rdfs:comment "Interaction via the exchange of files, such as SFTP or batch file drops." .
+
+apm:DatabaseConnection a apm:DependencyProtocol ;
+    rdfs:label "Database Connection" ;
+    rdfs:comment "Interaction via a direct database connection, such as JDBC or ODBC." .
+
+apm:RPC a apm:DependencyProtocol ;
+    rdfs:label "RPC" ;
+    rdfs:comment "Interaction via a remote procedure call framework, such as gRPC." .
+
+
+# Synchronicity
+
+apm:Synchronous a apm:Synchronicity ;
+    rdfs:label "Synchronous" ;
+    rdfs:comment "The calling asset blocks and waits for an immediate response, so an upstream failure propagates immediately." .
+
+apm:Asynchronous a apm:Synchronicity ;
+    rdfs:label "Asynchronous" ;
+    rdfs:comment "The calling asset does not wait for an immediate response, so an upstream failure is buffered or delayed." .
+
+apm:Batch a apm:Synchronicity ;
+    rdfs:label "Batch" ;
+    rdfs:comment "The interaction occurs on a scheduled cycle rather than on demand, so an upstream failure is only noticed at the next run." .
