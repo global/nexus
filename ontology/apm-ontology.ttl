@@ -1295,14 +1295,8 @@ apm:Batch a apm:Synchronicity ;
 ### --------------------------------------------------
 ### INDIVIDUAL DISTINCTNESS AXIOMS
 ### --------------------------------------------------
-# OWL does not assume the Unique Name Assumption: without an explicit
-# owl:AllDifferent declaration, a reasoner may treat two individuals with
-# different IRIs as possibly referring to the same thing unless told
-# otherwise. These axioms make each controlled-vocabulary set's members
-# pairwise distinct. This does not prevent a subject from holding multiple
-# of these values at once (e.g., a DataEntity tagged both Confidential and
-# PHI remains valid) -- it only asserts that the vocabulary terms themselves
-# are not secretly the same individual.
+# To treat individuals as distinct, OWL requires explicit axioms. 
+# Applyting the owl:AllDifferent to the controlled vocabulary of individuals to avoid unintended inferences.
 
 [] a owl:AllDifferent ;
     owl:distinctMembers ( apm:Planned apm:Development apm:Operate apm:Retired ) .
