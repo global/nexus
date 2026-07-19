@@ -279,6 +279,47 @@ apm:Environment a owl:Class ;
 
 
 ### --------------------------------------------------
+### DISJOINTNESS AXIOMS
+### --------------------------------------------------
+# Declares that distinct classes at the same level of the taxonomy cannot
+# share an instance (e.g., something cannot be both an Application and a
+# Portfolio). Classes related by rdfs:subClassOf are deliberately excluded
+# from the group containing their ancestor, and are instead only declared
+# disjoint from their direct siblings, to avoid an unsatisfiable class.
+
+# Core entity classes (the "real world" things the ontology describes)
+[] a owl:AllDisjointClasses ;
+    owl:members (
+        apm:Actor apm:Role apm:OrganizationUnit apm:Location
+        apm:BusinessFunction apm:BusinessProcess apm:BusinessService apm:BusinessCapability
+        apm:LogicalApplicationComponent apm:PhysicalApplicationComponent apm:Application
+        apm:DataEntity apm:LogicalDataComponent apm:PhysicalDataComponent
+        apm:TechnologyService apm:LogicalTechnologyComponent apm:PhysicalTechnologyComponent
+        apm:SoftwareProduct apm:SoftwareEntitlement apm:Metric apm:ResourceUtilizationRecord
+        apm:Portfolio apm:ApplicationContact apm:Dependency apm:LinkedResource
+        apm:Control apm:Finding apm:Supplier
+        apm:PerformanceAssessment apm:ServiceLevelAgreement apm:SLAMetric apm:CostRecord
+    ) .
+
+# Controlled-vocabulary / classification classes
+[] a owl:AllDisjointClasses ;
+    owl:members (
+        apm:LifecycleStatus apm:CriticalityTier apm:InvestmentStrategy apm:ComplianceStandard
+        apm:HostingModel apm:CostCategory apm:FindingCategory apm:FindingStatus
+        apm:ImpactType apm:DataSensitivity apm:SLACategory apm:Environment
+        apm:DependencyProtocol apm:Synchronicity apm:DocumentType
+    ) .
+
+# Sibling subclasses of apm:Dependency
+[] a owl:AllDisjointClasses ;
+    owl:members ( apm:ApplicationDependency apm:TechnologyDependency ) .
+
+# Sibling subclasses of apm:LinkedResource
+[] a owl:AllDisjointClasses ;
+    owl:members ( apm:Document apm:CodeRepository ) .
+
+
+### --------------------------------------------------
 ### RELATIONSHIPS (Object Properties)
 ### --------------------------------------------------
 
@@ -1249,3 +1290,67 @@ apm:Asynchronous a apm:Synchronicity ;
 apm:Batch a apm:Synchronicity ;
     rdfs:label "Batch" ;
     rdfs:comment "The interaction occurs on a scheduled cycle rather than on demand, so an upstream failure is only noticed at the next run." .
+
+
+### --------------------------------------------------
+### INDIVIDUAL DISTINCTNESS AXIOMS
+### --------------------------------------------------
+# OWL does not assume the Unique Name Assumption: without an explicit
+# owl:AllDifferent declaration, a reasoner may treat two individuals with
+# different IRIs as possibly referring to the same thing unless told
+# otherwise. These axioms make each controlled-vocabulary set's members
+# pairwise distinct. This does not prevent a subject from holding multiple
+# of these values at once (e.g., a DataEntity tagged both Confidential and
+# PHI remains valid) -- it only asserts that the vocabulary terms themselves
+# are not secretly the same individual.
+
+[] a owl:AllDifferent ;
+    owl:distinctMembers ( apm:Planned apm:Development apm:Operate apm:Retired ) .
+
+[] a owl:AllDifferent ;
+    owl:distinctMembers ( apm:Critical apm:High apm:Medium apm:Low ) .
+
+[] a owl:AllDifferent ;
+    owl:distinctMembers ( apm:Tolerate apm:Invest apm:Migrate apm:Eliminate ) .
+
+[] a owl:AllDifferent ;
+    owl:distinctMembers ( apm:SOC2 apm:HIPAA apm:GDPR apm:PCIDSS apm:ISO27001 ) .
+
+[] a owl:AllDifferent ;
+    owl:distinctMembers ( apm:ExternallyHosted apm:InternallyHosted apm:Hybrid ) .
+
+[] a owl:AllDifferent ;
+    owl:distinctMembers ( apm:Licensing apm:Infrastructure apm:Support apm:Labor ) .
+
+[] a owl:AllDifferent ;
+    owl:distinctMembers ( apm:Vulnerability apm:TechnicalRisk apm:BusinessRisk apm:ControlGap ) .
+
+[] a owl:AllDifferent ;
+    owl:distinctMembers ( apm:Open apm:InRemediation apm:Remediated apm:RiskAccepted apm:Closed ) .
+
+[] a owl:AllDifferent ;
+    owl:distinctMembers (
+        apm:DataBreach apm:ServiceOutage apm:RegulatoryFine apm:ReputationalDamage
+        apm:FinancialLoss apm:SafetyRisk apm:ContractualBreach
+    ) .
+
+[] a owl:AllDifferent ;
+    owl:distinctMembers (
+        apm:Public apm:Internal apm:Confidential apm:HighlyConfidential apm:PII apm:PHI
+    ) .
+
+[] a owl:AllDifferent ;
+    owl:distinctMembers ( apm:Availability apm:Throughput apm:ResponseTime apm:ResolutionTime ) .
+
+[] a owl:AllDifferent ;
+    owl:distinctMembers (
+        apm:Production apm:Staging apm:DevelopmentEnvironment apm:Test apm:DisasterRecovery
+    ) .
+
+[] a owl:AllDifferent ;
+    owl:distinctMembers (
+        apm:RESTAPI apm:SOAP apm:MessageQueue apm:FileTransfer apm:DatabaseConnection apm:RPC
+    ) .
+
+[] a owl:AllDifferent ;
+    owl:distinctMembers ( apm:Synchronous apm:Asynchronous apm:Batch ) .
