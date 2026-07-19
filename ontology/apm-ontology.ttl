@@ -650,11 +650,35 @@ apm:hasImpactType a owl:ObjectProperty ;
 ### DATATYPE PROPERTIES
 ### --------------------------------------------------
 
+apm:emailAddress a owl:DatatypeProperty ;
+    rdfs:label "email address" ;
+    rdfs:domain apm:Actor ;
+    rdfs:range xsd:string ;
+    rdfs:comment "The email address at which an actor can be contacted, such as for finding assignments or SLA breach notifications." .
+
+apm:goLiveDate a owl:DatatypeProperty ;
+    rdfs:label "go-live date" ;
+    rdfs:domain apm:Application ;
+    rdfs:range xsd:date ;
+    rdfs:comment "The date on which the application first entered production use." .
+
+apm:costCenterCode a owl:DatatypeProperty ;
+    rdfs:label "cost center code" ;
+    rdfs:domain apm:OrganizationUnit ;
+    rdfs:range xsd:string ;
+    rdfs:comment "The financial cost center code associated with an organization unit, used to attribute cost records." .
+
 apm:url a owl:DatatypeProperty ;
     rdfs:label "url" ;
     rdfs:domain apm:LinkedResource ;
     rdfs:range xsd:anyURI ;
     rdfs:comment "The location at which a linked resource can be accessed." .
+
+apm:lastUpdated a owl:DatatypeProperty ;
+    rdfs:label "last updated" ;
+    rdfs:domain apm:LinkedResource ;
+    rdfs:range xsd:date ;
+    rdfs:comment "The date on which a linked resource, such as a document or code repository, was last modified, used to flag potentially stale references." .
 
 apm:costAmount a owl:DatatypeProperty ;
     rdfs:label "cost amount" ;
@@ -846,7 +870,7 @@ apm:controlReference a owl:DatatypeProperty ; # [7]
     rdfs:label "control reference" ;
     rdfs:domain apm:Control ;
     rdfs:range xsd:string ;
-    rdfs:comment "The clause or control identifier from an external catalog that this control implements, such as ISO/IEC 27002 5.15 or NIST SP 800-53 AC-2." .
+    rdfs:comment "The clause or control identifier from an catalog that this control implements, such as ISO/IEC 27002 5.15 or NIST SP 800-53 AC-2." .
 
 ### --------------------------------------------------
 ### INDIVIDUALS (Controlled Vocabulary)
