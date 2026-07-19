@@ -207,6 +207,10 @@ apm:DataSensitivity a owl:Class ;
     rdfs:label "Data Sensitivity" ;
     rdfs:comment "A classification of a data entity's sensitivity, such as Public, Internal, Confidential, PII, or PHI." .
 
+apm:Supplier a owl:Class ;
+    rdfs:label "Supplier" ;
+    rdfs:comment "A third-party vendor that publishes a software product or hosts an application on the organization's behalf." .
+
 
 ### --------------------------------------------------
 ### RELATIONSHIPS (Object Properties)
@@ -364,6 +368,12 @@ apm:measuredByMetric a owl:ObjectProperty ;
     rdfs:range apm:Metric ;
     rdfs:comment "The grant of rights and consumption are assessed by a metric." .
 
+apm:suppliedBy a owl:ObjectProperty ;
+    rdfs:label "supplied by" ;
+    rdfs:domain apm:SoftwareProduct ;
+    rdfs:range apm:Supplier ;
+    rdfs:comment "A software product is published by a supplier." .
+
 
 # Extension Relationships (Nexus Insight APM Ontology)
 
@@ -474,6 +484,18 @@ apm:hasHostingModel a owl:ObjectProperty ;
     rdfs:domain apm:Application ;
     rdfs:range apm:HostingModel ;
     rdfs:comment "An application is classified by where its infrastructure is hosted." .
+
+apm:hostedBySupplier a owl:ObjectProperty ;
+    rdfs:label "hosted by supplier" ;
+    rdfs:domain apm:Application ;
+    rdfs:range apm:Supplier ;
+    rdfs:comment "An application's infrastructure is hosted by an external supplier, such as a SaaS or cloud provider." .
+
+apm:hasCertification a owl:ObjectProperty ;
+    rdfs:label "has certification" ;
+    rdfs:domain apm:Supplier ;
+    rdfs:range apm:ComplianceStandard ;
+    rdfs:comment "A supplier holds certification against an industry-wide compliance standard." .
 
 apm:incurredByApplication a owl:ObjectProperty ;
     rdfs:label "incurred by application" ;
