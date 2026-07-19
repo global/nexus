@@ -1,0 +1,206 @@
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix dct:  <http://purl.org/dc/terms/> .
+@prefix apm:  <http://nexus-apm.org/ontology/apm#> .
+
+###################################################################
+# Nexus Insight APM — SHACL Integrity Constraints                 #
+###################################################################
+# This is a SHACL companion file that defines integrity constraints
+# for validating instance data against the Nexus Insight APM ontology.
+
+<http://nexus-apm.org/shapes> a owl:Ontology ;
+    dct:title "Nexus Insight APM SHACL Shapes" ;
+    dct:description "Integrity constraints validating instance data against the Nexus Insight APM ontology." ;
+    owl:versionInfo "1.0.0" ;
+    owl:imports <http://nexus-apm.org> .
+
+
+### --------------------------------------------------
+### Application
+### --------------------------------------------------
+
+apm:ApplicationShape a sh:NodeShape ;
+    sh:targetClass apm:Application ;
+    sh:property [
+        sh:path apm:hasOwner ;
+        sh:minCount 1 ;
+        sh:message "Every Application must have at least one accountable owner." ;
+    ] ;
+    sh:property [
+        sh:path apm:hasLifecycleStatus ;
+        sh:maxCount 1 ;
+        sh:message "An Application must not be classified with more than one Lifecycle Status at a time." ;
+    ] ;
+    sh:property [
+        sh:path apm:hasCriticalityTier ;
+        sh:maxCount 1 ;
+        sh:message "An Application must not be classified with more than one Criticality Tier at a time." ;
+    ] ;
+    sh:property [
+        sh:path apm:hasHostingModel ;
+        sh:maxCount 1 ;
+        sh:message "An Application must not be classified with more than one Hosting Model at a time." ;
+    ] ;
+    sh:property [
+        sh:path apm:hasInvestmentStrategy ;
+        sh:maxCount 1 ;
+        sh:message "An Application must not be classified with more than one Investment Strategy at a time." ;
+    ] .
+
+
+### --------------------------------------------------
+### Finding
+### --------------------------------------------------
+
+apm:FindingShape a sh:NodeShape ;
+    sh:targetClass apm:Finding ;
+    sh:property [
+        sh:path apm:hasFindingCategory ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every Finding must be classified with exactly one Finding Category." ;
+    ] ;
+    sh:property [
+        sh:path apm:hasFindingStatus ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every Finding must be classified with exactly one Finding Status." ;
+    ] ;
+    sh:property [
+        sh:path apm:riskScore ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 5 ;
+        sh:maxCount 1 ;
+        sh:message "riskScore must be a single integer between 1 and 5." ;
+    ] ;
+    sh:property [
+        sh:path apm:likelihoodScore ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 5 ;
+        sh:maxCount 1 ;
+        sh:message "likelihoodScore must be a single integer between 1 and 5." ;
+    ] ;
+    sh:property [
+        sh:path apm:impactScore ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 5 ;
+        sh:maxCount 1 ;
+        sh:message "impactScore must be a single integer between 1 and 5." ;
+    ] ;
+    sh:property [
+        sh:path apm:cvssScore ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 10.0 ;
+        sh:maxCount 1 ;
+        sh:message "cvssScore must be a single decimal between 0.0 and 10.0." ;
+    ] .
+
+# Conditional rule: cvssScore may only be present on findings categorized
+# as Vulnerability. Expressed as sh:or (material implication: cvssScore
+# exists -> hasFindingCategory = Vulnerability), since plain SHACL Core
+# has no direct if-then construct.
+apm:FindingCvssOnlyForVulnerabilityShape a sh:NodeShape ;
+    sh:targetClass apm:Finding ;
+    sh:or (
+        [ sh:property [ sh:path apm:cvssScore ; sh:maxCount 0 ] ]
+        [ sh:property [ sh:path apm:hasFindingCategory ; sh:hasValue apm:Vulnerability ] ]
+    ) ;
+    sh:message "cvssScore may only be populated on a Finding categorized as Vulnerability." .
+
+
+### --------------------------------------------------
+### Cost Record
+### --------------------------------------------------
+
+apm:CostRecordShape a sh:NodeShape ;
+    sh:targetClass apm:CostRecord ;
+    sh:property [
+        sh:path apm:incurredByApplication ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every Cost Record must name exactly one incurring Application." ;
+    ] ;
+    sh:property [
+        sh:path apm:hasCostCategory ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every Cost Record must be classified with exactly one Cost Category." ;
+    ] ;
+    sh:property [
+        sh:path apm:costAmount ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every Cost Record must record exactly one cost amount." ;
+    ] ;
+    sh:property [
+        sh:path apm:costCurrency ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every Cost Record must declare exactly one currency." ;
+    ] ;
+    sh:property [
+        sh:path apm:fiscalYear ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every Cost Record must be attributed to exactly one fiscal year." ;
+    ] .
+
+
+### --------------------------------------------------
+### Business Capability
+### --------------------------------------------------
+
+apm:BusinessCapabilityShape a sh:NodeShape ;
+    sh:targetClass apm:BusinessCapability ;
+    sh:property [
+        sh:path apm:capabilityWeight ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 5 ;
+        sh:maxCount 1 ;
+        sh:message "capabilityWeight must be a single integer between 1 and 5." ;
+    ] .
+
+
+### --------------------------------------------------
+### Performance Assessment
+### --------------------------------------------------
+
+apm:PerformanceAssessmentShape a sh:NodeShape ;
+    sh:targetClass apm:PerformanceAssessment ;
+    sh:property [
+        sh:path apm:assessesApplication ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every Performance Assessment must evaluate exactly one Application." ;
+    ] ;
+    sh:property [
+        sh:path apm:businessFitScore ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 5 ;
+        sh:maxCount 1 ;
+        sh:message "businessFitScore must be a single integer between 1 and 5." ;
+    ] ;
+    sh:property [
+        sh:path apm:technicalFitScore ;
+        sh:datatype xsd:integer ;
+        sh:minInclusive 1 ;
+        sh:maxInclusive 5 ;
+        sh:maxCount 1 ;
+        sh:message "technicalFitScore must be a single integer between 1 and 5." ;
+    ] ;
+    sh:property [
+        sh:path apm:assessedOn ;
+        sh:datatype xsd:date ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every Performance Assessment must record exactly one assessment date." ;
+    ] .
