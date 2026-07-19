@@ -203,6 +203,10 @@ apm:ImpactType a owl:Class ;
     rdfs:label "Impact Type" ;
     rdfs:comment "An open classification of the consequence a finding could cause if left unaddressed, such as Data Breach, Service Outage, Regulatory Fine, or Reputational Damage." .
 
+apm:DataSensitivity a owl:Class ;
+    rdfs:label "Data Sensitivity" ;
+    rdfs:comment "A classification of a data entity's sensitivity, such as Public, Internal, Confidential, PII, or PHI." .
+
 
 ### --------------------------------------------------
 ### RELATIONSHIPS (Object Properties)
@@ -305,6 +309,12 @@ apm:realizesLogicalDataComponent a owl:ObjectProperty ;
     rdfs:domain apm:PhysicalDataComponent ;
     rdfs:range apm:LogicalDataComponent ;
     rdfs:comment "Relates a physical data component to the logical data component it implements." .
+
+apm:hasDataSensitivity a owl:ObjectProperty ;
+    rdfs:label "has data sensitivity" ;
+    rdfs:domain apm:DataEntity ;
+    rdfs:range apm:DataSensitivity ;
+    rdfs:comment "A data entity is classified by its sensitivity level." .
 
 
 # Technology Domain Relationships
@@ -614,7 +624,6 @@ apm:capabilityWeight a owl:DatatypeProperty ;
     ] ;
     rdfs:comment "The relative strategic importance of the capability to the business, on a scale of 1 (lowest) to 5 (highest)." .
 
-
 ### --------------------------------------------------
 ### INDIVIDUALS (Controlled Vocabulary)
 ### --------------------------------------------------
@@ -804,3 +813,30 @@ apm:SafetyRisk a apm:ImpactType ;
 apm:ContractualBreach a apm:ImpactType ;
     rdfs:label "Contractual Breach" ;
     rdfs:comment "Failure to meet an obligation owed to a customer, partner, or supplier under contract." .
+
+
+# Data Sensitivity
+
+apm:Public a apm:DataSensitivity ;
+    rdfs:label "Public" ;
+    rdfs:comment "Data intended for unrestricted public disclosure." .
+
+apm:Internal a apm:DataSensitivity ;
+    rdfs:label "Internal" ;
+    rdfs:comment "Data intended for use within the organization, not for public disclosure." .
+
+apm:Confidential a apm:DataSensitivity ;
+    rdfs:label "Confidential" ;
+    rdfs:comment "Sensitive business data whose disclosure could cause competitive or financial harm." .
+
+apm:HighlyConfidential a apm:DataSensitivity ;
+    rdfs:label "Highly Confidential" ;
+    rdfs:comment "Extremely sensitive business data whose disclosure could cause severe competitive, financial, or reputational harm, such as trade secrets." .
+
+apm:PII a apm:DataSensitivity ;
+    rdfs:label "PII" ;
+    rdfs:comment "Personally identifiable information that can be used to identify a specific individual." .
+
+apm:PHI a apm:DataSensitivity ;
+    rdfs:label "PHI" ;
+    rdfs:comment "Protected health information relating to an individual's health status or care, as defined under HIPAA." .
