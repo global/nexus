@@ -658,6 +658,18 @@ apm:endOfSupportDate a owl:DatatypeProperty ;
     rdfs:range xsd:date ;
     rdfs:comment "The date on which the vendor stops providing patches, security updates, or support for the software product." .
 
+apm:recoveryTimeObjective a owl:DatatypeProperty ;
+    rdfs:label "recovery time objective" ;
+    rdfs:domain apm:Application ;
+    rdfs:range xsd:duration ;
+    rdfs:comment "The maximum acceptable duration within which an application must be restored following a disruption." .
+
+apm:recoveryPointObjective a owl:DatatypeProperty ;
+    rdfs:label "recovery point objective" ;
+    rdfs:domain apm:Application ;
+    rdfs:range xsd:duration ;
+    rdfs:comment "The maximum acceptable amount of data loss, expressed as a duration, that can be tolerated following a disruption." .
+
 ### --------------------------------------------------
 ### INDIVIDUALS (Controlled Vocabulary)
 ### --------------------------------------------------
