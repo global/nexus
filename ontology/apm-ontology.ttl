@@ -199,6 +199,10 @@ apm:Control a owl:Class ;
     rdfs:label "Control" ;
     rdfs:comment "A safeguard or measure implemented to mitigate risk or satisfy a compliance requirement." .
 
+apm:ImpactType a owl:Class ;
+    rdfs:label "Impact Type" ;
+    rdfs:comment "An open classification of the consequence a finding could cause if left unaddressed, such as Data Breach, Service Outage, Regulatory Fine, or Reputational Damage." .
+
 
 ### --------------------------------------------------
 ### RELATIONSHIPS (Object Properties)
@@ -527,6 +531,12 @@ apm:implementsControl a owl:ObjectProperty ;
     rdfs:range apm:Control ;
     rdfs:comment "An application has implemented a specific control." .
 
+apm:hasImpactType a owl:ObjectProperty ;
+    rdfs:label "has impact type" ;
+    rdfs:domain apm:Finding ;
+    rdfs:range apm:ImpactType ;
+    rdfs:comment "A finding is classified by one or more types of consequence it could cause if left unaddressed." .
+
 
 ### --------------------------------------------------
 ### DATATYPE PROPERTIES
@@ -573,6 +583,26 @@ apm:dueDate a owl:DatatypeProperty ;
     rdfs:domain apm:Finding ;
     rdfs:range xsd:date ;
     rdfs:comment "The date by which the finding must be remediated under its applicable SLA." .
+
+apm:severityScore a owl:DatatypeProperty ;
+    rdfs:label "severity score" ;
+    rdfs:domain apm:Finding ;
+    rdfs:range [
+        a rdfs:Datatype ;
+        owl:onDatatype xsd:integer ;
+        owl:withRestrictions ( [ xsd:minInclusive 1 ] [ xsd:maxInclusive 5 ] )
+    ] ;
+    rdfs:comment "The urgency of the finding, on a scale of 1 (lowest) to 5 (highest)." .
+
+apm:impactScore a owl:DatatypeProperty ;
+    rdfs:label "impact score" ;
+    rdfs:domain apm:Finding ;
+    rdfs:range [
+        a rdfs:Datatype ;
+        owl:onDatatype xsd:integer ;
+        owl:withRestrictions ( [ xsd:minInclusive 1 ] [ xsd:maxInclusive 5 ] )
+    ] ;
+    rdfs:comment "The severity of consequence if the finding is left unaddressed, on a scale of 1 (lowest) to 5 (highest)." .
 
 
 ### --------------------------------------------------
@@ -733,3 +763,34 @@ apm:RiskAccepted a apm:FindingStatus ;
 apm:Closed a apm:FindingStatus ;
     rdfs:label "Closed" ;
     rdfs:comment "The finding requires no further action, whether through remediation or accepted risk." .
+
+
+# Impact Type
+
+apm:DataBreach a apm:ImpactType ;
+    rdfs:label "Data Breach" ;
+    rdfs:comment "Unauthorized access to or disclosure of sensitive data." .
+
+apm:ServiceOutage a apm:ImpactType ;
+    rdfs:label "Service Outage" ;
+    rdfs:comment "Disruption or unavailability of the application or its dependent services." .
+
+apm:RegulatoryFine a apm:ImpactType ;
+    rdfs:label "Regulatory Fine" ;
+    rdfs:comment "A financial penalty imposed for failing to meet a legal or compliance obligation." .
+
+apm:ReputationalDamage a apm:ImpactType ;
+    rdfs:label "Reputational Damage" ;
+    rdfs:comment "Loss of trust or standing with customers, partners, or the public." .
+
+apm:FinancialLoss a apm:ImpactType ;
+    rdfs:label "Financial Loss" ;
+    rdfs:comment "Direct monetary loss not attributable to a regulatory fine." .
+
+apm:SafetyRisk a apm:ImpactType ;
+    rdfs:label "Safety Risk" ;
+    rdfs:comment "Potential for physical harm to people or damage to physical assets." .
+
+apm:ContractualBreach a apm:ImpactType ;
+    rdfs:label "Contractual Breach" ;
+    rdfs:comment "Failure to meet an obligation owed to a customer, partner, or supplier under contract." .
