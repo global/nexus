@@ -604,6 +604,16 @@ apm:impactScore a owl:DatatypeProperty ;
     ] ;
     rdfs:comment "The severity of consequence if the finding is left unaddressed, on a scale of 1 (lowest) to 5 (highest)." .
 
+apm:capabilityWeight a owl:DatatypeProperty ;
+    rdfs:label "capability weight" ;
+    rdfs:domain apm:BusinessCapability ;
+    rdfs:range [
+        a rdfs:Datatype ;
+        owl:onDatatype xsd:integer ;
+        owl:withRestrictions ( [ xsd:minInclusive 1 ] [ xsd:maxInclusive 5 ] )
+    ] ;
+    rdfs:comment "The relative strategic importance of the capability to the business, on a scale of 1 (lowest) to 5 (highest)." .
+
 
 ### --------------------------------------------------
 ### INDIVIDUALS (Controlled Vocabulary)
