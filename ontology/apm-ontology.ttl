@@ -244,6 +244,10 @@ apm:SLACategory a owl:Class ;
     rdfs:label "SLA Category" ;
     rdfs:comment "An open, extensible classification of the kind of service level being measured. Application owners may define new categories, such as Availability, Throughput, or Response Time, as needed." .
 
+apm:Environment a owl:Class ;
+    rdfs:label "Environment" ;
+    rdfs:comment "A classification of the deployment tier in which a physical component operates, such as Production, Staging, Development, Test, or Disaster Recovery." .
+
 
 ### --------------------------------------------------
 ### RELATIONSHIPS (Object Properties)
@@ -361,6 +365,15 @@ apm:deployedOn a owl:ObjectProperty ;
     rdfs:domain apm:PhysicalApplicationComponent ;
     rdfs:range apm:PhysicalTechnologyComponent ;
     rdfs:comment "Physical componentns hosts application components execution." .
+
+apm:hasEnvironment a owl:ObjectProperty ;
+    rdfs:label "has environment" ;
+    rdfs:domain [
+        a owl:Class ;
+        owl:unionOf ( apm:PhysicalApplicationComponent apm:PhysicalTechnologyComponent )
+    ] ;
+    rdfs:range apm:Environment ;
+    rdfs:comment "A physical application or technology component is classified by the deployment tier in which it operates, such as Production, Staging, Development, or Test." .
 
 apm:realizesLogicalTechnologyComponent a owl:ObjectProperty ;
     rdfs:label "realizes logical technology component" ;
@@ -735,6 +748,12 @@ apm:capabilityWeight a owl:DatatypeProperty ;
     ] ;
     rdfs:comment "The relative strategic importance of the capability to the business, on a scale of 1 (lowest) to 5 (highest)." .
 
+apm:version a owl:DatatypeProperty ;
+    rdfs:label "version" ;
+    rdfs:domain apm:SoftwareProduct ;
+    rdfs:range xsd:string ;
+    rdfs:comment "The version identifier of the software product, as declared in its SWID tag." .
+
 apm:endOfLifeDate a owl:DatatypeProperty ;
     rdfs:label "end of life date" ;
     rdfs:domain apm:SoftwareProduct ;
@@ -746,6 +765,15 @@ apm:endOfSupportDate a owl:DatatypeProperty ;
     rdfs:domain apm:SoftwareProduct ;
     rdfs:range xsd:date ;
     rdfs:comment "The date on which the vendor stops providing patches, security updates, or support for the software product." .
+
+apm:assetIdentifier a owl:DatatypeProperty ;
+    rdfs:label "asset identifier" ;
+    rdfs:domain [
+        a owl:Class ;
+        owl:unionOf ( apm:PhysicalApplicationComponent apm:PhysicalTechnologyComponent )
+    ] ;
+    rdfs:range xsd:string ;
+    rdfs:comment "A unique identifier for the physical asset or deployed instance, such as a hostname, IP address, serial number, or instance ID." .
 
 # [6] International Organization for Standardization, "ISO 22301:2019 --
 #     Security and resilience -- Business continuity management systems --
@@ -813,6 +841,12 @@ apm:effectiveTo a owl:DatatypeProperty ;
     rdfs:domain apm:ServiceLevelAgreement ;
     rdfs:range xsd:date ;
     rdfs:comment "The date on which a service level agreement's terms expire." .
+
+apm:controlReference a owl:DatatypeProperty ; # [7]
+    rdfs:label "control reference" ;
+    rdfs:domain apm:Control ;
+    rdfs:range xsd:string ;
+    rdfs:comment "The clause or control identifier from an external catalog that this control implements, such as ISO/IEC 27002 5.15 or NIST SP 800-53 AC-2." .
 
 ### --------------------------------------------------
 ### INDIVIDUALS (Controlled Vocabulary)
@@ -1049,3 +1083,26 @@ apm:ResponseTime a apm:SLACategory ;
 apm:ResolutionTime a apm:SLACategory ;
     rdfs:label "Resolution Time" ;
     rdfs:comment "The time taken to resolve a reported incident affecting an application." .
+
+
+# Environment
+
+apm:Production a apm:Environment ;
+    rdfs:label "Production" ;
+    rdfs:comment "The live environment serving actual business operations and end users." .
+
+apm:Staging a apm:Environment ;
+    rdfs:label "Staging" ;
+    rdfs:comment "A pre-production environment used to validate changes under production-like conditions." .
+
+apm:DevelopmentEnvironment a apm:Environment ;
+    rdfs:label "Development" ;
+    rdfs:comment "An environment used for active software development and unit testing." .
+
+apm:Test a apm:Environment ;
+    rdfs:label "Test" ;
+    rdfs:comment "An environment used for formal testing activities, such as QA or user acceptance testing." .
+
+apm:DisasterRecovery a apm:Environment ;
+    rdfs:label "Disaster Recovery" ;
+    rdfs:comment "A standby environment maintained to restore production operations following a disruption." .
