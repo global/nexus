@@ -102,9 +102,7 @@ apm:FindingShape a sh:NodeShape ;
     ] .
 
 # Conditional rule: cvssScore may only be present on findings categorized
-# as Vulnerability. Expressed as sh:or (material implication: cvssScore
-# exists -> hasFindingCategory = Vulnerability), since plain SHACL Core
-# has no direct if-then construct.
+# as Vulnerability. 
 apm:FindingCvssOnlyForVulnerabilityShape a sh:NodeShape ;
     sh:targetClass apm:Finding ;
     sh:or (
