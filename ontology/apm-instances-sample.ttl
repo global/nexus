@@ -1,0 +1,869 @@
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix dct:  <http://purl.org/dc/terms/> .
+@prefix apm:  <http://nexus-apm.org/ontology/apm#> .
+
+###################################################################
+# Nexus Insight APM — Sample Instance Data                        #
+# Scenario: "NexusAPM" — a fictional, medium-size enterprise      #
+# SaaS company (~650 employees) that builds and sells             #
+# workflow-automation and data-integration software for other     #
+# businesses. Used to exercise the ontology defined in            #
+# apm-ontology.ttl and validate it against the competency         #
+# questions in apm-competency-queries.sparql.                     #
+###################################################################
+#
+# This file is deliberately kept separate from the ontology
+# definition, consistent with the separation already established
+# between apm-ontology.ttl and apm-shapes.ttl: this file supplies
+# instance data; apm-ontology.ttl supplies the vocabulary
+# those instances use; apm-shapes.ttl supplies the constraints this
+# data is expected to satisfy.
+#
+# SCENARIO GUIDE — the following situations are deliberately built
+# into the data so that each competency question returns a
+# meaningful, non-trivial result:
+#
+#   * A cascading outage scenario: apm:SecureAuthIAM (Identity &
+#     Access Management) is a dependency of four other applications,
+#     one of which (apm:PayStreamPayroll) is itself downstream of a
+#     fifth -- so an IAM outage traces through two hops of blast
+#     radius. Separately, apm:BuildFarmServer is a technology
+#     dependency of apm:DeployTrackAppServer, giving a concrete
+#     "infrastructure outage -> business capability" trace (CQ-1).
+#   * A legacy, unsupported on-premises CI/CD platform
+#     (apm:BuildForgePlatform): past its end-of-support date,
+#     classified Migrate, high and rising maintenance cost, weak
+#     recovery objectives despite Critical criticality -- the
+#     classic "we can't ship software without it, but nobody wants
+#     to touch it" legacy engineering system (CQ-8, CQ-10, CQ-11).
+#   * A vendor compliance gap: apm:PayStreamPayroll requires ISO/IEC
+#     27001, but its hosting supplier (apm:PayStreamVendor) is only
+#     certified to SOC 2 (CQ-4, CQ-5).
+#   * An overdue, high-severity vulnerability on the customer-facing
+#     apm:CustomerPortalWeb (CQ-7), alongside a Remediated example
+#     and a RiskAccepted example, to show the full status lifecycle.
+#   * A full TIME quadrant spread across the portfolio: Invest
+#     (apm:PeopleHubHRIS), Tolerate (apm:ProcureSuite), Migrate
+#     (apm:BuildForgePlatform), Eliminate (apm:FinReportLegacy) (CQ-8).
+#   * A software-entitlement-vs-usage comparison for apm:PeopleHubHRIS
+#     (CQ-12).
+#   * A three-level business capability hierarchy under Information
+#     Technology, used to demonstrate impact roll-up (CQ-13).
+#
+# All monetary values are illustrative, in EUR. All dates are
+# consistent with a "today" of 2026-07-19.
+
+
+### --------------------------------------------------
+### Locations
+### --------------------------------------------------
+
+apm:NexusAPMHQ a apm:Location ;
+    rdfs:label "NexusAPM HQ, Dublin, Ireland" .
+
+apm:EngineeringHubToronto a apm:Location ;
+    rdfs:label "Engineering Hub, Toronto, ON" .
+
+
+### --------------------------------------------------
+### Organization Units
+### --------------------------------------------------
+
+apm:HRDepartment a apm:OrganizationUnit ;
+    rdfs:label "Human Resources" ;
+    apm:costCenterCode "CC-100" ;
+    apm:locatedAt apm:NexusAPMHQ .
+
+apm:ProcurementDepartment a apm:OrganizationUnit ;
+    rdfs:label "Procurement" ;
+    apm:costCenterCode "CC-200" ;
+    apm:locatedAt apm:NexusAPMHQ .
+
+apm:ITDepartment a apm:OrganizationUnit ;
+    rdfs:label "Information Technology" ;
+    apm:costCenterCode "CC-300" ;
+    apm:locatedAt apm:NexusAPMHQ .
+
+apm:EngineeringDepartment a apm:OrganizationUnit ;
+    rdfs:label "Engineering" ;
+    apm:costCenterCode "CC-400" ;
+    apm:locatedAt apm:EngineeringHubToronto .
+
+apm:FinanceDepartment a apm:OrganizationUnit ;
+    rdfs:label "Finance" ;
+    apm:costCenterCode "CC-500" ;
+    apm:locatedAt apm:NexusAPMHQ .
+
+apm:SalesDepartment a apm:OrganizationUnit ;
+    rdfs:label "Sales & Customer Management" ;
+    apm:costCenterCode "CC-600" ;
+    apm:locatedAt apm:NexusAPMHQ .
+
+
+### --------------------------------------------------
+### Roles (open vocabulary; sample instances for this scenario)
+### --------------------------------------------------
+
+apm:CTORole a apm:Role ; rdfs:label "Chief Technology Officer" .
+apm:CISORole a apm:Role ; rdfs:label "Chief Information Security Officer" .
+apm:InformationOwnerRole a apm:Role ; rdfs:label "Information Owner" .
+apm:ApplicationOwnerRole a apm:Role ; rdfs:label "Application Owner" .
+
+
+### --------------------------------------------------
+### Actors
+### --------------------------------------------------
+
+apm:AoifeByrne a apm:Actor ;
+    rdfs:label "Aoife Byrne" ;
+    apm:emailAddress "aoife.byrne@nexusapm.example" ;
+    apm:performsRole apm:CTORole ;
+    apm:memberOf apm:ITDepartment .
+
+apm:CianMurphy a apm:Actor ;
+    rdfs:label "Cian Murphy" ;
+    apm:emailAddress "cian.murphy@nexusapm.example" ;
+    apm:performsRole apm:CISORole ;
+    apm:memberOf apm:ITDepartment .
+
+apm:ConorWalsh a apm:Actor ;
+    rdfs:label "Conor Walsh" ;
+    apm:emailAddress "conor.walsh@nexusapm.example" ;
+    apm:performsRole apm:ApplicationOwnerRole ;
+    apm:memberOf apm:ITDepartment .
+
+apm:NiamhOSullivan a apm:Actor ;
+    rdfs:label "Niamh O'Sullivan" ;
+    apm:emailAddress "niamh.osullivan@nexusapm.example" ;
+    apm:memberOf apm:HRDepartment .
+
+apm:DeclanKelly a apm:Actor ;
+    rdfs:label "Declan Kelly" ;
+    apm:emailAddress "declan.kelly@nexusapm.example" ;
+    apm:memberOf apm:ProcurementDepartment .
+
+apm:RoisinGallagher a apm:Actor ;
+    rdfs:label "Roisin Gallagher" ;
+    apm:emailAddress "roisin.gallagher@nexusapm.example" ;
+    apm:memberOf apm:EngineeringDepartment .
+
+apm:SeanRyan a apm:Actor ;
+    rdfs:label "Sean Ryan" ;
+    apm:emailAddress "sean.ryan@nexusapm.example" ;
+    apm:memberOf apm:SalesDepartment .
+
+apm:EoinMcCarthy a apm:Actor ;
+    rdfs:label "Eoin McCarthy" ;
+    apm:emailAddress "eoin.mccarthy@nexusapm.example" ;
+    apm:memberOf apm:FinanceDepartment .
+
+
+### --------------------------------------------------
+### Business Capability Map (three-level hierarchy)
+### --------------------------------------------------
+
+apm:HumanResourceManagement a apm:BusinessCapability ;
+    rdfs:label "Human Resource Management" ; apm:capabilityWeight 4 .
+apm:TalentAcquisition a apm:BusinessCapability ;
+    rdfs:label "Talent Acquisition" ; apm:capabilityWeight 3 ;
+    apm:subCapabilityOf apm:HumanResourceManagement .
+apm:PayrollBenefits a apm:BusinessCapability ;
+    rdfs:label "Payroll & Benefits" ; apm:capabilityWeight 5 ;
+    apm:subCapabilityOf apm:HumanResourceManagement .
+
+apm:Procurement a apm:BusinessCapability ;
+    rdfs:label "Procurement" ; apm:capabilityWeight 3 .
+apm:VendorToolingManagement a apm:BusinessCapability ;
+    rdfs:label "Vendor & Tooling Management" ; apm:capabilityWeight 3 ;
+    apm:subCapabilityOf apm:Procurement .
+apm:PurchaseOrderManagement a apm:BusinessCapability ;
+    rdfs:label "Purchase Order Management" ; apm:capabilityWeight 3 ;
+    apm:subCapabilityOf apm:Procurement .
+
+apm:InformationTechnology a apm:BusinessCapability ;
+    rdfs:label "Information Technology" ; apm:capabilityWeight 5 .
+apm:ITServiceManagement a apm:BusinessCapability ;
+    rdfs:label "IT Service Management" ; apm:capabilityWeight 4 ;
+    apm:subCapabilityOf apm:InformationTechnology .
+apm:CybersecurityOperations a apm:BusinessCapability ;
+    rdfs:label "Cybersecurity Operations" ; apm:capabilityWeight 5 ;
+    apm:subCapabilityOf apm:InformationTechnology .
+apm:IdentityAccessManagement a apm:BusinessCapability ;
+    rdfs:label "Identity & Access Management" ; apm:capabilityWeight 5 ;
+    apm:subCapabilityOf apm:CybersecurityOperations .
+
+apm:EngineeringProductDelivery a apm:BusinessCapability ;
+    rdfs:label "Engineering & Product Delivery" ; apm:capabilityWeight 5 .
+apm:SoftwareEngineering a apm:BusinessCapability ;
+    rdfs:label "Software Engineering" ; apm:capabilityWeight 5 ;
+    apm:subCapabilityOf apm:EngineeringProductDelivery .
+apm:DevOpsReleaseManagement a apm:BusinessCapability ;
+    rdfs:label "DevOps & Release Management" ; apm:capabilityWeight 4 ;
+    apm:subCapabilityOf apm:EngineeringProductDelivery .
+apm:QualityAssuranceTesting a apm:BusinessCapability ;
+    rdfs:label "Quality Assurance & Testing" ; apm:capabilityWeight 4 ;
+    apm:subCapabilityOf apm:EngineeringProductDelivery .
+
+apm:Finance a apm:BusinessCapability ;
+    rdfs:label "Finance" ; apm:capabilityWeight 4 .
+apm:FinancialReporting a apm:BusinessCapability ;
+    rdfs:label "Financial Reporting" ; apm:capabilityWeight 4 ;
+    apm:subCapabilityOf apm:Finance .
+apm:AccountsPayableReceivable a apm:BusinessCapability ;
+    rdfs:label "Accounts Payable / Receivable" ; apm:capabilityWeight 3 ;
+    apm:subCapabilityOf apm:Finance .
+    # NOTE: deliberately left without a linked Application -- a realistic
+    # "capability with no dedicated system of record yet" gap.
+
+apm:SalesCustomerManagement a apm:BusinessCapability ;
+    rdfs:label "Sales & Customer Management" ; apm:capabilityWeight 5 .
+apm:CustomerRelationshipManagement a apm:BusinessCapability ;
+    rdfs:label "Customer Relationship Management" ; apm:capabilityWeight 4 ;
+    apm:subCapabilityOf apm:SalesCustomerManagement .
+apm:SubscriptionBillingManagement a apm:BusinessCapability ;
+    rdfs:label "Subscription & Billing Management" ; apm:capabilityWeight 5 ;
+    apm:subCapabilityOf apm:SalesCustomerManagement .
+
+
+### --------------------------------------------------
+### Suppliers
+### --------------------------------------------------
+
+apm:WorkforceCloudInc a apm:Supplier ;
+    rdfs:label "WorkforceCloud Inc." ;
+    apm:hasCertification apm:SOC2, apm:ISO27001 .
+
+apm:PayStreamVendor a apm:Supplier ;
+    rdfs:label "PayStream Solutions Ltd." ;
+    apm:hasCertification apm:SOC2 .
+    # NOTE: deliberately missing ISO/IEC 27001 -- see CQ-4 / CQ-5.
+
+apm:ProcureSuiteVendor a apm:Supplier ;
+    rdfs:label "ProcureSuite Technologies" ;
+    apm:hasCertification apm:SOC2 .
+
+apm:CloudHostSupplier a apm:Supplier ;
+    rdfs:label "NimbusCloud Hosting" ;
+    apm:hasCertification apm:SOC2, apm:ISO27001, apm:PCIDSS .
+
+apm:CRMVendorInc a apm:Supplier ;
+    rdfs:label "SummitCRM Inc." ;
+    apm:hasCertification apm:SOC2, apm:ISO27001 .
+
+apm:ITServiceHubVendor a apm:Supplier ;
+    rdfs:label "ServiceHub Software" ;
+    apm:hasCertification apm:SOC2 .
+
+
+### --------------------------------------------------
+### Controls
+### --------------------------------------------------
+
+apm:MFAControl a apm:Control ;
+    rdfs:label "Multi-Factor Authentication" ;
+    apm:controlReference "ISO/IEC 27002:2022 5.17" ;
+    apm:supportsComplianceStandard apm:ISO27001 .
+
+apm:AccessReviewControl a apm:Control ;
+    rdfs:label "Periodic Access Review" ;
+    apm:controlReference "ISO/IEC 27002:2022 5.18" ;
+    apm:supportsComplianceStandard apm:ISO27001, apm:SOC2 .
+
+
+### --------------------------------------------------
+### Data Entities
+### --------------------------------------------------
+
+apm:EmployeeRecord a apm:DataEntity ;
+    rdfs:label "Employee Record" ;
+    apm:hasDataSensitivity apm:PII .
+
+apm:PayrollRecord a apm:DataEntity ;
+    rdfs:label "Payroll Record" ;
+    apm:hasDataSensitivity apm:PII, apm:Confidential .
+
+apm:CustomerSubscriptionRecord a apm:DataEntity ;
+    rdfs:label "Customer Subscription Record" ;
+    apm:hasDataSensitivity apm:PII .
+
+apm:PaymentCardData a apm:DataEntity ;
+    rdfs:label "Payment Card Data" ;
+    apm:hasDataSensitivity apm:PII, apm:HighlyConfidential .
+
+
+### --------------------------------------------------
+### Applications
+### --------------------------------------------------
+
+apm:PeopleHubHRIS a apm:Application ;
+    rdfs:label "PeopleHub HRIS" ;
+    apm:hasOwner apm:NiamhOSullivan ;
+    apm:managedByOrganizationUnit apm:HRDepartment ;
+    apm:enablesCapability apm:TalentAcquisition, apm:PayrollBenefits ;
+    apm:hasLifecycleStatus apm:Operate ;
+    apm:hasCriticalityTier apm:High ;
+    apm:hasHostingModel apm:ExternallyHosted ;
+    apm:hostedBySupplier apm:WorkforceCloudInc ;
+    apm:hasInvestmentStrategy apm:Invest ;
+    apm:requiresCompliance apm:GDPR, apm:SOC2 ;
+    apm:goLiveDate "2021-03-01"^^xsd:date ;
+    apm:recoveryTimeObjective "PT8H"^^xsd:duration ;
+    apm:recoveryPointObjective "PT4H"^^xsd:duration ;
+    apm:accessesData apm:EmployeeRecord .
+
+apm:PayStreamPayroll a apm:Application ;
+    rdfs:label "PayStream Payroll" ;
+    apm:hasOwner apm:NiamhOSullivan ;
+    apm:managedByOrganizationUnit apm:HRDepartment ;
+    apm:enablesCapability apm:PayrollBenefits ;
+    apm:hasLifecycleStatus apm:Operate ;
+    apm:hasCriticalityTier apm:Critical ;
+    apm:hasHostingModel apm:ExternallyHosted ;
+    apm:hostedBySupplier apm:PayStreamVendor ;
+    apm:hasInvestmentStrategy apm:Tolerate ;
+    apm:requiresCompliance apm:SOC2, apm:ISO27001 ;
+    apm:goLiveDate "2019-09-15"^^xsd:date ;
+    apm:recoveryTimeObjective "PT4H"^^xsd:duration ;
+    apm:recoveryPointObjective "PT1H"^^xsd:duration ;
+    apm:accessesData apm:EmployeeRecord, apm:PayrollRecord .
+
+apm:ProcureSuite a apm:Application ;
+    rdfs:label "ProcureSuite" ;
+    apm:hasOwner apm:DeclanKelly ;
+    apm:managedByOrganizationUnit apm:ProcurementDepartment ;
+    apm:enablesCapability apm:VendorToolingManagement, apm:PurchaseOrderManagement ;
+    apm:hasLifecycleStatus apm:Operate ;
+    apm:hasCriticalityTier apm:Medium ;
+    apm:hasHostingModel apm:ExternallyHosted ;
+    apm:hostedBySupplier apm:ProcureSuiteVendor ;
+    apm:hasInvestmentStrategy apm:Tolerate ;
+    apm:requiresCompliance apm:SOC2 ;
+    apm:goLiveDate "2020-01-10"^^xsd:date .
+    # Used company-wide, including to procure the cloud/SaaS tooling that
+    # Engineering and IT depend on.
+
+apm:BuildForgePlatform a apm:Application ;
+    rdfs:label "BuildForge CI/CD Platform" ;
+    apm:hasOwner apm:RoisinGallagher ;
+    apm:managedByOrganizationUnit apm:EngineeringDepartment ;
+    apm:enablesCapability apm:SoftwareEngineering, apm:DevOpsReleaseManagement ;
+    apm:hasLifecycleStatus apm:Operate ;
+    apm:hasCriticalityTier apm:Critical ;
+    apm:hasHostingModel apm:InternallyHosted ;
+    apm:hasInvestmentStrategy apm:Migrate ;
+    apm:goLiveDate "2013-04-01"^^xsd:date ;
+    apm:recoveryTimeObjective "PT24H"^^xsd:duration ;
+    apm:recoveryPointObjective "PT12H"^^xsd:duration ;
+    apm:comprisesLogicalComponent apm:BuildForgePlatform_LogicalComponent ;
+    apm:hasDeployment apm:BuildForgePlatform_Instance .
+    # NOTE: a 24h/12h RTO/RPO on a Critical-tier application is a deliberate
+    # inconsistency for CQ-11 to surface -- every engineer's ability to
+    # build and ship software runs through this platform, yet its recovery
+    # posture has not kept pace with that criticality. The self-hosted
+    # on-premises CI/CD orchestrator every build and release passes
+    # through: over a decade old, unsupported since 2023, and the single
+    # highest-cost, hardest-to-replace system in the portfolio.
+
+apm:DeployTrackReleaseManager a apm:Application ;
+    rdfs:label "DeployTrack Release Manager" ;
+    apm:hasOwner apm:RoisinGallagher ;
+    apm:managedByOrganizationUnit apm:EngineeringDepartment ;
+    apm:enablesCapability apm:DevOpsReleaseManagement, apm:QualityAssuranceTesting ;
+    apm:hasLifecycleStatus apm:Operate ;
+    apm:hasCriticalityTier apm:High ;
+    apm:hasHostingModel apm:InternallyHosted ;
+    apm:hasInvestmentStrategy apm:Tolerate ;
+    apm:goLiveDate "2017-04-01"^^xsd:date ;
+    apm:recoveryTimeObjective "PT6H"^^xsd:duration ;
+    apm:recoveryPointObjective "PT2H"^^xsd:duration ;
+    apm:comprisesLogicalComponent apm:DeployTrackReleaseManager_LogicalComponent ;
+    apm:hasDeployment apm:DeployTrackReleaseManager_Instance .
+    # Tracks deployment artifacts, environments, and release approvals
+    # across the engineering organisation's staging and production
+    # pipelines; pulls build artifacts from BuildForge.
+
+apm:SecureAuthIAM a apm:Application ;
+    rdfs:label "SecureAuth IAM" ;
+    apm:hasOwner apm:CianMurphy ;
+    apm:managedByOrganizationUnit apm:ITDepartment ;
+    apm:enablesCapability apm:IdentityAccessManagement, apm:CybersecurityOperations ;
+    apm:hasLifecycleStatus apm:Operate ;
+    apm:hasCriticalityTier apm:Critical ;
+    apm:hasHostingModel apm:InternallyHosted ;
+    apm:hasInvestmentStrategy apm:Invest ;
+    apm:requiresCompliance apm:ISO27001, apm:SOC2 ;
+    apm:goLiveDate "2022-11-01"^^xsd:date ;
+    apm:recoveryTimeObjective "PT1H"^^xsd:duration ;
+    apm:recoveryPointObjective "PT15M"^^xsd:duration ;
+    apm:implementsControl apm:MFAControl ;
+    apm:hasDocument apm:Doc_IAM_ThreatModel .
+
+apm:CustomerPortalWeb a apm:Application ;
+    rdfs:label "Customer Portal (Web)" ;
+    apm:hasOwner apm:SeanRyan ;
+    apm:managedByOrganizationUnit apm:SalesDepartment ;
+    apm:enablesCapability apm:SubscriptionBillingManagement, apm:CustomerRelationshipManagement ;
+    apm:hasLifecycleStatus apm:Operate ;
+    apm:hasCriticalityTier apm:Critical ;
+    apm:hasHostingModel apm:ExternallyHosted ;
+    apm:hostedBySupplier apm:CloudHostSupplier ;
+    apm:hasInvestmentStrategy apm:Invest ;
+    apm:requiresCompliance apm:PCIDSS ;
+    apm:goLiveDate "2023-02-15"^^xsd:date ;
+    apm:recoveryTimeObjective "PT2H"^^xsd:duration ;
+    apm:recoveryPointObjective "PT30M"^^xsd:duration ;
+    apm:accessesData apm:CustomerSubscriptionRecord, apm:PaymentCardData ;
+    apm:hasRepository apm:Repo_CustomerPortal_Web .
+    # The self-service portal where NexusAPM's customers manage their
+    # subscription, view product usage, and update billing details.
+
+apm:CRMPlatform a apm:Application ;
+    rdfs:label "Summit CRM" ;
+    apm:hasOwner apm:SeanRyan ;
+    apm:managedByOrganizationUnit apm:SalesDepartment ;
+    apm:enablesCapability apm:CustomerRelationshipManagement ;
+    apm:hasLifecycleStatus apm:Operate ;
+    apm:hasCriticalityTier apm:High ;
+    apm:hasHostingModel apm:ExternallyHosted ;
+    apm:hostedBySupplier apm:CRMVendorInc ;
+    apm:hasInvestmentStrategy apm:Invest ;
+    apm:requiresCompliance apm:SOC2 ;
+    apm:goLiveDate "2022-06-01"^^xsd:date .
+
+apm:FinReportLegacy a apm:Application ;
+    rdfs:label "FinReport Legacy" ;
+    apm:hasOwner apm:EoinMcCarthy ;
+    apm:managedByOrganizationUnit apm:FinanceDepartment ;
+    apm:enablesCapability apm:FinancialReporting ;
+    apm:hasLifecycleStatus apm:Operate ;
+    apm:hasCriticalityTier apm:Low ;
+    apm:hasHostingModel apm:InternallyHosted ;
+    apm:hasInvestmentStrategy apm:Eliminate ;
+    apm:goLiveDate "2008-01-01"^^xsd:date ;
+    apm:hasDeployment apm:FinReportLegacy_Instance .
+
+apm:ITServiceHub a apm:Application ;
+    rdfs:label "ITServiceHub" ;
+    apm:hasOwner apm:ConorWalsh ;
+    apm:managedByOrganizationUnit apm:ITDepartment ;
+    apm:enablesCapability apm:ITServiceManagement ;
+    apm:hasLifecycleStatus apm:Operate ;
+    apm:hasCriticalityTier apm:Medium ;
+    apm:hasHostingModel apm:ExternallyHosted ;
+    apm:hostedBySupplier apm:ITServiceHubVendor ;
+    apm:hasInvestmentStrategy apm:Tolerate ;
+    apm:requiresCompliance apm:SOC2 ;
+    apm:goLiveDate "2020-08-01"^^xsd:date ;
+    apm:implementsControl apm:AccessReviewControl ;
+    apm:hasRepository apm:Repo_ITServiceHub_Integrations .
+
+
+### --------------------------------------------------
+### Application Contacts
+### --------------------------------------------------
+
+apm:Contact_HRIS_InfoOwner a apm:ApplicationContact ;
+    apm:forApplication apm:PeopleHubHRIS ;
+    apm:contactActor apm:NiamhOSullivan ;
+    apm:contactRole apm:InformationOwnerRole .
+
+apm:Contact_IAM_CISO a apm:ApplicationContact ;
+    apm:forApplication apm:SecureAuthIAM ;
+    apm:contactActor apm:CianMurphy ;
+    apm:contactRole apm:CISORole .
+
+apm:Contact_IAM_CTO a apm:ApplicationContact ;
+    apm:forApplication apm:SecureAuthIAM ;
+    apm:contactActor apm:AoifeByrne ;
+    apm:contactRole apm:CTORole .
+
+apm:Contact_BuildForge_Owner a apm:ApplicationContact ;
+    apm:forApplication apm:BuildForgePlatform ;
+    apm:contactActor apm:RoisinGallagher ;
+    apm:contactRole apm:ApplicationOwnerRole .
+
+apm:Contact_CustomerPortal_Owner a apm:ApplicationContact ;
+    apm:forApplication apm:CustomerPortalWeb ;
+    apm:contactActor apm:SeanRyan ;
+    apm:contactRole apm:ApplicationOwnerRole .
+
+
+### --------------------------------------------------
+### Logical / Physical Application Components and
+### Physical Technology Components
+### --------------------------------------------------
+
+apm:BuildForgePlatform_LogicalComponent a apm:LogicalApplicationComponent ;
+    rdfs:label "BuildForge Core Logical Component" .
+
+apm:DeployTrackReleaseManager_LogicalComponent a apm:LogicalApplicationComponent ;
+    rdfs:label "DeployTrack Core Logical Component" .
+
+apm:BuildFarmServer a apm:PhysicalTechnologyComponent ;
+    rdfs:label "Build Farm Server" ;
+    apm:assetIdentifier "build-farm-prod-01.nexusapm.example" ;
+    apm:hasEnvironment apm:Production .
+
+apm:DeployTrackAppServer a apm:PhysicalTechnologyComponent ;
+    rdfs:label "DeployTrack Application Server" ;
+    apm:assetIdentifier "app-deploytrack-prod-01.nexusapm.example" ;
+    apm:hasEnvironment apm:Production .
+
+apm:BuildForgePlatform_Instance a apm:PhysicalApplicationComponent ;
+    rdfs:label "BuildForge CI/CD Platform — Production Instance" ;
+    apm:realizesLogicalComponent apm:BuildForgePlatform_LogicalComponent ;
+    apm:deployedOn apm:BuildFarmServer ;
+    apm:hasEnvironment apm:Production ;
+    apm:identifiedBy apm:BuildForgePlatform_SoftwareProduct .
+
+apm:DeployTrackReleaseManager_Instance a apm:PhysicalApplicationComponent ;
+    rdfs:label "DeployTrack Release Manager — Production Instance" ;
+    apm:realizesLogicalComponent apm:DeployTrackReleaseManager_LogicalComponent ;
+    apm:deployedOn apm:DeployTrackAppServer ;
+    apm:hasEnvironment apm:Production .
+
+# Technology-layer dependency: the DeployTrack application server relies on
+# the build farm server for build artifacts and status in real time. This
+# is the concrete "infrastructure outage -> business capability" scenario
+# used in CQ-1.
+apm:TechDep_DeployTrackServer_on_BuildFarmServer a apm:TechnologyDependency ;
+    apm:upstreamTechnologyComponent apm:BuildFarmServer ;
+    apm:downstreamTechnologyComponent apm:DeployTrackAppServer ;
+    apm:usesProtocol apm:DatabaseConnection ;
+    apm:hasSynchronicity apm:Synchronous .
+
+
+### --------------------------------------------------
+### Software Products, Entitlements, Metrics, and
+### Resource Utilization (ISO/IEC 19770-2/-3/-4)
+### --------------------------------------------------
+
+apm:BuildForgePlatform_SoftwareProduct a apm:SoftwareProduct ;
+    rdfs:label "BuildForge Enterprise" ;
+    apm:version "5.4" ;
+    apm:endOfLifeDate "2022-06-30"^^xsd:date ;
+    apm:endOfSupportDate "2023-12-31"^^xsd:date .
+    # NOTE: over two and a half years past end-of-support as of 2026-07-19 --
+    # the primary example for CQ-10.
+
+apm:FinReportLegacy_SoftwareProduct a apm:SoftwareProduct ;
+    rdfs:label "FinReport Classic" ;
+    apm:version "3.1" ;
+    apm:endOfLifeDate "2017-06-01"^^xsd:date ;
+    apm:endOfSupportDate "2019-01-01"^^xsd:date .
+
+apm:FinReportLegacy_Instance a apm:PhysicalApplicationComponent ;
+    rdfs:label "FinReport Legacy — Production Instance" ;
+    apm:hasEnvironment apm:Production ;
+    apm:identifiedBy apm:FinReportLegacy_SoftwareProduct .
+    # Linked so that CQ-10 (end-of-life/end-of-support exposure) surfaces
+    # both BuildForge and FinReport Legacy as affected applications.
+
+apm:PeopleHubHRIS_SoftwareProduct a apm:SoftwareProduct ;
+    rdfs:label "PeopleHub HRIS" ;
+    apm:version "24.3" ;
+    apm:suppliedBy apm:WorkforceCloudInc ;
+    apm:coveredByEntitlement apm:PeopleHubHRIS_Entitlement .
+
+apm:PerNamedUserMetric a apm:Metric ;
+    rdfs:label "Per Named User" .
+
+apm:PeopleHubHRIS_Entitlement a apm:SoftwareEntitlement ;
+    rdfs:label "PeopleHub HRIS — 500 Named-User Licenses" ;
+    apm:measuredByMetric apm:PerNamedUserMetric .
+
+apm:PeopleHubHRIS_Usage_H1_2026 a apm:ResourceUtilizationRecord ;
+    apm:measuresProduct apm:PeopleHubHRIS_SoftwareProduct ;
+    apm:measuredAgainstMetric apm:PerNamedUserMetric ;
+    apm:measuredValue 340 ;
+    apm:measurementPeriodStart "2026-01-01"^^xsd:date ;
+    apm:measurementPeriodEnd "2026-06-30"^^xsd:date .
+    # 340 of 500 entitled named-user seats actually used in H1 2026 -- a
+    # 68% utilisation rate, the basis for CQ-12.
+
+
+### --------------------------------------------------
+### Application Dependencies
+### --------------------------------------------------
+# SecureAuth IAM is a shared dependency of four applications, one of which
+# (PayStream Payroll) is itself downstream of PeopleHub HRIS, and another
+# of which (Customer Portal (Web)) is itself upstream of Summit CRM --
+# giving a two-hop transitive blast radius from a single IAM outage in
+# both directions, used in CQ-2.
+
+apm:Dep_HRIS_on_IAM a apm:ApplicationDependency ;
+    apm:upstreamApplication apm:SecureAuthIAM ;
+    apm:downstreamApplication apm:PeopleHubHRIS ;
+    apm:usesProtocol apm:RESTAPI ;
+    apm:hasSynchronicity apm:Synchronous .
+
+apm:Dep_ProcureSuite_on_IAM a apm:ApplicationDependency ;
+    apm:upstreamApplication apm:SecureAuthIAM ;
+    apm:downstreamApplication apm:ProcureSuite ;
+    apm:usesProtocol apm:RESTAPI ;
+    apm:hasSynchronicity apm:Synchronous .
+
+apm:Dep_CustomerPortal_on_IAM a apm:ApplicationDependency ;
+    apm:upstreamApplication apm:SecureAuthIAM ;
+    apm:downstreamApplication apm:CustomerPortalWeb ;
+    apm:usesProtocol apm:RESTAPI ;
+    apm:hasSynchronicity apm:Synchronous .
+
+apm:Dep_ITServiceHub_on_IAM a apm:ApplicationDependency ;
+    apm:upstreamApplication apm:SecureAuthIAM ;
+    apm:downstreamApplication apm:ITServiceHub ;
+    apm:usesProtocol apm:RESTAPI ;
+    apm:hasSynchronicity apm:Synchronous .
+
+apm:Dep_PayStream_on_HRIS a apm:ApplicationDependency ;
+    apm:upstreamApplication apm:PeopleHubHRIS ;
+    apm:downstreamApplication apm:PayStreamPayroll ;
+    apm:usesProtocol apm:RESTAPI ;
+    apm:hasSynchronicity apm:Batch .
+
+apm:Dep_DeployTrack_on_BuildForge a apm:ApplicationDependency ;
+    apm:upstreamApplication apm:BuildForgePlatform ;
+    apm:downstreamApplication apm:DeployTrackReleaseManager ;
+    apm:usesProtocol apm:DatabaseConnection ;
+    apm:hasSynchronicity apm:Synchronous .
+
+apm:Dep_CRM_on_CustomerPortal a apm:ApplicationDependency ;
+    apm:upstreamApplication apm:CustomerPortalWeb ;
+    apm:downstreamApplication apm:CRMPlatform ;
+    apm:usesProtocol apm:MessageQueue ;
+    apm:hasSynchronicity apm:Asynchronous .
+
+
+### --------------------------------------------------
+### Findings
+### --------------------------------------------------
+
+apm:Finding_CVE_CustomerPortal a apm:Finding ;
+    apm:affectsApplication apm:CustomerPortalWeb ;
+    apm:hasFindingCategory apm:Vulnerability ;
+    apm:cveId "CVE-2026-13371" ;
+    apm:cvssScore 9.1 ;
+    apm:findingDetails "Unauthenticated remote code execution in the customer portal's payment integration library." ;
+    apm:likelihoodScore 5 ;
+    apm:impactScore 5 ;
+    apm:riskScore 5 ;
+    apm:hasImpactType apm:DataBreach, apm:RegulatoryFine, apm:ReputationalDamage ;
+    apm:identifiedOn "2026-05-01"^^xsd:date ;
+    apm:dueDate "2026-05-31"^^xsd:date ;
+    apm:hasFindingStatus apm:Open .
+    # Overdue by roughly seven weeks as of 2026-07-19 -- the primary
+    # example for CQ-7.
+
+apm:Finding_EOL_BuildForge a apm:Finding ;
+    apm:affectsApplication apm:BuildForgePlatform ;
+    apm:hasFindingCategory apm:TechnicalRisk ;
+    apm:findingDetails "BuildForge Enterprise 5.4 has been unsupported by the vendor since 2023-12-31; no further security patches are available for the CI/CD platform underpinning every software release." ;
+    apm:likelihoodScore 3 ;
+    apm:impactScore 5 ;
+    apm:riskScore 4 ;
+    apm:hasImpactType apm:ServiceOutage, apm:FinancialLoss ;
+    apm:identifiedOn "2026-01-15"^^xsd:date ;
+    apm:dueDate "2026-09-30"^^xsd:date ;
+    apm:hasFindingStatus apm:Open .
+
+apm:Finding_ControlGap_PayStream a apm:Finding ;
+    apm:affectsApplication apm:PayStreamPayroll ;
+    apm:hasFindingCategory apm:ControlGap ;
+    apm:relatesToControl apm:MFAControl ;
+    apm:findingDetails "PayStream Payroll administrative console does not enforce multi-factor authentication." ;
+    apm:likelihoodScore 3 ;
+    apm:impactScore 4 ;
+    apm:riskScore 4 ;
+    apm:hasImpactType apm:DataBreach ;
+    apm:identifiedOn "2026-06-01"^^xsd:date ;
+    apm:dueDate "2026-08-15"^^xsd:date ;
+    apm:hasFindingStatus apm:InRemediation .
+
+apm:Finding_BusinessRisk_IAM a apm:Finding ;
+    apm:affectsApplication apm:SecureAuthIAM ;
+    apm:hasFindingCategory apm:BusinessRisk ;
+    apm:threatensCapability apm:IdentityAccessManagement ;
+    apm:findingDetails "SecureAuth IAM has no active-active failover; a regional outage would remove authentication for four downstream applications simultaneously." ;
+    apm:likelihoodScore 2 ;
+    apm:impactScore 5 ;
+    apm:riskScore 4 ;
+    apm:hasImpactType apm:ServiceOutage, apm:FinancialLoss ;
+    apm:identifiedOn "2026-04-10"^^xsd:date ;
+    apm:dueDate "2026-07-10"^^xsd:date ;
+    apm:hasFindingStatus apm:Open .
+    # Overdue by roughly nine days as of 2026-07-19; demonstrates CQ-13
+    # (impact rolls up from Identity & Access Management to Cybersecurity
+    # Operations to Information Technology).
+
+apm:Finding_TechRisk_FinReport a apm:Finding ;
+    apm:affectsApplication apm:FinReportLegacy ;
+    apm:hasFindingCategory apm:TechnicalRisk ;
+    apm:findingDetails "FinReport Classic 3.1 has been unsupported since 2019; the application is scheduled for retirement and the residual risk has been formally accepted." ;
+    apm:likelihoodScore 2 ;
+    apm:impactScore 2 ;
+    apm:riskScore 2 ;
+    apm:identifiedOn "2025-11-01"^^xsd:date ;
+    apm:dueDate "2026-02-01"^^xsd:date ;
+    apm:hasFindingStatus apm:RiskAccepted .
+    # Past due but formally risk-accepted -- shows that "overdue" (CQ-7)
+    # must be filtered by status, not date alone.
+
+apm:Finding_Vuln_BuildFarmServer_Remediated a apm:Finding ;
+    apm:affectsTechnologyComponent apm:BuildFarmServer ;
+    apm:hasFindingCategory apm:Vulnerability ;
+    apm:cveId "CVE-2025-44120" ;
+    apm:cvssScore 7.5 ;
+    apm:findingDetails "Unpatched OpenSSL vulnerability on the build farm server, resolved during the March 2026 patch cycle." ;
+    apm:likelihoodScore 3 ;
+    apm:impactScore 4 ;
+    apm:riskScore 3 ;
+    apm:hasImpactType apm:ServiceOutage ;
+    apm:identifiedOn "2026-02-01"^^xsd:date ;
+    apm:dueDate "2026-03-01"^^xsd:date ;
+    apm:hasFindingStatus apm:Remediated .
+
+
+### --------------------------------------------------
+### Cost Records
+### --------------------------------------------------
+
+apm:CR_HRIS_Licensing_FY2025 a apm:CostRecord ;
+    apm:incurredByApplication apm:PeopleHubHRIS ; apm:hasCostCategory apm:Licensing ;
+    apm:costAmount 118000.00 ; apm:costCurrency "EUR" ; apm:fiscalYear "2025"^^xsd:gYear .
+apm:CR_HRIS_Support_FY2025 a apm:CostRecord ;
+    apm:incurredByApplication apm:PeopleHubHRIS ; apm:hasCostCategory apm:Support ;
+    apm:costAmount 24000.00 ; apm:costCurrency "EUR" ; apm:fiscalYear "2025"^^xsd:gYear .
+apm:CR_HRIS_Licensing_FY2026 a apm:CostRecord ;
+    apm:incurredByApplication apm:PeopleHubHRIS ; apm:hasCostCategory apm:Licensing ;
+    apm:costAmount 124000.00 ; apm:costCurrency "EUR" ; apm:fiscalYear "2026"^^xsd:gYear .
+apm:CR_HRIS_Support_FY2026 a apm:CostRecord ;
+    apm:incurredByApplication apm:PeopleHubHRIS ; apm:hasCostCategory apm:Support ;
+    apm:costAmount 25500.00 ; apm:costCurrency "EUR" ; apm:fiscalYear "2026"^^xsd:gYear .
+
+apm:CR_BuildForge_Support_FY2025 a apm:CostRecord ;
+    apm:incurredByApplication apm:BuildForgePlatform ; apm:hasCostCategory apm:Support ;
+    apm:costAmount 298000.00 ; apm:costCurrency "EUR" ; apm:fiscalYear "2025"^^xsd:gYear .
+apm:CR_BuildForge_Infrastructure_FY2025 a apm:CostRecord ;
+    apm:incurredByApplication apm:BuildForgePlatform ; apm:hasCostCategory apm:Infrastructure ;
+    apm:costAmount 91000.00 ; apm:costCurrency "EUR" ; apm:fiscalYear "2025"^^xsd:gYear .
+apm:CR_BuildForge_Labor_FY2025 a apm:CostRecord ;
+    apm:incurredByApplication apm:BuildForgePlatform ; apm:hasCostCategory apm:Labor ;
+    apm:costAmount 176000.00 ; apm:costCurrency "EUR" ; apm:fiscalYear "2025"^^xsd:gYear .
+apm:CR_BuildForge_Support_FY2026 a apm:CostRecord ;
+    apm:incurredByApplication apm:BuildForgePlatform ; apm:hasCostCategory apm:Support ;
+    apm:costAmount 311000.00 ; apm:costCurrency "EUR" ; apm:fiscalYear "2026"^^xsd:gYear .
+apm:CR_BuildForge_Infrastructure_FY2026 a apm:CostRecord ;
+    apm:incurredByApplication apm:BuildForgePlatform ; apm:hasCostCategory apm:Infrastructure ;
+    apm:costAmount 95500.00 ; apm:costCurrency "EUR" ; apm:fiscalYear "2026"^^xsd:gYear .
+apm:CR_BuildForge_Labor_FY2026 a apm:CostRecord ;
+    apm:incurredByApplication apm:BuildForgePlatform ; apm:hasCostCategory apm:Labor ;
+    apm:costAmount 182000.00 ; apm:costCurrency "EUR" ; apm:fiscalYear "2026"^^xsd:gYear .
+    # BuildForge's rising Support cost year-over-year, alongside its
+    # Migrate classification and past-due end-of-support date, is a
+    # deliberate combined signal for CQ-6 / CQ-8 / CQ-10: the platform is
+    # getting more expensive to keep alive, not less.
+
+apm:CR_CustomerPortal_Infrastructure_FY2026 a apm:CostRecord ;
+    apm:incurredByApplication apm:CustomerPortalWeb ; apm:hasCostCategory apm:Infrastructure ;
+    apm:costAmount 62000.00 ; apm:costCurrency "EUR" ; apm:fiscalYear "2026"^^xsd:gYear .
+apm:CR_CustomerPortal_Licensing_FY2026 a apm:CostRecord ;
+    apm:incurredByApplication apm:CustomerPortalWeb ; apm:hasCostCategory apm:Licensing ;
+    apm:costAmount 38000.00 ; apm:costCurrency "EUR" ; apm:fiscalYear "2026"^^xsd:gYear .
+
+apm:CR_ProcureSuite_Licensing_FY2026 a apm:CostRecord ;
+    apm:incurredByApplication apm:ProcureSuite ; apm:hasCostCategory apm:Licensing ;
+    apm:costAmount 46500.00 ; apm:costCurrency "EUR" ; apm:fiscalYear "2026"^^xsd:gYear .
+
+
+### --------------------------------------------------
+### Performance Assessments (Business Fit / Technical Fit)
+### --------------------------------------------------
+
+apm:PA_BuildForge_2025 a apm:PerformanceAssessment ;
+    apm:assessesApplication apm:BuildForgePlatform ; apm:assessedBy apm:AoifeByrne ;
+    apm:businessFitScore 5 ; apm:technicalFitScore 2 ; apm:assessedOn "2025-03-01"^^xsd:date .
+apm:PA_BuildForge_2026 a apm:PerformanceAssessment ;
+    apm:assessesApplication apm:BuildForgePlatform ; apm:assessedBy apm:AoifeByrne ;
+    apm:businessFitScore 5 ; apm:technicalFitScore 2 ; apm:assessedOn "2026-03-01"^^xsd:date .
+    # High, stable business value (nobody can ship without it) with
+    # persistently low technical fit -- the evidentiary basis for
+    # BuildForge's Migrate classification.
+
+apm:PA_HRIS_2025 a apm:PerformanceAssessment ;
+    apm:assessesApplication apm:PeopleHubHRIS ; apm:assessedBy apm:AoifeByrne ;
+    apm:businessFitScore 4 ; apm:technicalFitScore 4 ; apm:assessedOn "2025-03-01"^^xsd:date .
+apm:PA_HRIS_2026 a apm:PerformanceAssessment ;
+    apm:assessesApplication apm:PeopleHubHRIS ; apm:assessedBy apm:AoifeByrne ;
+    apm:businessFitScore 4 ; apm:technicalFitScore 5 ; apm:assessedOn "2026-03-01"^^xsd:date .
+    # Technical fit trending upward -- supports the Invest classification.
+
+apm:PA_ProcureSuite_2026 a apm:PerformanceAssessment ;
+    apm:assessesApplication apm:ProcureSuite ; apm:assessedBy apm:AoifeByrne ;
+    apm:businessFitScore 2 ; apm:technicalFitScore 4 ; apm:assessedOn "2026-03-01"^^xsd:date .
+
+apm:PA_FinReport_2026 a apm:PerformanceAssessment ;
+    apm:assessesApplication apm:FinReportLegacy ; apm:assessedBy apm:EoinMcCarthy ;
+    apm:businessFitScore 1 ; apm:technicalFitScore 1 ; apm:assessedOn "2026-03-01"^^xsd:date .
+
+
+### --------------------------------------------------
+### Service Level Agreements
+### --------------------------------------------------
+
+apm:SLA_HRIS_2026 a apm:ServiceLevelAgreement ;
+    apm:appliesToApplication apm:PeopleHubHRIS ;
+    apm:effectiveFrom "2026-01-01"^^xsd:date ; apm:effectiveTo "2026-12-31"^^xsd:date ;
+    apm:hasSLAMetric apm:SLA_HRIS_Availability, apm:SLA_HRIS_ResponseTime .
+apm:SLA_HRIS_Availability a apm:SLAMetric ;
+    apm:hasSLACategory apm:Availability ; apm:targetValue 99.9 ; apm:unitOfMeasure "%" .
+apm:SLA_HRIS_ResponseTime a apm:SLAMetric ;
+    apm:hasSLACategory apm:ResponseTime ; apm:targetValue 500 ; apm:unitOfMeasure "milliseconds" .
+
+apm:SLA_CustomerPortal_2026 a apm:ServiceLevelAgreement ;
+    apm:appliesToApplication apm:CustomerPortalWeb ;
+    apm:effectiveFrom "2026-01-01"^^xsd:date ; apm:effectiveTo "2026-12-31"^^xsd:date ;
+    apm:hasSLAMetric apm:SLA_CustomerPortal_Availability, apm:SLA_CustomerPortal_Throughput .
+apm:SLA_CustomerPortal_Availability a apm:SLAMetric ;
+    apm:hasSLACategory apm:Availability ; apm:targetValue 99.95 ; apm:unitOfMeasure "%" .
+apm:SLA_CustomerPortal_Throughput a apm:SLAMetric ;
+    apm:hasSLACategory apm:Throughput ; apm:targetValue 1200 ; apm:unitOfMeasure "requests/second" .
+
+
+### --------------------------------------------------
+### Linked Resources (Documents / Code Repositories)
+### --------------------------------------------------
+
+apm:Doc_IAM_ThreatModel a apm:Document ;
+    rdfs:label "SecureAuth IAM Threat Model" ;
+    apm:hasDocumentType apm:ThreatModelDocType ;
+    apm:url "https://wiki.nexusapm.example/iam/threat-model"^^xsd:anyURI ;
+    apm:lastUpdated "2026-02-10"^^xsd:date .
+
+apm:ThreatModelDocType a apm:DocumentType ;
+    rdfs:label "Threat Model" .
+
+apm:Repo_CustomerPortal_Web a apm:CodeRepository ;
+    rdfs:label "customer-portal-web" ;
+    apm:url "https://git.nexusapm.example/sales/customer-portal-web"^^xsd:anyURI ;
+    apm:lastUpdated "2026-07-05"^^xsd:date .
+
+apm:Repo_ITServiceHub_Integrations a apm:CodeRepository ;
+    rdfs:label "itservicehub-integrations" ;
+    apm:url "https://git.nexusapm.example/it/itservicehub-integrations"^^xsd:anyURI ;
+    apm:lastUpdated "2025-09-20"^^xsd:date .
+
+
+### --------------------------------------------------
+### Portfolio
+### --------------------------------------------------
+
+apm:CoreBusinessSystemsPortfolio a apm:Portfolio ;
+    rdfs:label "Core Business Systems Portfolio" ;
+    apm:portfolioOwner apm:AoifeByrne ;
+    apm:alignsToCapability apm:InformationTechnology ;
+    apm:containsApplication apm:PeopleHubHRIS, apm:PayStreamPayroll, apm:ProcureSuite,
+        apm:BuildForgePlatform, apm:DeployTrackReleaseManager, apm:SecureAuthIAM,
+        apm:CustomerPortalWeb, apm:CRMPlatform, apm:FinReportLegacy, apm:ITServiceHub .
