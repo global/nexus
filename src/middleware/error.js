@@ -1,7 +1,8 @@
 const NotFoundError = require('../common/errors/NotFoundError');
 const UnauthorizedError = require('../common/errors/UnauthorizedError');
+const ForbiddenError = require('../common/errors/ForbiddenError');
 const ConflictError = require('../common/errors/ConflictError');
-const ValidationError = require('../common/errors/ValidationError');  
+const ValidationError = require('../common/errors/ValidationError');
 
 
 /**
@@ -34,12 +35,19 @@ function errorHandler(err, req, res, next) {
     return res.status(err.statusCode).json({ error: err.message, details: err.details });
   }
 
-  if (err instanceof NotFoundError || err instanceof UnauthorizedError || err instanceof ConflictError) {
+  if (
+    err instanceof NotFoundError ||
+    err instanceof UnauthorizedError ||
+    err instanceof ForbiddenError ||
+    err instanceof ConflictError
+  ) {
     return res.status(err.statusCode).json({ error: err.message });
   }
 
-  // express-openapi-validator errors (request/response contract violations):
-  // they carry `status` and `errors`, not this app's `statusCode`/`details`.
+
+  // OpenAPI validation errors from `express-openapi-validator` have a different shape
+  // so we handle them separately.
+  // They have a `status` property and an `errors` array, which we can return to the client.
   if (typeof err.status === 'number' && Array.isArray(err.errors)) {
     return res.status(err.status).json({ error: err.message, details: err.errors });
   }

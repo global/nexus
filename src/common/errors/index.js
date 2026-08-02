@@ -7,7 +7,8 @@
 
 const NotFoundError = require('./NotFoundError');
 const UnauthorizedError = require('./UnauthorizedError');
+const ForbiddenError = require('./ForbiddenError');
 const ConflictError = require('./ConflictError');
 const ValidationError = require('./ValidationError');
 
-module.exports = { NotFoundError, UnauthorizedError, ConflictError, ValidationError };
+module.exports = { NotFoundError, UnauthorizedError, ForbiddenError, ConflictError, ValidationError };
