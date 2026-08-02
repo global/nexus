@@ -1,13 +1,14 @@
 # Nexus Insight
 
-An intelligent Application Portfolio Management (APM) hub — a central registry for tracking applications across their lifecycle, investment posture, technology stack, and governance metadata.
+An intelligent Application Portfolio Management (APM) hub — a central registry for tracking applications across their lifecycle, investment posture, technology stack, and governance metadata, formalised by the [Nexus Insight APM Ontology](ontology/apm-ontology.ttl).
 
 ## Tech Stack
 
 - **Runtime** — Node.js with Express 5
 - **Database** — MongoDB via Mongoose 9
 - **Validation** — Joi
-- **Auth** — JSON Web Tokens + bcrypt
+- **Identity** — [Keycloak](https://www.keycloak.org/) (OAuth2/OIDC); the API verifies Keycloak-issued JWTs, it does not store credentials itself
+- **API contract** — OpenAPI 3.0, served as interactive docs (Swagger UI) and enforced at runtime for every request/response under `/api`
 - **Testing** — Jest + Supertest
 
 ## Getting Started
@@ -15,7 +16,7 @@ An intelligent Application Portfolio Management (APM) hub — a central registry
 ### Prerequisites
 
 - Node.js 18+
-- MongoDB (local or Docker)
+- Docker (for MongoDB and Keycloak)
 
 ### Install dependencies
 
@@ -23,11 +24,19 @@ An intelligent Application Portfolio Management (APM) hub — a central registry
 npm install
 ```
 
-### Start MongoDB (Docker)
+### Start MongoDB
 
 ```bash
 npm run mongo
 ```
+
+### Start Keycloak
+
+```bash
+npm run keycloak
+```
+
+Starts Keycloak at `http://localhost:8080` and auto-imports a realm with a client and three test users — see [Authentication](#authentication) below.
 
 ### Run the server
 
@@ -50,9 +59,57 @@ The server starts on `http://localhost:3000` by default (configurable via `PORT`
 | --- | --- |
 | `PORT` | HTTP port (default: `3000`) |
 | `DB_CONNECTOR` | MongoDB connection string |
-| `TOKEN_SECRET` | Secret used to sign JWTs |
+| `KEYCLOAK_URL` | Base URL of the Keycloak server, e.g. `http://localhost:8080` |
+| `KEYCLOAK_REALM` | Keycloak realm name |
+| `KEYCLOAK_CLIENT_ID` | Public client id tokens are issued to |
+| `TOKEN_SECRET` | Legacy — predates the move to Keycloak-issued JWTs; not currently used |
 
 Environment files: `.env.dev`, `.env.test`, `.env.prod`.
+
+## Authentication
+
+Nexus Insight delegates identity to Keycloak — the API never stores or checks a password itself, it only verifies bearer JWTs Keycloak issued (signature + issuer, against Keycloak's JWKS endpoint).
+
+### Local identity provider
+
+`npm run keycloak` auto-imports [`keycloak/realm-export.json`](keycloak/realm-export.json): a `nexus-insight` realm, a public `nexus-api` client, three realm roles, and three test users. Admin console: `http://localhost:8080` (`admin` / `admin`).
+
+| Username | Password | Realm role | Access |
+| --- | --- | --- | --- |
+| `alice.admin` | `Passw0rd!` | `admin` | Full access — create, update, delete, manage governance data |
+| `bob.manager` | `Passw0rd!` | `portfolio-manager` | Create/update, no delete |
+| `carol.viewer` | `Passw0rd!` | `viewer` | Read-only |
+
+### Auth endpoints
+
+| Method | Path | Description |
+| --- | --- | --- |
+| `POST` | `/api/auth/login` | Exchange a username/password for a token pair |
+| `POST` | `/api/auth/refresh` | Exchange a refresh token for a new token pair |
+| `POST` | `/api/auth/logout` | Revoke a refresh token and its session |
+| `GET` | `/api/auth/me` | Return the caller's identity and roles (requires a Bearer token) |
+
+```bash
+curl -X POST http://localhost:3000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"alice.admin","password":"Passw0rd!"}'
+```
+
+`/api/auth/login` proxies Keycloak's Direct Access Grant flow for convenience during local development and testing. It is not a production login pattern for user-facing clients — those should use Authorization Code + PKCE against Keycloak directly.
+
+### Protecting a route
+
+```js
+const { authenticate, authorize } = require('../../middleware/auth');
+
+router.delete('/:id', authenticate, authorize('admin'), controller.remove);
+```
+
+`authenticate` verifies the token and attaches `req.user = { id, username, email, roles }`. `authorize(...roles)` rejects the request with a 403 unless `req.user.roles` includes at least one of the given Keycloak realm roles.
+
+## API Documentation
+
+Interactive Swagger UI is served at `http://localhost:3000/docs` once the server is running, generated from [`src/openapi/openapi.yaml`](src/openapi/openapi.yaml). Every request and response under `/api` is validated against this spec at runtime — the spec is an enforced contract, not just documentation.
 
 ## Project Structure
 
@@ -60,109 +117,23 @@ Environment files: `.env.dev`, `.env.test`, `.env.prod`.
 src/
 ├── app.js                      # Express app setup
 ├── server.js                   # Entry point — loads env and starts server
-├── config/                     # App, auth, and DB configuration
-├── middleware/                 # Auth, error handling, logging, validation
-├── common/errors/              # Shared error classes
+├── config/                     # App, auth (Keycloak/OIDC), and DB configuration
+├── middleware/
+│   ├── auth.js                 # authenticate / authorize (Keycloak JWT verification)
+│   └── error.js                # Central error-handling middleware
+├── common/
+│   ├── errors/                 # Shared error classes (NotFound, Unauthorized, Forbidden, Conflict, Validation)
+│   └── vocabularies/           # Controlled-vocabulary lists mirrored from ontology/apm-ontology.ttl
+├── openapi/                    # OpenAPI spec + Swagger UI / validator wiring
 ├── routes/
 │   └── index.js                # Root router — mounts all module routes
 └── modules/
-    ├── registry/               # Application portfolio registry (implemented)
-    ├── architecture/           # Architecture records (planned)
-    ├── audit/                  # Audit log (planned)
-    ├── dependency/             # Application dependencies (planned)
-    ├── grc/                    # Governance, risk and compliance (planned)
-    ├── health/                 # Application health (planned)
-    ├── mcp/                    # MCP server integration (planned)
-    ├── support/                # Support information (planned)
-    └── users/                  # User management (planned)
+    ├── auth/                   # Login/refresh/logout/me, backed by Keycloak
 
-tests/
-└── unit/
-    └── registry/               # Unit tests for all registry layers
+ontology/
+├── apm-ontology.ttl            # The Nexus Insight APM Ontology (OWL/Turtle)
+
+keycloak/
+├── docker-compose.yml          # `npm run keycloak`
+└── realm-export.json           # Realm, client, roles, and test users (auto-imported)
 ```
-
-## Registry Module
-
-The registry module is the core of Nexus Insight. It stores key portfolio information for each application and follows a strict layered architecture:
-
-```text
-routes → controller → service → repository → schema → MongoDB
-                    ↗
-              validations
-```
-
-| Layer | File | Responsibility |
-| --- | --- | --- |
-| Router | `registry.routes.js` | Maps HTTP verbs and paths to controller handlers |
-| Controller | `registry.controller.js` | Validates input, maps HTTP status codes, handles errors |
-| Validations | `registry.validations.js` | Joi schemas for create and update payloads |
-| Service | `registry.service.js` | Business logic, filter-to-query translation, stats orchestration |
-| Repository | `registry.repository.js` | All Mongoose calls — the only layer that touches the database |
-| Schema | `registry.schema.js` | Mongoose model and enum constants |
-
-### Application Fields
-
-| Field | Type | Values / Notes |
-| --- | --- | --- |
-| `name` | String | Required, unique |
-| `lifecycleStatus` | Enum | `plan` `build` `test` `live` `deprecated` `retired` |
-| `investmentLifecycle` | Enum | `invest` `maintain` `divest` |
-| `criticality` | Enum | `low` `medium` `high` `critical` |
-| `hostingModel` | Enum | `on-premise` `cloud-iaas` `cloud-paas` `saas` `hybrid` |
-| `dataClassification` | Enum | `public` `internal` `confidential` `highly confidential` |
-| `owner` | Object | `name`, `email`, `team` |
-| `technology` | Object | `languages`, `frameworks`, `databases`, `integrations` |
-| `businessCapability` | String | |
-| `vendor` | String | For third-party applications |
-| `repositoryUrl` | String | |
-| `documentationUrl` | String | |
-| `tags` | String[] | |
-| `metadata` | Object | `version`, `lastReviewedAt`, `retirementDate` |
-| `createdAt` / `updatedAt` | Date | Managed automatically by Mongoose |
-
-### API Endpoints
-
-| Method | Path | Description |
-| --- | --- | --- |
-| `GET` | `/` | Health check — returns a welcome message |
-| `GET` | `/api/registry` | List all applications (supports filters) |
-| `GET` | `/api/registry/stats` | Counts grouped by status, investment lifecycle and criticality |
-| `GET` | `/api/registry/:id` | Get a single application by ID |
-| `POST` | `/api/registry` | Create a new application |
-| `PUT` | `/api/registry/:id` | Update an application |
-| `DELETE` | `/api/registry/:id` | Delete an application |
-
-#### Query filters for `GET /api/registry`
-
-| Parameter | Example |
-| --- | --- |
-| `lifecycleStatus` | `?lifecycleStatus=live` |
-| `investmentLifecycle` | `?investmentLifecycle=divest` |
-| `criticality` | `?criticality=critical` |
-| `hostingModel` | `?hostingModel=saas` |
-| `dataClassification` | `?dataClassification=confidential` |
-| `tags` | `?tags=finance` or `?tags=finance&tags=core` |
-| `search` | `?search=payments` (matches name, description, businessCapability) |
-
-## Running Tests
-
-```bash
-npm test
-```
-
-Tests are located in `tests/unit/registry/` and cover all four layers independently using mocks — no database connection required.
-
-| Suite | Coverage |
-| --- | --- |
-| `registry.validations.test.js` | Joi schema rules — required fields, enum values, formats |
-| `registry.service.test.js` | Filter-to-query translation, stats shape, delegation |
-| `registry.repository.test.js` | Mongoose call signatures and options |
-| `registry.controller.test.js` | HTTP status codes, error mapping, request/response shape |
-
-## Architecture Diagrams
-
-PlantUML diagrams are in [`docs/architecture/`](docs/architecture/).
-
-- `registry-module.puml` — component overview and request/response sequence diagrams
-
-Render with the [PlantUML VS Code extension](https://marketplace.visualstudio.com/items?itemName=jebbs.plantuml) (Alt+D to preview) or any PlantUML-compatible renderer.
