@@ -2,7 +2,7 @@ const express = require('express');
 const routes = require('./routes/index.js');
 const connectDB = require('./db.js');
 const { errorHandler, notFoundHandler } = require('./middleware/error');
-const { mountOpenApi } = require('./openapi');
+const { setupOpenApi } = require('./openapi');
 
 connectDB();
 
@@ -12,7 +12,7 @@ const bodyParser = require('body-parser');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-mountOpenApi(app);
+setupOpenApi(app);
 
 app.use(routes);
 

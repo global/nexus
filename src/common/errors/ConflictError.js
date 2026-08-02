@@ -18,6 +18,7 @@ class ConflictError extends Error {
     /** @type {number} HTTP status code associated with this error. */
     this.statusCode = 409;
 
+    // Stack trace is captured for debugging purposes, but not sent to the client.
     Error.captureStackTrace(this, this.constructor);
   }
 }
