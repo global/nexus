@@ -31,6 +31,7 @@ function notFoundHandler(req, res, next) {
  * @param {import('express').NextFunction} next
  */
 function errorHandler(err, req, res, next) {
+
   if (err instanceof ValidationError) {
     return res.status(err.statusCode).json({ error: err.message, details: err.details });
   }
