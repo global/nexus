@@ -1,0 +1,74 @@
+{
+  "realm": "nexus-insight",
+  "enabled": true,
+  "sslRequired": "none",
+  "registrationAllowed": false,
+  "roles": {
+    "realm": [
+      {
+        "name": "admin",
+        "description": "Full access to the application portfolio: create, update, delete, and manage governance data."
+      },
+      {
+        "name": "portfolio-manager",
+        "description": "Can create and update applications and their portfolio data, but cannot delete or manage governance data."
+      },
+      {
+        "name": "viewer",
+        "description": "Read-only access to the application portfolio."
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "nexus-api",
+      "name": "Nexus Insight API",
+      "enabled": true,
+      "publicClient": true,
+      "protocol": "openid-connect",
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+      "redirectUris": ["*"],
+      "webOrigins": ["*"]
+    }
+  ],
+  "users": [
+    {
+      "username": "alice.admin",
+      "enabled": true,
+      "email": "alice.admin@nexus-insight.local",
+      "emailVerified": true,
+      "firstName": "Alice",
+      "lastName": "Admin",
+      "credentials": [
+        { "type": "password", "value": "Passw0rd!", "temporary": false }
+      ],
+      "realmRoles": ["admin"]
+    },
+    {
+      "username": "bob.manager",
+      "enabled": true,
+      "email": "bob.manager@nexus-insight.local",
+      "emailVerified": true,
+      "firstName": "Bob",
+      "lastName": "Manager",
+      "credentials": [
+        { "type": "password", "value": "Passw0rd!", "temporary": false }
+      ],
+      "realmRoles": ["portfolio-manager"]
+    },
+    {
+      "username": "carol.viewer",
+      "enabled": true,
+      "email": "carol.viewer@nexus-insight.local",
+      "emailVerified": true,
+      "firstName": "Carol",
+      "lastName": "Viewer",
+      "credentials": [
+        { "type": "password", "value": "Passw0rd!", "temporary": false }
+      ],
+      "realmRoles": ["viewer"]
+    }
+  ]
+}
