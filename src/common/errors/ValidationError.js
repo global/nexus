@@ -22,6 +22,7 @@ class ValidationError extends Error {
     /** @type {Array<object>} Field-level validation error details. */
     this.details = details;
 
+    // Stack trace is captured for debugging purposes, but not sent to the client.
     Error.captureStackTrace(this, this.constructor);
   }
 }
