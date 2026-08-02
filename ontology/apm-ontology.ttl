@@ -14,7 +14,7 @@
     dct:title "Nexus Insight Application Portfolio Management (APM) Ontology" ;
     dct:creator "Anderson Goulart" ;
     dct:created "2026-06-20"^^xsd:date ;
-    dct:modified "2026-07-19"^^xsd:date ;
+    dct:modified "2026-08-02"^^xsd:date ;
     dct:license <https://creativecommons.org/licenses/by/4.0/> ;
     owl:versionInfo "1.0.0" ;
     rdfs:comment "A unified ontology for Application Portfolio Management (APM), formalising the entity taxonomy of The Open Group Architecture Framework (TOGAF) Content Metamodel and integrating it with the software asset management concepts defined by the ISO/IEC 19770 standard family." .
@@ -756,6 +756,12 @@ apm:emailAddress a owl:DatatypeProperty ;
     rdfs:range xsd:string ;
     rdfs:comment "The email address at which an actor can be contacted, such as for finding assignments or SLA breach notifications." .
 
+apm:phoneNumber a owl:DatatypeProperty ;
+    rdfs:label "phone number" ;
+    rdfs:domain apm:Actor ;
+    rdfs:range xsd:string ;
+    rdfs:comment "The phone number at which an actor can be reached, such as for urgent SLA breach or overdue finding escalation." .
+
 apm:goLiveDate a owl:DatatypeProperty ;
     rdfs:label "go-live date" ;
     rdfs:domain apm:Application ;
@@ -767,6 +773,18 @@ apm:costCenterCode a owl:DatatypeProperty ;
     rdfs:domain apm:OrganizationUnit ;
     rdfs:range xsd:string ;
     rdfs:comment "The financial cost center code associated with an organization unit, used to attribute cost records." .
+
+apm:address a owl:DatatypeProperty ;
+    rdfs:label "address" ;
+    rdfs:domain apm:Location ;
+    rdfs:range xsd:string ;
+    rdfs:comment "The physical or postal address of a location." .
+
+apm:retentionPeriod a owl:DatatypeProperty ;
+    rdfs:label "retention period" ;
+    rdfs:domain apm:DataEntity ;
+    rdfs:range xsd:duration ;
+    rdfs:comment "The maximum length of time a data entity may be retained before deletion or anonymisation, per applicable compliance obligations such as GDPR." .
 
 apm:url a owl:DatatypeProperty ;
     rdfs:label "url" ;
@@ -832,6 +850,12 @@ apm:dueDate a owl:DatatypeProperty ;
     rdfs:range xsd:date ;
     rdfs:comment "The date by which the finding must be remediated under its applicable SLA." .
 
+apm:resolvedDate a owl:DatatypeProperty ;
+    rdfs:label "resolved date" ;
+    rdfs:domain apm:Finding ;
+    rdfs:range xsd:date ;
+    rdfs:comment "The date on which the finding reached a Remediated, Risk Accepted, or Closed status, enabling time-to-remediate reporting." .
+
 apm:riskScore a owl:DatatypeProperty ; # [8][9]
     rdfs:label "risk score" ;
     rdfs:domain apm:Finding ;
@@ -872,6 +896,22 @@ apm:capabilityWeight a owl:DatatypeProperty ;
     ] ;
     rdfs:comment "The relative strategic importance of the capability to the business, on a scale of 1 (lowest) to 5 (highest)." .
 
+apm:capabilityLevel a owl:DatatypeProperty ;
+    rdfs:label "capability level" ;
+    rdfs:domain apm:BusinessCapability ;
+    rdfs:range [
+        a rdfs:Datatype ;
+        owl:onDatatype xsd:integer ;
+        owl:withRestrictions ( [ xsd:minInclusive 1 ] [ xsd:maxInclusive 3 ] )
+    ] ;
+    rdfs:comment "The depth of the capability within its hierarchical decomposition (e.g., L1, L2, L3), stored explicitly to avoid recomputing it by walking subCapabilityOf." .
+
+apm:swidTagId a owl:DatatypeProperty ; # ISO-19770-2
+    rdfs:label "SWID tag ID" ;
+    rdfs:domain apm:SoftwareProduct ;
+    rdfs:range xsd:string ;
+    rdfs:comment "The unique tagId of the software product's ISO/IEC 19770-2 software identification (SWID) tag." .
+
 apm:version a owl:DatatypeProperty ;
     rdfs:label "version" ;
     rdfs:domain apm:SoftwareProduct ;
@@ -889,6 +929,12 @@ apm:endOfSupportDate a owl:DatatypeProperty ;
     rdfs:domain apm:SoftwareProduct ;
     rdfs:range xsd:date ;
     rdfs:comment "The date on which the vendor stops providing patches, security updates, or support for the software product." .
+
+apm:entitledQuantity a owl:DatatypeProperty ; # ISO-19770-3
+    rdfs:label "entitled quantity" ;
+    rdfs:domain apm:SoftwareEntitlement ;
+    rdfs:range xsd:integer ;
+    rdfs:comment "The quantity of usage rights granted by the entitlement, interpreted according to its metric, enabling direct comparison against measured resource utilization." .
 
 apm:measuredValue a owl:DatatypeProperty ; # ISO-19770-4
     rdfs:label "measured value" ;
@@ -989,6 +1035,12 @@ apm:controlReference a owl:DatatypeProperty ; # [7]
     rdfs:domain apm:Control ;
     rdfs:range xsd:string ;
     rdfs:comment "The clause or control identifier from an catalog that this control implements, such as ISO/IEC 27002 5.15 or NIST SP 800-53 AC-2." .
+
+apm:lastReviewedDate a owl:DatatypeProperty ; # [7]
+    rdfs:label "last reviewed date" ;
+    rdfs:domain apm:Control ;
+    rdfs:range xsd:date ;
+    rdfs:comment "The date on which the control's design and operating effectiveness was last reviewed." .
 
 ### --------------------------------------------------
 ### INDIVIDUALS (Controlled Vocabulary)
