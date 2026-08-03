@@ -111,6 +111,33 @@ router.delete('/:id', authenticate, authorize('admin'), controller.remove);
 
 Interactive Swagger UI is served at `http://localhost:3000/docs` once the server is running, generated from [`src/openapi/openapi.yaml`](src/openapi/openapi.yaml). Every request and response under `/api` is validated against this spec at runtime — the spec is an enforced contract, not just documentation.
 
+## Audit Logging
+
+Every call under `/api` is recorded to an `AuditLog` MongoDB collection by [`middleware/logger.js`](src/middleware/logger.js): method, path, status code, duration, caller IP, and — when the route ran `authenticate` beforehand — the identity that made the call (`userId`, `username`, `roles`; recorded as `"anonymous"` otherwise). Logging happens on the response's `finish` event, so it captures the actual outcome and still records calls the OpenAPI validator itself rejects.
+
+Request/response bodies and headers are deliberately never recorded — that would otherwise put the password from `/api/auth/login` or bearer tokens straight into the audit trail. A failed write to the audit log is logged to the console but never blocks or fails the actual response.
+
+There is currently no endpoint to read these entries back through the API — querying them today means going straight to MongoDB.
+
+## Ontology
+
+The ontology itself lives in [`ontology/`](ontology/):
+
+| File | Purpose |
+| --- | --- |
+| `apm-ontology.ttl` | The Nexus Insight APM Ontology (OWL/Turtle) |
+| `apm-shapes.ttl` | SHACL shapes constraining the ontology's classes/properties |
+| `apm-instances-sample.ttl` | A sample instance dataset used to exercise the ontology |
+| `apm-competency-queries.sparql` | SPARQL competency questions answered against the sample dataset |
+
+### Validating Turtle syntax
+
+```bash
+npm run validate:ontology
+```
+
+Runs [`ontology/validate-ttl.js`](ontology/validate-ttl.js) against every `.ttl` file in `ontology/` (or specific files passed as arguments), using [N3.js](https://github.com/rdfjs/N3.js) to parse each one and report a line-numbered error for anything that isn't valid Turtle. This checks syntax only — not OWL/SHACL semantics — and exits non-zero on failure, so it's usable as a CI or pre-commit gate.
+
 ## Project Structure
 
 ```text
@@ -120,7 +147,8 @@ src/
 ├── config/                     # App, auth (Keycloak/OIDC), and DB configuration
 ├── middleware/
 │   ├── auth.js                 # authenticate / authorize (Keycloak JWT verification)
-│   └── error.js                # Central error-handling middleware
+│   ├── error.js                # Central error-handling middleware
+│   └── logger.js                # Audit logging (see Audit Logging above)
 ├── common/
 │   ├── errors/                 # Shared error classes (NotFound, Unauthorized, Forbidden, Conflict, Validation)
 │   └── vocabularies/           # Controlled-vocabulary lists mirrored from ontology/apm-ontology.ttl
@@ -129,11 +157,17 @@ src/
 │   └── index.js                # Root router — mounts all module routes
 └── modules/
     ├── auth/                   # Login/refresh/logout/me, backed by Keycloak
+    ├── audit/                  # AuditLog Mongoose schema
 
 ontology/
 ├── apm-ontology.ttl            # The Nexus Insight APM Ontology (OWL/Turtle)
+├── apm-shapes.ttl               # SHACL shapes
+├── apm-instances-sample.ttl     # Sample instance dataset
+└── validate-ttl.js              # `npm run validate:ontology`
 
 keycloak/
 ├── docker-compose.yml          # `npm run keycloak`
 └── realm-export.json           # Realm, client, roles, and test users (auto-imported)
 ```
+
+The modules that actually implement the ontology (`applications`, `findings`, `business-capabilities`, etc.) are still being built out; `registry/` was an earlier draft with its own ad hoc field names and enum values and will be superseded rather than extended.
