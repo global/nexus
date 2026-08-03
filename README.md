@@ -169,5 +169,3 @@ keycloak/
 ├── docker-compose.yml          # `npm run keycloak`
 └── realm-export.json           # Realm, client, roles, and test users (auto-imported)
 ```
-
-The modules that actually implement the ontology (`applications`, `findings`, `business-capabilities`, etc.) are still being built out; `registry/` was an earlier draft with its own ad hoc field names and enum values and will be superseded rather than extended.
