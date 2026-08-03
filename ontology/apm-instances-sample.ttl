@@ -573,7 +573,8 @@ apm:PerNamedUserMetric a apm:Metric ;
 
 apm:PeopleHubHRIS_Entitlement a apm:SoftwareEntitlement ;
     rdfs:label "PeopleHub HRIS — 500 Named-User Licenses" ;
-    apm:measuredByMetric apm:PerNamedUserMetric .
+    apm:measuredByMetric apm:PerNamedUserMetric ;
+    apm:entitledQuantity 500 .
 
 apm:PeopleHubHRIS_Usage_H1_2026 a apm:ResourceUtilizationRecord ;
     apm:measuresProduct apm:PeopleHubHRIS_SoftwareProduct ;

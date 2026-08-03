@@ -1,0 +1,402 @@
+##############################################################################
+# Nexus Insight APM — Competency Question Queries
+##############################################################################
+#
+# SPARQL 1.1 queries, one per competency question (CQ-1 .. CQ-14)
+# defined for the Nexus Insight APM Ontology. Each query is preceded by a
+# comment block stating:
+#   - the competency question it answers,
+#   - the classes/properties it exercises,
+#   - the expected result against the sample dataset in
+#     apm-instances-sample.ttl.
+#
+##############################################################################
+
+PREFIX apm:  <http://nexus-apm.org/ontology/apm#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+
+
+##############################################################################
+# CQ-1: Which business capabilities would be affected if a specified
+# physical technology component experienced an outage?
+#
+# Traversal: TechnologyDependency (the failing component as upstream) ->
+# downstream technology component -> physical application component
+# deployed on it -> owning Application -> capabilities it enables.
+#
+# Parameter: apm:BuildFarmServer (bind a different component to re-run
+# for a different outage scenario).
+#
+# Expected result against the sample data: an outage on the build farm
+# server takes down the DeployTrack Application Server (a Synchronous
+# DatabaseConnection dependency), which hosts DeployTrack Release Manager,
+# which enables DevOps & Release Management and Quality Assurance & Testing.
+##############################################################################
+
+SELECT DISTINCT ?affectedTechComponent ?affectedApp ?affectedAppLabel
+                 ?capability ?capabilityLabel
+WHERE {
+  ?techDep a apm:TechnologyDependency ;
+           apm:upstreamTechnologyComponent apm:BuildFarmServer ;
+           apm:downstreamTechnologyComponent ?affectedTechComponent .
+  ?appComponent apm:deployedOn ?affectedTechComponent .
+  ?affectedApp apm:hasDeployment ?appComponent ;
+               apm:enablesCapability ?capability ;
+               rdfs:label ?affectedAppLabel .
+  ?capability rdfs:label ?capabilityLabel .
+}
+
+
+##############################################################################
+# CQ-2: Which applications, directly or transitively, depend on a given
+# upstream application or technology component, and what is the protocol
+# and synchronicity of each dependency?
+#
+# Direct dependants of apm:SecureAuthIAM, with dependency
+# metadata. Expected: PeopleHub HRIS, ProcureSuite, Customer Portal (Web),
+# ITServiceHub — all Synchronous over REST API.
+##############################################################################
+
+SELECT ?downstream ?downstreamLabel ?protocol ?protocolLabel ?sync ?syncLabel
+WHERE {
+  ?dep a apm:ApplicationDependency ;
+       apm:upstreamApplication apm:SecureAuthIAM ;
+       apm:downstreamApplication ?downstream .
+  ?downstream rdfs:label ?downstreamLabel .
+  OPTIONAL { ?dep apm:usesProtocol ?protocol . ?protocol rdfs:label ?protocolLabel . }
+  OPTIONAL { ?dep apm:hasSynchronicity ?sync . ?sync rdfs:label ?syncLabel . }
+}
+
+# Two-hop transitive blast radius from apm:SecureAuthIAM.
+# Expected additional results: PayStream Payroll (via PeopleHub
+# HRIS) and Summit CRM (via Customer Portal (Web)).
+
+SELECT DISTINCT ?impactedApp ?impactedAppLabel ?hop
+WHERE {
+  {
+    ?dep1 a apm:ApplicationDependency ;
+          apm:upstreamApplication apm:SecureAuthIAM ;
+          apm:downstreamApplication ?impactedApp .
+    BIND(1 AS ?hop)
+  }
+  UNION
+  {
+    ?dep1 a apm:ApplicationDependency ;
+          apm:upstreamApplication apm:SecureAuthIAM ;
+          apm:downstreamApplication ?mid .
+    ?dep2 a apm:ApplicationDependency ;
+          apm:upstreamApplication ?mid ;
+          apm:downstreamApplication ?impactedApp .
+    BIND(2 AS ?hop)
+  }
+  ?impactedApp rdfs:label ?impactedAppLabel .
+}
+ORDER BY ?hop ?impactedAppLabel
+
+
+##############################################################################
+# CQ-3: For a given application, which code repositories and reference
+# documents should be reviewed following an incident?
+#
+# Parameter: apm:CustomerPortalWeb.
+# Expected result: the customer-portal-web code repository (hasRepository).
+# (Customer Portal (Web) has no hasDocument in the sample data; re-run
+# with apm:SecureAuthIAM to see its threat-model document instead.)
+##############################################################################
+
+SELECT ?resource ?resourceLabel ?resourceType ?url ?lastUpdated
+WHERE {
+  apm:CustomerPortalWeb (apm:hasDocument|apm:hasRepository) ?resource .
+  ?resource a ?resourceType ;
+            rdfs:label ?resourceLabel ;
+            apm:url ?url .
+  OPTIONAL { ?resource apm:lastUpdated ?lastUpdated }
+  FILTER(?resourceType IN (apm:Document, apm:CodeRepository))
+}
+
+
+##############################################################################
+# CQ-4: Which applications are subject to a given compliance standard,
+# and does the supplier hosting them hold the corresponding certification?
+#
+# Returns only the GAPS: an application requires a standard its hosting
+# supplier is not certified against.
+#
+# Expected result (two rows):
+#   - PayStream Payroll requires ISO/IEC 27001; PayStream Vendor holds
+#     only SOC 2.
+#   - PeopleHub HRIS requires GDPR; WorkforceCloud Inc. holds SOC 2 and
+#     ISO/IEC 27001 but no formal GDPR certification on file.
+##############################################################################
+
+SELECT ?app ?appLabel ?requiredStandard ?standardLabel ?supplier ?supplierLabel
+WHERE {
+  ?app apm:requiresCompliance ?requiredStandard ;
+       apm:hostedBySupplier ?supplier ;
+       rdfs:label ?appLabel .
+  ?requiredStandard rdfs:label ?standardLabel .
+  ?supplier rdfs:label ?supplierLabel .
+  FILTER NOT EXISTS { ?supplier apm:hasCertification ?requiredStandard }
+}
+
+
+##############################################################################
+# CQ-5: Which externally hosted applications carry the highest combined
+# criticality and compliance exposure, representing the greatest
+# vendor-concentration / SaaS risk?
+#
+# Expected result: PeopleHub HRIS, PayStream Payroll, Customer Portal
+# (Web), and Summit CRM (all Critical or High criticality, externally
+# hosted, with at least one compliance obligation).
+##############################################################################
+
+SELECT ?app ?appLabel ?criticality ?hostingModel ?supplier ?requiredStandard
+WHERE {
+  ?app apm:hasHostingModel apm:ExternallyHosted ;
+       apm:hasCriticalityTier ?criticality ;
+       apm:requiresCompliance ?requiredStandard ;
+       apm:hostedBySupplier ?supplier ;
+       rdfs:label ?appLabel .
+  FILTER(?criticality IN (apm:Critical, apm:High))
+}
+ORDER BY ?criticality ?appLabel
+
+
+##############################################################################
+# CQ-6: What is the total cost of ownership of a given application, broken
+# down by cost category and fiscal year?
+#
+# Parameter: apm:BuildForgePlatform.
+# Expected result: six rows (Support / Infrastructure / Labor x FY2025 /
+# FY2026), with Support cost rising from €298,000 to €311,000 year over
+# year
+##############################################################################
+
+SELECT ?fiscalYear ?category ?categoryLabel (SUM(?amount) AS ?totalAmount) ?currency
+WHERE {
+  ?costRecord apm:incurredByApplication apm:BuildForgePlatform ;
+              apm:hasCostCategory ?category ;
+              apm:fiscalYear ?fiscalYear ;
+              apm:costAmount ?amount ;
+              apm:costCurrency ?currency .
+  ?category rdfs:label ?categoryLabel .
+}
+GROUP BY ?fiscalYear ?category ?categoryLabel ?currency
+ORDER BY ?fiscalYear ?categoryLabel
+
+
+##############################################################################
+# CQ-7: Which findings affecting a given application, technology component,
+# or portfolio are open and past their remediation due date?
+#
+# "Overdue" is deliberately defined as dueDate in the past AND status not
+# in {Remediated, Closed, Risk Accepted} -- a Risk-Accepted finding may
+# still be past its original due date without representing an active gap,
+# since the organisation has formally accepted the residual risk.
+#
+# Expected result (two rows): the Customer Portal (Web) CVE-2026-13371
+# finding (overdue ~7 weeks) and the SecureAuth IAM single-point-of-
+# failure business risk (overdue ~9 days). The FinReport Legacy technical
+# risk is also past due but is correctly excluded because its status is
+# Risk Accepted.
+##############################################################################
+
+SELECT ?finding ?subject ?subjectLabel ?dueDate ?status ?statusLabel ?riskScore
+WHERE {
+  ?finding a apm:Finding ;
+           apm:dueDate ?dueDate ;
+           apm:hasFindingStatus ?status .
+  ?status rdfs:label ?statusLabel .
+  OPTIONAL { ?finding apm:riskScore ?riskScore }
+  {
+    ?finding apm:affectsApplication ?subject
+  } UNION {
+    ?finding apm:affectsApplicationComponent ?subject
+  } UNION {
+    ?finding apm:affectsTechnologyComponent ?subject
+  }
+  ?subject rdfs:label ?subjectLabel .
+  FILTER(?dueDate < "2026-07-19"^^xsd:date)
+  FILTER(?status NOT IN (apm:Remediated, apm:Closed, apm:RiskAccepted))
+}
+ORDER BY ?dueDate
+
+
+##############################################################################
+# CQ-8: What is an application's current portfolio rationalisation
+# classification (Tolerate / Invest / Migrate / Eliminate), and what
+# business-fit and technical-fit evidence, across assessment cycles,
+# supports that classification?
+#
+# Expected result: a full TIME-quadrant spread across the sample
+# portfolio
+##############################################################################
+
+SELECT ?app ?appLabel ?strategy ?strategyLabel ?assessedOn ?businessFit ?technicalFit
+WHERE {
+  ?app apm:hasInvestmentStrategy ?strategy ;
+       rdfs:label ?appLabel .
+  ?strategy rdfs:label ?strategyLabel .
+  ?assessment apm:assessesApplication ?app ;
+              apm:businessFitScore ?businessFit ;
+              apm:technicalFitScore ?technicalFit ;
+              apm:assessedOn ?assessedOn .
+}
+ORDER BY ?appLabel ?assessedOn
+
+
+##############################################################################
+# CQ-9: Which applications implement a control required to satisfy a given
+# compliance standard, and where are the corresponding control gaps?
+#
+# Part (a) — implemented controls and the standards they support.
+# Expected result: SecureAuth IAM implements Multi-Factor Authentication
+# (supports ISO/IEC 27001); ITServiceHub implements Periodic Access
+# Review (supports ISO/IEC 27001 and SOC 2).
+##############################################################################
+
+SELECT ?app ?appLabel ?control ?controlLabel ?controlReference ?standard ?standardLabel
+WHERE {
+  ?app apm:implementsControl ?control ;
+       rdfs:label ?appLabel .
+  ?control rdfs:label ?controlLabel ;
+           apm:controlReference ?controlReference ;
+           apm:supportsComplianceStandard ?standard .
+  ?standard rdfs:label ?standardLabel .
+}
+
+# Part (b) — open control gaps (findings categorised as Control Gap) and
+# the control they relate to. Expected result: PayStream Payroll has an
+# open Control Gap finding relating to Multi-Factor Authentication, even
+# though that same control is implemented elsewhere (SecureAuth IAM) --
+# demonstrating that control coverage must be assessed per application,
+# not assumed portfolio-wide.
+
+SELECT ?finding ?app ?appLabel ?control ?controlLabel ?status
+WHERE {
+  ?finding apm:hasFindingCategory apm:ControlGap ;
+           apm:relatesToControl ?control ;
+           apm:hasFindingStatus ?status .
+  ?control rdfs:label ?controlLabel .
+  OPTIONAL { ?finding apm:affectsApplication ?app . ?app rdfs:label ?appLabel . }
+}
+
+
+##############################################################################
+# CQ-10: Which software products are approaching or past end-of-life or
+# end-of-support, and which applications and technology components do
+# they affect?
+#
+# Expected result: BuildForge Enterprise 5.4 (end of support 2023-12-31,
+# affecting BuildForge CI/CD Platform) and FinReport Classic 3.1 (end of
+# support 2019-01-01, affecting FinReport Legacy). PeopleHub HRIS is
+# correctly absent, since it carries no end-of-life/end-of-support dates
+# in the sample data (a current SaaS product).
+##############################################################################
+
+SELECT ?product ?productLabel ?version ?endOfSupportDate ?app ?appLabel
+WHERE {
+  ?product apm:endOfSupportDate ?endOfSupportDate ;
+           apm:version ?version ;
+           rdfs:label ?productLabel .
+  ?component apm:identifiedBy ?product .
+  ?app apm:hasDeployment ?component ;
+       rdfs:label ?appLabel .
+  FILTER(?endOfSupportDate < "2026-07-19"^^xsd:date)
+}
+ORDER BY ?endOfSupportDate
+
+
+##############################################################################
+# CQ-11: For a given application, are its recovery time and recovery point
+# objectives consistent with its assigned criticality tier?
+#
+# Lists every Critical-tier application's declared RTO/RPO for analyst
+# review. Expected result: four Critical applications are returned;
+# SecureAuth IAM (PT1H/PT15M), PayStream Payroll (PT4H/PT1H), and
+# Customer Portal (Web) (PT2H/PT30M) show recovery objectives consistent
+# with Critical status, while BuildForge CI/CD Platform (PT24H/PT12H)
+# stands out as an outlier -- a Critical-tier application with a
+# materially weaker recovery posture than its peers.
+##############################################################################
+
+SELECT ?app ?appLabel ?recoveryTimeObjective ?recoveryPointObjective
+WHERE {
+  ?app apm:hasCriticalityTier apm:Critical ;
+       rdfs:label ?appLabel .
+  OPTIONAL { ?app apm:recoveryTimeObjective ?recoveryTimeObjective }
+  OPTIONAL { ?app apm:recoveryPointObjective ?recoveryPointObjective }
+}
+ORDER BY ?recoveryTimeObjective DESC(?appLabel)
+
+
+##############################################################################
+# CQ-12: For a given software product, how does its actual measured
+# resource utilisation compare to its licensed entitlement?
+#
+# Expected result: PeopleHub HRIS is entitled to 500 named-user seats
+# (per the Per Named User metric); the H1 2026 resource utilization
+# record shows 340 seats actually used -- a 68% utilisation rate,
+# computed directly via the entitled vs. measured quantities.
+##############################################################################
+
+SELECT ?product ?productLabel ?metric ?metricLabel ?entitledQuantity ?measuredValue
+       ?periodStart ?periodEnd ((?measuredValue / ?entitledQuantity) * 100 AS ?utilisationPercent)
+WHERE {
+  ?product apm:coveredByEntitlement ?entitlement ;
+           rdfs:label ?productLabel .
+  ?entitlement apm:measuredByMetric ?metric ;
+               apm:entitledQuantity ?entitledQuantity .
+  ?metric rdfs:label ?metricLabel .
+  ?rum apm:measuresProduct ?product ;
+       apm:measuredAgainstMetric ?metric ;
+       apm:measuredValue ?measuredValue ;
+       apm:measurementPeriodStart ?periodStart ;
+       apm:measurementPeriodEnd ?periodEnd .
+}
+
+
+##############################################################################
+# CQ-13: How does the hierarchical decomposition of a business capability
+# affect the aggregation of impact from a given finding or outage?
+#
+# Uses the transitive property path apm:subCapabilityOf* to roll a
+# directly threatened capability up through every ancestor level.
+#
+# Expected result: the SecureAuth IAM business-risk finding directly
+# threatens Identity & Access Management, which rolls up through
+# Cybersecurity Operations to Information Technology -- three rows
+# spanning the full three-level chain (including the capability itself,
+# since subCapabilityOf* includes zero hops).
+##############################################################################
+
+SELECT ?finding ?directCapability ?directLabel ?ancestorCapability ?ancestorLabel
+WHERE {
+  ?finding apm:threatensCapability ?directCapability .
+  ?directCapability rdfs:label ?directLabel .
+  ?directCapability apm:subCapabilityOf* ?ancestorCapability .
+  ?ancestorCapability rdfs:label ?ancestorLabel .
+}
+ORDER BY ?finding ?ancestorLabel
+
+
+##############################################################################
+# CQ-14: Who are the accountable contacts for a given application, and how
+# can they be reached in the event of an SLA breach or overdue finding?
+#
+# Parameter: apm:SecureAuthIAM (deliberately chosen because it has two
+# contacts on file).
+# Expected result: George Orwell (CISO) and Jane Austen (CTO), each with
+# their contact email address.
+##############################################################################
+
+SELECT ?contactActor ?actorLabel ?role ?roleLabel ?email
+WHERE {
+  ?contact apm:forApplication apm:SecureAuthIAM ;
+           apm:contactActor ?contactActor ;
+           apm:contactRole ?role .
+  ?contactActor rdfs:label ?actorLabel .
+  ?role rdfs:label ?roleLabel .
+  OPTIONAL { ?contactActor apm:emailAddress ?email }
+}
