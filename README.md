@@ -138,6 +138,16 @@ npm run validate:ontology
 
 Runs [`ontology/validate-ttl.js`](ontology/validate-ttl.js) against every `.ttl` file in `ontology/` (or specific files passed as arguments), using [N3.js](https://github.com/rdfjs/N3.js) to parse each one and report a line-numbered error for anything that isn't valid Turtle. This checks syntax only — not OWL/SHACL semantics — and exits non-zero on failure, so it's usable as a CI or pre-commit gate.
 
+### Running the competency questions
+
+```bash
+npm run validate:competency-queries
+```
+
+Runs [`ontology/validate-competency-queries.js`](ontology/validate-competency-queries.js), which parses every SPARQL query straight out of `apm-competency-queries.sparql` (so the `.sparql` file stays the single source of truth for the queries themselves), executes each one against `apm-ontology.ttl` + `apm-instances-sample.ttl` via [Comunica](https://comunica.dev/), and asserts the actual results against hand-verified expectations. This is a regression test for the ontology + sample dataset pairing — if an edit to either file changes what a competency question returns, this catches it and exits non-zero.
+
+The expectations are based on running each query and checking its real output, not on blindly trusting the `.sparql` file's "Expected result" comments — one of those comments (CQ-14) had drifted from the actual sample data and is called out in the script.
+
 ## Project Structure
 
 ```text
@@ -156,14 +166,18 @@ src/
 ├── routes/
 │   └── index.js                # Root router — mounts all module routes
 └── modules/
+    ├── applications/           # apm:Application Mongoose schema (ontology-aligned)
     ├── auth/                   # Login/refresh/logout/me, backed by Keycloak
     ├── audit/                  # AuditLog Mongoose schema
+    └── mcp/                    # MCP server integration
 
 ontology/
-├── apm-ontology.ttl            # The Nexus Insight APM Ontology (OWL/Turtle)
-├── apm-shapes.ttl               # SHACL shapes
-├── apm-instances-sample.ttl     # Sample instance dataset
-└── validate-ttl.js              # `npm run validate:ontology`
+├── apm-ontology.ttl                  # The Nexus Insight APM Ontology (OWL/Turtle)
+├── apm-shapes.ttl                    # SHACL shapes
+├── apm-instances-sample.ttl          # Sample instance dataset
+├── apm-competency-queries.sparql     # SPARQL competency questions
+├── validate-ttl.js                   # `npm run validate:ontology`
+└── validate-competency-queries.js    # `npm run validate:competency-queries`
 
 keycloak/
 ├── docker-compose.yml          # `npm run keycloak`

@@ -27,7 +27,8 @@
     "mongo": "docker run -d --name mongo -p 27017:27017 mongo:7",
     "keycloak": "docker compose -f keycloak/docker-compose.yml up -d",
     "validate:ontology": "node ontology/validate-ttl.js",
-    "test": "cross-env NODE_ENV=dev jest --testTimeout=10000 --runInBand --silent"
+    "validate:competency-queries": "node ontology/validate-competency-queries.js",
+    "test": "cross-env NODE_ENV=dev jest --testTimeout=10000 --runInBand --silent --passWithNoTests"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
@@ -45,6 +46,7 @@
     "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
+    "@comunica/query-sparql": "^5.3.0",
     "jest": "^30.3.0",
     "n3": "^2.1.2",
     "supertest": "^7.2.2"
