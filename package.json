@@ -26,6 +26,7 @@
     "env:prod": "cross-env NODE_ENV=prod node server.js",
     "mongo": "docker run -d --name mongo -p 27017:27017 mongo:7",
     "keycloak": "docker compose -f keycloak/docker-compose.yml up -d",
+    "validate:ontology": "node ontology/validate-ttl.js",
     "test": "cross-env NODE_ENV=dev jest --testTimeout=10000 --runInBand --silent"
   },
   "dependencies": {
@@ -45,6 +46,7 @@
   },
   "devDependencies": {
     "jest": "^30.3.0",
+    "n3": "^2.1.2",
     "supertest": "^7.2.2"
   }
 }
