@@ -1,0 +1,185 @@
+openapi: 3.0.3
+info:
+  title: Nexus Insight API
+  description: >-
+    Application Portfolio Management (APM) backend for Nexus Insight,
+    modeled after the Nexus Insight APM Ontology (see ontology/apm-ontology.ttl).
+  version: 1.0.0
+  license:
+    name: MIT
+servers:
+  - url: /api
+    description: >-
+      Base path for every documented endpoint. Any request under /api that
+      does not match a path/method declared below is rejected by the runtime
+      OpenAPI validator; endpoints outside /api are not affected.
+tags:
+  - name: Auth
+    description: Identity of the caller, as issued by the IdP identity provider.
+
+paths:
+  /auth/login:
+    post:
+      operationId: login
+      tags: [Auth]
+      summary: Exchange a username and password for tokens
+      description: >-
+        Proxies IdP's Direct Access Grant (Resource Owner Password
+        Credentials) flow. it is not a production-grade login flow for 
+        user-facing clients (which should use Authorization Code + PKCE 
+        against IdP directly).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/LoginRequest" }
+      responses:
+        "200":
+          description: The issued token pair.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TokenResponse" }
+        "400":
+          description: The request body failed validation.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Invalid username or password.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
+  /auth/refresh:
+    post:
+      operationId: refreshToken
+      tags: [Auth]
+      summary: Exchange a refresh token for a new token pair
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/RefreshRequest" }
+      responses:
+        "200":
+          description: The newly issued token pair.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TokenResponse" }
+        "400":
+          description: The request body failed validation.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: The refresh token is invalid or expired.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
+  /auth/logout:
+    post:
+      operationId: logout
+      tags: [Auth]
+      summary: Revoke a refresh token and its session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/RefreshRequest" }
+      responses:
+        "204":
+          description: The session was revoked.
+        "400":
+          description: The request body failed validation.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: The refresh token is invalid or expired.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
+  /auth/me:
+    get:
+      operationId: getCurrentUser
+      tags: [Auth]
+      summary: Get the authenticated caller's identity
+      description: >-
+        Returns the identity and IdP realm roles carried by the caller's
+        bearer token. Authentication is enforced by the `authenticate`
+        Express middleware (JWT signature + issuer verification against
+        the IdP's JWKS endpoint), not by this spec's `security` declaration
+        below, which exists for documentation / Swagger UI's Authorize button.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: The caller's identity.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AuthenticatedUser" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: A JWT issued by the IdP realm configured in IdP_URL/IdP_REALM.
+  schemas:
+    LoginRequest:
+      type: object
+      required: [username, password]
+      properties:
+        username: { type: string }
+        password: { type: string }
+
+    RefreshRequest:
+      type: object
+      required: [refreshToken]
+      properties:
+        refreshToken: { type: string }
+
+    TokenResponse:
+      type: object
+      required: [accessToken]
+      properties:
+        accessToken: { type: string }
+        refreshToken: { type: string }
+        expiresIn:
+          {
+            type: integer,
+            description: Seconds until the access token expires.,
+          }
+        tokenType: { type: string, example: Bearer }
+
+    AuthenticatedUser:
+      type: object
+      required: [id, roles]
+      properties:
+        id:
+          {
+            type: string,
+            description: "IdP subject id (the token's `sub` claim).",
+          }
+        username: { type: string }
+        email: { type: string }
+        roles:
+          type: array
+          items: { type: string }
+          description: IdP realm roles carried by the token.
+
+    ErrorResponse:
+      type: object
+      properties:
+        error: { type: string }
+        details:
+          type: array
+          items: { type: object }
