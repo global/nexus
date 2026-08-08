@@ -32,6 +32,11 @@ tags:
       apm:OrganizationUnit (ontology/apm-ontology.ttl) — a self-contained
       unit of the enterprise with defined management responsibility. Same
       role requirements as Applications.
+  - name: BusinessCapabilities
+    description: >-
+      apm:BusinessCapability (ontology/apm-ontology.ttl) — an ability the
+      business has to deliver value, organised into an L1/L2/L3 hierarchy
+      via parentCapability. Same role requirements as Applications.
 
 paths:
   /auth/login:
@@ -716,6 +721,186 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/ErrorResponse" }
 
+  /business-capabilities:
+    get:
+      operationId: listBusinessCapabilities
+      tags: [BusinessCapabilities]
+      summary: List business capabilities
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: query
+          name: parentCapability
+          schema: { $ref: "#/components/schemas/ObjectId" }
+        - in: query
+          name: capabilityLevel
+          schema: { type: integer, minimum: 1, maximum: 3 }
+        - in: query
+          name: search
+          description: Case-insensitive substring match against name and description.
+          schema: { type: string }
+      responses:
+        "200":
+          description: A list of business capabilities.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/BusinessCapability" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit reading business capabilities.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    post:
+      operationId: createBusinessCapability
+      tags: [BusinessCapabilities]
+      summary: Create a business capability
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/BusinessCapabilityCreate" }
+      responses:
+        "201":
+          description: The created business capability.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/BusinessCapability" }
+        "400":
+          description: The request body failed validation.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit creating business capabilities.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "409":
+          description: A business capability with this name already exists.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
+  /business-capabilities/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string }
+        description: MongoDB ObjectId of the business capability.
+    get:
+      operationId: getBusinessCapability
+      tags: [BusinessCapabilities]
+      summary: Get a business capability by id
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: The business capability.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/BusinessCapability" }
+        "400":
+          description: The id is not a valid ObjectId.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit reading business capabilities.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: No business capability exists with the given id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    put:
+      operationId: updateBusinessCapability
+      tags: [BusinessCapabilities]
+      summary: Update a business capability
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/BusinessCapabilityUpdate" }
+      responses:
+        "200":
+          description: The updated business capability.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/BusinessCapability" }
+        "400":
+          description: The request body failed validation, or the id is not a valid ObjectId.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit updating business capabilities.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: No business capability exists with the given id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "409":
+          description: Another business capability with this name already exists.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    delete:
+      operationId: deleteBusinessCapability
+      tags: [BusinessCapabilities]
+      summary: Delete a business capability
+      security: [{ bearerAuth: [] }]
+      responses:
+        "204":
+          description: The business capability was deleted.
+        "400":
+          description: The id is not a valid ObjectId.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit deleting business capabilities (admin only).
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: No business capability exists with the given id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
 components:
   securitySchemes:
     bearerAuth:
@@ -728,6 +913,44 @@ components:
       type: string
       pattern: "^[0-9a-fA-F]{24}$"
       description: MongoDB ObjectId.
+
+    BusinessCapabilityCreate:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string }
+        description: { type: string }
+        capabilityWeight: { type: integer, minimum: 1, maximum: 5, description: "Relative strategic importance, 1 (lowest) to 5 (highest)." }
+        capabilityLevel: { type: integer, minimum: 1, maximum: 3, description: "Hierarchy depth, e.g. L1=1, L2=2, L3=3." }
+        parentCapability: { $ref: "#/components/schemas/ObjectId" }
+
+    BusinessCapabilityUpdate:
+      type: object
+      description: Same shape as BusinessCapabilityCreate, but every field is optional.
+      properties:
+        name: { type: string }
+        description: { type: string }
+        capabilityWeight: { type: integer, minimum: 1, maximum: 5 }
+        capabilityLevel: { type: integer, minimum: 1, maximum: 3 }
+        parentCapability: { $ref: "#/components/schemas/ObjectId" }
+
+    BusinessCapability:
+      description: >-
+        The stored representation of a business capability. Only the fields
+        the API guarantees are marked required; additional Mongoose-managed
+        properties are permitted.
+      type: object
+      required: [_id, name]
+      properties:
+        _id: { type: string }
+        name: { type: string }
+        description: { type: string }
+        capabilityWeight: { type: integer }
+        capabilityLevel: { type: integer }
+        parentCapability: { $ref: "#/components/schemas/ObjectId" }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+        __v: { type: integer }
 
     OrganizationUnitCreate:
       type: object
