@@ -3,10 +3,12 @@ const router = express.Router();
 
 const authRoutes = require('../modules/auth/auth.routes');
 const applicationRoutes = require('../modules/applications/application.routes');
+const actorRoutes = require('../modules/actors/actor.routes');
 
 router.get('/', (_req, res) => res.json({ message: 'Welcome to Nexus Insight API' }));
 
 router.use('/api/auth', authRoutes);
 router.use('/api/applications', applicationRoutes);
+router.use('/api/actors', actorRoutes);
 
 module.exports = router;
