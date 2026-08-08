@@ -16,6 +16,12 @@ servers:
 tags:
   - name: Auth
     description: Identity of the caller, as issued by the IdP identity provider.
+  - name: Applications
+    description: >-
+      apm:Application (ontology/apm-ontology.ttl) — the ontology-aligned
+      application portfolio. Every endpoint requires a bearer token; reads
+      require the admin, portfolio-manager, or viewer realm role, writes
+      require admin or portfolio-manager, and delete requires admin.
 
 paths:
   /auth/login:
@@ -126,6 +132,223 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/ErrorResponse" }
 
+  /applications:
+    get:
+      operationId: listApplications
+      tags: [Applications]
+      summary: List applications
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: query
+          name: lifecycleStatus
+          schema: { $ref: "#/components/schemas/LifecycleStatus" }
+        - in: query
+          name: criticalityTier
+          schema: { $ref: "#/components/schemas/CriticalityTier" }
+        - in: query
+          name: investmentStrategy
+          schema: { $ref: "#/components/schemas/InvestmentStrategy" }
+        - in: query
+          name: hostingModel
+          schema: { $ref: "#/components/schemas/HostingModel" }
+        - in: query
+          name: complianceStandards
+          schema:
+            oneOf:
+              - $ref: "#/components/schemas/ComplianceStandard"
+              - type: array
+                items: { $ref: "#/components/schemas/ComplianceStandard" }
+        - in: query
+          name: search
+          description: Case-insensitive substring match against name and description.
+          schema: { type: string }
+      responses:
+        "200":
+          description: A list of applications.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Application" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit reading applications.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    post:
+      operationId: createApplication
+      tags: [Applications]
+      summary: Create an application
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ApplicationCreate" }
+      responses:
+        "201":
+          description: The created application.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Application" }
+        "400":
+          description: The request body failed validation.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit creating applications.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "409":
+          description: An application with this name already exists.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
+  /applications/stats:
+    get:
+      operationId: getApplicationStats
+      tags: [Applications]
+      summary: Get portfolio statistics
+      description: Returns aggregate application counts grouped by lifecycle status, criticality tier, and investment strategy, plus the total count.
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: Portfolio statistics.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ApplicationStats" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit reading applications.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
+  /applications/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string }
+        description: MongoDB ObjectId of the application.
+    get:
+      operationId: getApplication
+      tags: [Applications]
+      summary: Get an application by id
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: The application.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Application" }
+        "400":
+          description: The id is not a valid ObjectId.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit reading applications.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: No application exists with the given id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    put:
+      operationId: updateApplication
+      tags: [Applications]
+      summary: Update an application
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ApplicationUpdate" }
+      responses:
+        "200":
+          description: The updated application.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Application" }
+        "400":
+          description: The request body failed validation, or the id is not a valid ObjectId.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit updating applications.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: No application exists with the given id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "409":
+          description: Another application with this name already exists.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    delete:
+      operationId: deleteApplication
+      tags: [Applications]
+      summary: Delete an application
+      security: [{ bearerAuth: [] }]
+      responses:
+        "204":
+          description: The application was deleted.
+        "400":
+          description: The id is not a valid ObjectId.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit deleting applications (admin only).
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: No application exists with the given id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
 components:
   securitySchemes:
     bearerAuth:
@@ -134,6 +357,140 @@ components:
       bearerFormat: JWT
       description: A JWT issued by the IdP realm configured in IdP_URL/IdP_REALM.
   schemas:
+    ObjectId:
+      type: string
+      pattern: "^[0-9a-fA-F]{24}$"
+      description: MongoDB ObjectId.
+
+    LifecycleStatus:
+      type: string
+      enum: [Planned, Development, Operate, Retired]
+    CriticalityTier:
+      type: string
+      enum: [Critical, High, Medium, Low]
+    InvestmentStrategy:
+      type: string
+      enum: [Tolerate, Invest, Migrate, Eliminate]
+    HostingModel:
+      type: string
+      enum: [ExternallyHosted, InternallyHosted, Hybrid]
+    ComplianceStandard:
+      type: string
+      enum: [SOC2, HIPAA, GDPR, PCIDSS, ISO27001]
+
+    ApplicationCreate:
+      type: object
+      required: [name, owners]
+      properties:
+        name: { type: string }
+        description: { type: string }
+        owners:
+          type: array
+          minItems: 1
+          items: { $ref: "#/components/schemas/ObjectId" }
+          description: Actor ObjectIds; at least one owner is required.
+        lifecycleStatus: { $ref: "#/components/schemas/LifecycleStatus" }
+        criticalityTier: { $ref: "#/components/schemas/CriticalityTier" }
+        investmentStrategy: { $ref: "#/components/schemas/InvestmentStrategy" }
+        hostingModel: { $ref: "#/components/schemas/HostingModel" }
+        complianceStandards:
+          type: array
+          items: { $ref: "#/components/schemas/ComplianceStandard" }
+        goLiveDate: { type: string, format: date }
+        recoveryTimeObjective: { type: string, description: "ISO 8601 duration, e.g. PT4H", example: PT4H }
+        recoveryPointObjective: { type: string, description: "ISO 8601 duration, e.g. PT1H", example: PT1H }
+        organizationUnit: { $ref: "#/components/schemas/ObjectId" }
+        supplier: { $ref: "#/components/schemas/ObjectId" }
+        capabilities: { type: array, items: { $ref: "#/components/schemas/ObjectId" } }
+        dataEntities: { type: array, items: { $ref: "#/components/schemas/ObjectId" } }
+        technologyServices: { type: array, items: { $ref: "#/components/schemas/ObjectId" } }
+        documents: { type: array, items: { $ref: "#/components/schemas/ObjectId" } }
+        repositories: { type: array, items: { $ref: "#/components/schemas/ObjectId" } }
+        controls: { type: array, items: { $ref: "#/components/schemas/ObjectId" } }
+        logicalComponents: { type: array, items: { $ref: "#/components/schemas/ObjectId" } }
+        deployments: { type: array, items: { $ref: "#/components/schemas/ObjectId" } }
+
+    ApplicationUpdate:
+      type: object
+      description: Same shape as ApplicationCreate, but every field is optional.
+      properties:
+        name: { type: string }
+        description: { type: string }
+        owners:
+          type: array
+          minItems: 1
+          items: { $ref: "#/components/schemas/ObjectId" }
+        lifecycleStatus: { $ref: "#/components/schemas/LifecycleStatus" }
+        criticalityTier: { $ref: "#/components/schemas/CriticalityTier" }
+        investmentStrategy: { $ref: "#/components/schemas/InvestmentStrategy" }
+        hostingModel: { $ref: "#/components/schemas/HostingModel" }
+        complianceStandards:
+          type: array
+          items: { $ref: "#/components/schemas/ComplianceStandard" }
+        goLiveDate: { type: string, format: date }
+        recoveryTimeObjective: { type: string, example: PT4H }
+        recoveryPointObjective: { type: string, example: PT1H }
+        organizationUnit: { $ref: "#/components/schemas/ObjectId" }
+        supplier: { $ref: "#/components/schemas/ObjectId" }
+        capabilities: { type: array, items: { $ref: "#/components/schemas/ObjectId" } }
+        dataEntities: { type: array, items: { $ref: "#/components/schemas/ObjectId" } }
+        technologyServices: { type: array, items: { $ref: "#/components/schemas/ObjectId" } }
+        documents: { type: array, items: { $ref: "#/components/schemas/ObjectId" } }
+        repositories: { type: array, items: { $ref: "#/components/schemas/ObjectId" } }
+        controls: { type: array, items: { $ref: "#/components/schemas/ObjectId" } }
+        logicalComponents: { type: array, items: { $ref: "#/components/schemas/ObjectId" } }
+        deployments: { type: array, items: { $ref: "#/components/schemas/ObjectId" } }
+
+    Application:
+      description: >-
+        The stored representation of an application. Only the fields the API
+        guarantees are marked required; additional Mongoose-managed
+        properties are permitted.
+      type: object
+      required: [_id, name]
+      properties:
+        _id: { type: string }
+        name: { type: string }
+        description: { type: string }
+        owners: { type: array, items: { $ref: "#/components/schemas/ObjectId" } }
+        lifecycleStatus: { $ref: "#/components/schemas/LifecycleStatus" }
+        criticalityTier: { $ref: "#/components/schemas/CriticalityTier" }
+        investmentStrategy: { $ref: "#/components/schemas/InvestmentStrategy" }
+        hostingModel: { $ref: "#/components/schemas/HostingModel" }
+        complianceStandards:
+          type: array
+          items: { $ref: "#/components/schemas/ComplianceStandard" }
+        goLiveDate: { type: string, format: date }
+        recoveryTimeObjective: { type: string }
+        recoveryPointObjective: { type: string }
+        organizationUnit: { $ref: "#/components/schemas/ObjectId" }
+        supplier: { $ref: "#/components/schemas/ObjectId" }
+        capabilities: { type: array, items: { $ref: "#/components/schemas/ObjectId" } }
+        dataEntities: { type: array, items: { $ref: "#/components/schemas/ObjectId" } }
+        technologyServices: { type: array, items: { $ref: "#/components/schemas/ObjectId" } }
+        documents: { type: array, items: { $ref: "#/components/schemas/ObjectId" } }
+        repositories: { type: array, items: { $ref: "#/components/schemas/ObjectId" } }
+        controls: { type: array, items: { $ref: "#/components/schemas/ObjectId" } }
+        logicalComponents: { type: array, items: { $ref: "#/components/schemas/ObjectId" } }
+        deployments: { type: array, items: { $ref: "#/components/schemas/ObjectId" } }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+        __v: { type: integer }
+
+    ApplicationStats:
+      type: object
+      properties:
+        byLifecycleStatus:
+          type: array
+          items: { type: object }
+        byCriticalityTier:
+          type: array
+          items: { type: object }
+        byInvestmentStrategy:
+          type: array
+          items: { type: object }
+        total: { type: integer }
+
     LoginRequest:
       type: object
       required: [username, password]
