@@ -53,6 +53,12 @@ function errorHandler(err, req, res, next) {
     return res.status(err.status).json({ error: err.message, details: err.errors });
   }
 
+  // Mongoose cast error: typically an invalid ObjectId in a route param
+  // (e.g. GET /api/applications/not-a-real-id) — a client input problem, not a server one.
+  if (err.name === 'CastError') {
+    return res.status(400).json({ error: `Invalid value for field '${err.path}'` });
+  }
+
   console.error(err);
   return res.status(err.statusCode || 500).json({ error: err.message || 'Internal server error' });
 }

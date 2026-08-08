@@ -1,7 +1,8 @@
 const jwt = require('jsonwebtoken');
 const jwksClient = require('jwks-rsa');
-const { UnauthorizedError, ForbiddenError } = require('../common/errors');
+const { UnauthorizedError } = require('../common/errors');
 const { issuer, jwksUri } = require('../config/auth');
+const { authorize } = require('./authorize');
 
 // Set up a JWKS client to fetch IdP's public keys for JWT verification.
 const client = jwksClient({
@@ -60,31 +61,6 @@ function authenticate(req, res, next) {
 
     next();
   });
-}
-
-/**
- * Returns middleware that only allows requests whose authenticated user
- * (set by `authenticate`) holds at least one of the given IdP realm
- * roles. 
- *
- * @param {...string} allowedRoles
- * @returns {import('express').RequestHandler}
- */
-function authorize(...allowedRoles) {
-  return (req, res, next) => {
-
-    // User must be authenticated first, so `req.user` is set by `authenticate`.
-    if (!req.user) {
-      return next(new UnauthorizedError());
-    }
-
-    const hasRole = allowedRoles.some((role) => req.user.roles.includes(role));
-    if (!hasRole) {
-      return next(new ForbiddenError(`Requires one of the following roles: ${allowedRoles.join(', ')}`));
-    }
-
-    next();
-  };
 }
 
 module.exports = { authenticate, authorize };
