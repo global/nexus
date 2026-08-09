@@ -37,6 +37,16 @@ tags:
       apm:BusinessCapability (ontology/apm-ontology.ttl) — an ability the
       business has to deliver value, organised into an L1/L2/L3 hierarchy
       via parentCapability. Same role requirements as Applications.
+  - name: Suppliers
+    description: >-
+      apm:Supplier (ontology/apm-ontology.ttl) — a third-party vendor that
+      publishes a software product or hosts an application on the
+      organization's behalf. Same role requirements as Applications.
+  - name: Controls
+    description: >-
+      apm:Control (ontology/apm-ontology.ttl) — a safeguard or measure
+      implemented to mitigate risk or satisfy a compliance requirement.
+      Same role requirements as Applications.
 
 paths:
   /auth/login:
@@ -901,6 +911,370 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/ErrorResponse" }
 
+  /suppliers:
+    get:
+      operationId: listSuppliers
+      tags: [Suppliers]
+      summary: List suppliers
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: query
+          name: certifications
+          description: One or more compliance standards to filter by.
+          schema:
+            oneOf:
+              - $ref: "#/components/schemas/ComplianceStandard"
+              - type: array
+                items: { $ref: "#/components/schemas/ComplianceStandard" }
+        - in: query
+          name: search
+          description: Case-insensitive substring match against name and description.
+          schema: { type: string }
+      responses:
+        "200":
+          description: A list of suppliers.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Supplier" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit reading suppliers.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    post:
+      operationId: createSupplier
+      tags: [Suppliers]
+      summary: Create a supplier
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SupplierCreate" }
+      responses:
+        "201":
+          description: The created supplier.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Supplier" }
+        "400":
+          description: The request body failed validation.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit creating suppliers.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "409":
+          description: A supplier with this name already exists.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
+  /suppliers/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string }
+        description: MongoDB ObjectId of the supplier.
+    get:
+      operationId: getSupplier
+      tags: [Suppliers]
+      summary: Get a supplier by id
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: The supplier.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Supplier" }
+        "400":
+          description: The id is not a valid ObjectId.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit reading suppliers.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: No supplier exists with the given id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    put:
+      operationId: updateSupplier
+      tags: [Suppliers]
+      summary: Update a supplier
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SupplierUpdate" }
+      responses:
+        "200":
+          description: The updated supplier.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Supplier" }
+        "400":
+          description: The request body failed validation, or the id is not a valid ObjectId.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit updating suppliers.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: No supplier exists with the given id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "409":
+          description: Another supplier with this name already exists.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    delete:
+      operationId: deleteSupplier
+      tags: [Suppliers]
+      summary: Delete a supplier
+      security: [{ bearerAuth: [] }]
+      responses:
+        "204":
+          description: The supplier was deleted.
+        "400":
+          description: The id is not a valid ObjectId.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit deleting suppliers (admin only).
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: No supplier exists with the given id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
+  /controls:
+    get:
+      operationId: listControls
+      tags: [Controls]
+      summary: List controls
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: query
+          name: supportsComplianceStandard
+          description: One or more compliance standards to filter by.
+          schema:
+            oneOf:
+              - $ref: "#/components/schemas/ComplianceStandard"
+              - type: array
+                items: { $ref: "#/components/schemas/ComplianceStandard" }
+        - in: query
+          name: search
+          description: Case-insensitive substring match against name, description, and control reference.
+          schema: { type: string }
+      responses:
+        "200":
+          description: A list of controls.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Control" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit reading controls.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    post:
+      operationId: createControl
+      tags: [Controls]
+      summary: Create a control
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ControlCreate" }
+      responses:
+        "201":
+          description: The created control.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Control" }
+        "400":
+          description: The request body failed validation.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit creating controls.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "409":
+          description: A control with this name already exists.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
+  /controls/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string }
+        description: MongoDB ObjectId of the control.
+    get:
+      operationId: getControl
+      tags: [Controls]
+      summary: Get a control by id
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: The control.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Control" }
+        "400":
+          description: The id is not a valid ObjectId.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit reading controls.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: No control exists with the given id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    put:
+      operationId: updateControl
+      tags: [Controls]
+      summary: Update a control
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ControlUpdate" }
+      responses:
+        "200":
+          description: The updated control.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Control" }
+        "400":
+          description: The request body failed validation, or the id is not a valid ObjectId.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit updating controls.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: No control exists with the given id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "409":
+          description: Another control with this name already exists.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    delete:
+      operationId: deleteControl
+      tags: [Controls]
+      summary: Delete a control
+      security: [{ bearerAuth: [] }]
+      responses:
+        "204":
+          description: The control was deleted.
+        "400":
+          description: The id is not a valid ObjectId.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit deleting controls (admin only).
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: No control exists with the given id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
 components:
   securitySchemes:
     bearerAuth:
@@ -913,6 +1287,88 @@ components:
       type: string
       pattern: "^[0-9a-fA-F]{24}$"
       description: MongoDB ObjectId.
+
+    ControlCreate:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string }
+        description: { type: string }
+        controlReference: { type: string, description: "e.g. ISO/IEC 27002:2022 5.17 or NIST SP 800-53 AC-2" }
+        lastReviewedDate: { type: string, description: "ISO 8601 date or date-time." }
+        supportsComplianceStandard:
+          type: array
+          items: { $ref: "#/components/schemas/ComplianceStandard" }
+
+    ControlUpdate:
+      type: object
+      description: Same shape as ControlCreate, but every field is optional.
+      properties:
+        name: { type: string }
+        description: { type: string }
+        controlReference: { type: string }
+        lastReviewedDate: { type: string, description: "ISO 8601 date or date-time." }
+        supportsComplianceStandard:
+          type: array
+          items: { $ref: "#/components/schemas/ComplianceStandard" }
+
+    Control:
+      description: >-
+        The stored representation of a control. Only the fields the API
+        guarantees are marked required; additional Mongoose-managed
+        properties are permitted.
+      type: object
+      required: [_id, name]
+      properties:
+        _id: { type: string }
+        name: { type: string }
+        description: { type: string }
+        controlReference: { type: string }
+        lastReviewedDate: { type: string, format: date-time, description: "Serialized as a full timestamp; the ontology's xsd:date intent is date-only, but Mongoose stores it as a Date." }
+        supportsComplianceStandard:
+          type: array
+          items: { $ref: "#/components/schemas/ComplianceStandard" }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+        __v: { type: integer }
+
+    SupplierCreate:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string }
+        description: { type: string }
+        certifications:
+          type: array
+          items: { $ref: "#/components/schemas/ComplianceStandard" }
+
+    SupplierUpdate:
+      type: object
+      description: Same shape as SupplierCreate, but every field is optional.
+      properties:
+        name: { type: string }
+        description: { type: string }
+        certifications:
+          type: array
+          items: { $ref: "#/components/schemas/ComplianceStandard" }
+
+    Supplier:
+      description: >-
+        The stored representation of a supplier. Only the fields the API
+        guarantees are marked required; additional Mongoose-managed
+        properties are permitted.
+      type: object
+      required: [_id, name]
+      properties:
+        _id: { type: string }
+        name: { type: string }
+        description: { type: string }
+        certifications:
+          type: array
+          items: { $ref: "#/components/schemas/ComplianceStandard" }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+        __v: { type: integer }
 
     BusinessCapabilityCreate:
       type: object
@@ -1065,7 +1521,7 @@ components:
         complianceStandards:
           type: array
           items: { $ref: "#/components/schemas/ComplianceStandard" }
-        goLiveDate: { type: string, format: date }
+        goLiveDate: { type: string, description: "ISO 8601 date or date-time." }
         recoveryTimeObjective: { type: string, description: "ISO 8601 duration, e.g. PT4H", example: PT4H }
         recoveryPointObjective: { type: string, description: "ISO 8601 duration, e.g. PT1H", example: PT1H }
         organizationUnit: { $ref: "#/components/schemas/ObjectId" }
@@ -1096,7 +1552,7 @@ components:
         complianceStandards:
           type: array
           items: { $ref: "#/components/schemas/ComplianceStandard" }
-        goLiveDate: { type: string, format: date }
+        goLiveDate: { type: string, description: "ISO 8601 date or date-time." }
         recoveryTimeObjective: { type: string, example: PT4H }
         recoveryPointObjective: { type: string, example: PT1H }
         organizationUnit: { $ref: "#/components/schemas/ObjectId" }
@@ -1129,7 +1585,7 @@ components:
         complianceStandards:
           type: array
           items: { $ref: "#/components/schemas/ComplianceStandard" }
-        goLiveDate: { type: string, format: date }
+        goLiveDate: { type: string, format: date-time }
         recoveryTimeObjective: { type: string }
         recoveryPointObjective: { type: string }
         organizationUnit: { $ref: "#/components/schemas/ObjectId" }
