@@ -89,6 +89,11 @@ tags:
       apm:Document (ontology/apm-ontology.ttl) — a reference document or
       link associated with an application, such as an architecture or
       threat model document. Same role requirements as Applications.
+  - name: CodeRepositories
+    description: >-
+      apm:CodeRepository (ontology/apm-ontology.ttl) — a source code
+      repository containing the implementation of an application. Same
+      role requirements as Applications.
 
 paths:
   /auth/login:
@@ -2706,6 +2711,172 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/ErrorResponse" }
 
+  /code-repositories:
+    get:
+      operationId: listCodeRepositories
+      tags: [CodeRepositories]
+      summary: List code repositories
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: query
+          name: search
+          description: Case-insensitive substring match against name and url.
+          schema: { type: string }
+      responses:
+        "200":
+          description: A list of code repositories.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/CodeRepository" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit reading code repositories.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    post:
+      operationId: createCodeRepository
+      tags: [CodeRepositories]
+      summary: Create a code repository
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CodeRepositoryCreate" }
+      responses:
+        "201":
+          description: The created code repository.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CodeRepository" }
+        "400":
+          description: The request body failed validation.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit creating code repositories.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
+  /code-repositories/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string }
+        description: MongoDB ObjectId of the code repository.
+    get:
+      operationId: getCodeRepository
+      tags: [CodeRepositories]
+      summary: Get a code repository by id
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: The code repository.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CodeRepository" }
+        "400":
+          description: The id is not a valid ObjectId.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit reading code repositories.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: No code repository exists with the given id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    put:
+      operationId: updateCodeRepository
+      tags: [CodeRepositories]
+      summary: Update a code repository
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CodeRepositoryUpdate" }
+      responses:
+        "200":
+          description: The updated code repository.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CodeRepository" }
+        "400":
+          description: >-
+            The request body failed validation, or the id is not a valid
+            ObjectId.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit updating code repositories.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: No code repository exists with the given id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    delete:
+      operationId: deleteCodeRepository
+      tags: [CodeRepositories]
+      summary: Delete a code repository
+      security: [{ bearerAuth: [] }]
+      responses:
+        "204":
+          description: The code repository was deleted.
+        "400":
+          description: The id is not a valid ObjectId.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit deleting code repositories (admin only).
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: No code repository exists with the given id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
 components:
   securitySchemes:
     bearerAuth:
@@ -3036,6 +3207,38 @@ components:
         _id: { type: string }
         name: { type: string }
         hasDocumentType: { $ref: "#/components/schemas/DocumentType" }
+        url: { type: string }
+        lastUpdated: { type: string, format: date-time }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+        __v: { type: integer }
+
+    CodeRepositoryCreate:
+      type: object
+      required: [name, url]
+      properties:
+        name: { type: string }
+        url: { type: string, format: uri }
+        lastUpdated: { type: string, description: "ISO 8601 date or date-time." }
+
+    CodeRepositoryUpdate:
+      type: object
+      description: Same shape as CodeRepositoryCreate, but every field is optional.
+      properties:
+        name: { type: string }
+        url: { type: string, format: uri }
+        lastUpdated: { type: string }
+
+    CodeRepository:
+      description: >-
+        The stored representation of a code repository. Only the fields the
+        API guarantees are marked required; additional Mongoose-managed
+        properties are permitted.
+      type: object
+      required: [_id, name, url]
+      properties:
+        _id: { type: string }
+        name: { type: string }
         url: { type: string }
         lastUpdated: { type: string, format: date-time }
         createdAt: { type: string, format: date-time }
