@@ -5,11 +5,7 @@ const { createMcpServer } = require('./server');
 const router = express.Router();
 
 /**
- * Stateless Streamable HTTP MCP endpoint: a fresh McpServer + transport pair
- * per request, mirroring the SDK's own stateless example
- * (`@modelcontextprotocol/sdk`'s `simpleStatelessStreamableHttp` example).
- * Every tool here is a stateless read against the same service layer the
- * REST API uses, so there's no session state worth keeping between calls.
+ * MCP Server initialization
  */
 router.post('/', async (req, res) => {
   try {

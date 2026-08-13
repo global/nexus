@@ -5,6 +5,7 @@ const businessCapabilitiesTools = require('./businessCapabilities.tools');
 const suppliersTools = require('./suppliers.tools');
 const controlsTools = require('./controls.tools');
 const findingsTools = require('./findings.tools');
+const applicationDependenciesTools = require('./applicationDependencies.tools');
 
 const MODULES = [
   applicationsTools,
@@ -14,6 +15,7 @@ const MODULES = [
   suppliersTools,
   controlsTools,
   findingsTools,
+  applicationDependenciesTools,
 ];
 
 /**

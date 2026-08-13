@@ -51,6 +51,43 @@ apm:ApplicationShape a sh:NodeShape ;
 
 
 ### --------------------------------------------------
+### Application Dependency
+### --------------------------------------------------
+
+apm:ApplicationDependencyShape a sh:NodeShape ;
+    sh:targetClass apm:ApplicationDependency ;
+    sh:property [
+        sh:path apm:upstreamApplication ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every Application Dependency must name exactly one upstream Application." ;
+    ] ;
+    sh:property [
+        sh:path apm:downstreamApplication ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every Application Dependency must name exactly one downstream Application." ;
+    ] ;
+    sh:property [
+        sh:path apm:upstreamApplication ;
+        sh:disjoint apm:downstreamApplication ;
+        sh:message "An Application Dependency's upstream and downstream Application must be different." ;
+    ] ;
+    sh:property [
+        sh:path apm:usesProtocol ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every Application Dependency must specify exactly one Dependency Protocol." ;
+    ] ;
+    sh:property [
+        sh:path apm:hasSynchronicity ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every Application Dependency must specify exactly one Synchronicity." ;
+    ] .
+
+
+### --------------------------------------------------
 ### Finding
 ### --------------------------------------------------
 

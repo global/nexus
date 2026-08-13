@@ -9,6 +9,7 @@ const businessCapabilityRoutes = require('../modules/business-capabilities/busin
 const supplierRoutes = require('../modules/suppliers/supplier.routes');
 const controlRoutes = require('../modules/controls/control.routes');
 const findingRoutes = require('../modules/findings/finding.routes');
+const applicationDependencyRoutes = require('../modules/application-dependencies/applicationDependency.routes');
 
 router.get('/', (_req, res) => res.json({ message: 'Welcome to Nexus Insight API' }));
 
@@ -20,5 +21,6 @@ router.use('/api/business-capabilities', businessCapabilityRoutes);
 router.use('/api/suppliers', supplierRoutes);
 router.use('/api/controls', controlRoutes);
 router.use('/api/findings', findingRoutes);
+router.use('/api/application-dependencies', applicationDependencyRoutes);
 
 module.exports = router;
