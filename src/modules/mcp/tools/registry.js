@@ -6,6 +6,7 @@ const suppliersTools = require('./suppliers.tools');
 const controlsTools = require('./controls.tools');
 const findingsTools = require('./findings.tools');
 const applicationDependenciesTools = require('./applicationDependencies.tools');
+const costRecordsTools = require('./costRecords.tools');
 
 const MODULES = [
   applicationsTools,
@@ -16,6 +17,7 @@ const MODULES = [
   controlsTools,
   findingsTools,
   applicationDependenciesTools,
+  costRecordsTools,
 ];
 
 /**

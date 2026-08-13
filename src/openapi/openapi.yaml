@@ -58,6 +58,11 @@ tags:
       dependency between two applications, capturing the protocol and
       synchronicity of the interaction. Same role requirements as
       Applications.
+  - name: CostRecords
+    description: >-
+      apm:CostRecord (ontology/apm-ontology.ttl) — a recorded cost incurred
+      by an application for a specific fiscal year and cost category. Same
+      role requirements as Applications.
 
 paths:
   /auth/login:
@@ -1643,6 +1648,178 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/ErrorResponse" }
 
+  /cost-records:
+    get:
+      operationId: listCostRecords
+      tags: [CostRecords]
+      summary: List cost records
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: query
+          name: incurredByApplication
+          schema: { $ref: "#/components/schemas/ObjectId" }
+        - in: query
+          name: hasCostCategory
+          schema: { $ref: "#/components/schemas/CostCategory" }
+        - in: query
+          name: fiscalYear
+          description: 4-digit year, e.g. "2026".
+          schema: { type: string }
+      responses:
+        "200":
+          description: A list of cost records.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/CostRecord" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit reading cost records.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    post:
+      operationId: createCostRecord
+      tags: [CostRecords]
+      summary: Create a cost record
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CostRecordCreate" }
+      responses:
+        "201":
+          description: The created cost record.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CostRecord" }
+        "400":
+          description: The request body failed validation.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit creating cost records.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
+  /cost-records/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string }
+        description: MongoDB ObjectId of the cost record.
+    get:
+      operationId: getCostRecord
+      tags: [CostRecords]
+      summary: Get a cost record by id
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: The cost record.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CostRecord" }
+        "400":
+          description: The id is not a valid ObjectId.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit reading cost records.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: No cost record exists with the given id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    put:
+      operationId: updateCostRecord
+      tags: [CostRecords]
+      summary: Update a cost record
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CostRecordUpdate" }
+      responses:
+        "200":
+          description: The updated cost record.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CostRecord" }
+        "400":
+          description: >-
+            The request body failed validation, or the id is not a valid
+            ObjectId.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit updating cost records.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: No cost record exists with the given id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    delete:
+      operationId: deleteCostRecord
+      tags: [CostRecords]
+      summary: Delete a cost record
+      security: [{ bearerAuth: [] }]
+      responses:
+        "204":
+          description: The cost record was deleted.
+        "400":
+          description: The id is not a valid ObjectId.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit deleting cost records (admin only).
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: No cost record exists with the given id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
 components:
   securitySchemes:
     bearerAuth:
@@ -1771,6 +1948,44 @@ components:
         downstreamApplication: { $ref: "#/components/schemas/ObjectId" }
         usesProtocol: { $ref: "#/components/schemas/DependencyProtocol" }
         hasSynchronicity: { $ref: "#/components/schemas/Synchronicity" }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+        __v: { type: integer }
+
+    CostRecordCreate:
+      type: object
+      required: [incurredByApplication, hasCostCategory, costAmount, costCurrency, fiscalYear]
+      properties:
+        incurredByApplication: { $ref: "#/components/schemas/ObjectId" }
+        hasCostCategory: { $ref: "#/components/schemas/CostCategory" }
+        costAmount: { type: number }
+        costCurrency: { type: string, description: "ISO 4217 currency code, e.g. USD or EUR.", example: EUR }
+        fiscalYear: { type: string, description: "4-digit year.", example: "2026" }
+
+    CostRecordUpdate:
+      type: object
+      description: Same shape as CostRecordCreate, but every field is optional.
+      properties:
+        incurredByApplication: { $ref: "#/components/schemas/ObjectId" }
+        hasCostCategory: { $ref: "#/components/schemas/CostCategory" }
+        costAmount: { type: number }
+        costCurrency: { type: string }
+        fiscalYear: { type: string }
+
+    CostRecord:
+      description: >-
+        The stored representation of a cost record. Only the fields the API
+        guarantees are marked required; additional Mongoose-managed
+        properties are permitted.
+      type: object
+      required: [_id, incurredByApplication, hasCostCategory, costAmount, costCurrency, fiscalYear]
+      properties:
+        _id: { type: string }
+        incurredByApplication: { $ref: "#/components/schemas/ObjectId" }
+        hasCostCategory: { $ref: "#/components/schemas/CostCategory" }
+        costAmount: { type: number }
+        costCurrency: { type: string }
+        fiscalYear: { type: string }
         createdAt: { type: string, format: date-time }
         updatedAt: { type: string, format: date-time }
         __v: { type: integer }
@@ -1995,6 +2210,9 @@ components:
     Synchronicity:
       type: string
       enum: [Synchronous, Asynchronous, Batch]
+    CostCategory:
+      type: string
+      enum: [Licensing, Infrastructure, Support, Labor]
 
     ApplicationCreate:
       type: object
