@@ -146,6 +146,15 @@ const SYNCHRONICITIES = Object.freeze([
 ]);
 const SYNCHRONICITY_VALUES = SYNCHRONICITIES.map((v) => v.value);
 
+/** @see apm:DocumentType */
+const DOCUMENT_TYPES = Object.freeze([
+  { value: 'ArchitectureDocType', label: 'Architecture', description: "A document describing an application's architecture, such as its components, data flows, or integration points." },
+  { value: 'ThreatModelDocType', label: 'Threat Model', description: "A document identifying an application's potential threats and their corresponding mitigations." },
+  { value: 'RunbookDocType', label: 'Runbook', description: 'A document describing the operational procedures for running, monitoring, or recovering an application.' },
+  { value: 'DataFlowDiagramDocType', label: 'Data Flow Diagram', description: "A document diagramming how data moves through and between an application's components." },
+]);
+const DOCUMENT_TYPE_VALUES = DOCUMENT_TYPES.map((v) => v.value);
+
 module.exports = {
   LIFECYCLE_STATUSES,
   LIFECYCLE_STATUS_VALUES,
@@ -175,4 +184,6 @@ module.exports = {
   DEPENDENCY_PROTOCOL_VALUES,
   SYNCHRONICITIES,
   SYNCHRONICITY_VALUES,
+  DOCUMENT_TYPES,
+  DOCUMENT_TYPE_VALUES,
 };

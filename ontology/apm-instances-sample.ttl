@@ -843,9 +843,6 @@ apm:Doc_IAM_ThreatModel a apm:Document ;
     apm:url "https://wiki.nexusapm.example/iam/threat-model"^^xsd:anyURI ;
     apm:lastUpdated "2026-02-10"^^xsd:date .
 
-apm:ThreatModelDocType a apm:DocumentType ;
-    rdfs:label "Threat Model" .
-
 apm:Repo_CustomerPortal_Web a apm:CodeRepository ;
     rdfs:label "customer-portal-web" ;
     apm:url "https://git.nexusapm.example/sales/customer-portal-web"^^xsd:anyURI ;

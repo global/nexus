@@ -1344,6 +1344,25 @@ apm:Batch a apm:Synchronicity ;
     rdfs:comment "The interaction occurs on a scheduled cycle rather than on demand, so an upstream failure is only noticed at the next run." .
 
 
+# Document Type
+
+apm:ArchitectureDocType a apm:DocumentType ;
+    rdfs:label "Architecture" ;
+    rdfs:comment "A document describing an application's architecture, such as its components, data flows, or integration points." .
+
+apm:ThreatModelDocType a apm:DocumentType ;
+    rdfs:label "Threat Model" ;
+    rdfs:comment "A document identifying an application's potential threats and their corresponding mitigations." .
+
+apm:RunbookDocType a apm:DocumentType ;
+    rdfs:label "Runbook" ;
+    rdfs:comment "A document describing the operational procedures for running, monitoring, or recovering an application." .
+
+apm:DataFlowDiagramDocType a apm:DocumentType ;
+    rdfs:label "Data Flow Diagram" ;
+    rdfs:comment "A document diagramming how data moves through and between an application's components." .
+
+
 ### --------------------------------------------------
 ### INDIVIDUAL DISTINCTNESS AXIOMS
 ### --------------------------------------------------
@@ -1400,3 +1419,8 @@ apm:Batch a apm:Synchronicity ;
 
 [] a owl:AllDifferent ;
     owl:distinctMembers ( apm:Synchronous apm:Asynchronous apm:Batch ) .
+
+[] a owl:AllDifferent ;
+    owl:distinctMembers (
+        apm:ArchitectureDocType apm:ThreatModelDocType apm:RunbookDocType apm:DataFlowDiagramDocType
+    ) .
