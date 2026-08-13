@@ -69,6 +69,11 @@ tags:
       evaluation of an application's business and technical fit, enabling
       trend tracking across assessment cycles. Same role requirements as
       Applications.
+  - name: Roles
+    description: >-
+      apm:Role (ontology/apm-ontology.ttl) — the function an actor performs
+      in a process, independent of who fulfils it, such as CTO or
+      Application Owner. Same role requirements as Applications.
 
 paths:
   /auth/login:
@@ -1994,6 +1999,182 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/ErrorResponse" }
 
+  /roles:
+    get:
+      operationId: listRoles
+      tags: [Roles]
+      summary: List roles
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: query
+          name: search
+          description: Case-insensitive substring match against name and description.
+          schema: { type: string }
+      responses:
+        "200":
+          description: A list of roles.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Role" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit reading roles.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    post:
+      operationId: createRole
+      tags: [Roles]
+      summary: Create a role
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/RoleCreate" }
+      responses:
+        "201":
+          description: The created role.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Role" }
+        "400":
+          description: The request body failed validation.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit creating roles.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "409":
+          description: A role with this name already exists.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
+  /roles/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string }
+        description: MongoDB ObjectId of the role.
+    get:
+      operationId: getRole
+      tags: [Roles]
+      summary: Get a role by id
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: The role.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Role" }
+        "400":
+          description: The id is not a valid ObjectId.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit reading roles.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: No role exists with the given id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    put:
+      operationId: updateRole
+      tags: [Roles]
+      summary: Update a role
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/RoleUpdate" }
+      responses:
+        "200":
+          description: The updated role.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Role" }
+        "400":
+          description: >-
+            The request body failed validation, or the id is not a valid
+            ObjectId.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit updating roles.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: No role exists with the given id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "409":
+          description: Another role with this name already exists.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    delete:
+      operationId: deleteRole
+      tags: [Roles]
+      summary: Delete a role
+      security: [{ bearerAuth: [] }]
+      responses:
+        "204":
+          description: The role was deleted.
+        "400":
+          description: The id is not a valid ObjectId.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit deleting roles (admin only).
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: No role exists with the given id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
 components:
   securitySchemes:
     bearerAuth:
@@ -2198,6 +2379,35 @@ components:
         businessFitScore: { type: integer }
         technicalFitScore: { type: integer }
         assessedOn: { type: string, format: date-time }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+        __v: { type: integer }
+
+    RoleCreate:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string }
+        description: { type: string }
+
+    RoleUpdate:
+      type: object
+      description: Same shape as RoleCreate, but every field is optional.
+      properties:
+        name: { type: string }
+        description: { type: string }
+
+    Role:
+      description: >-
+        The stored representation of a role. Only the fields the API
+        guarantees are marked required; additional Mongoose-managed
+        properties are permitted.
+      type: object
+      required: [_id, name]
+      properties:
+        _id: { type: string }
+        name: { type: string }
+        description: { type: string }
         createdAt: { type: string, format: date-time }
         updatedAt: { type: string, format: date-time }
         __v: { type: integer }
