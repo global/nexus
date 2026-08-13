@@ -14,6 +14,7 @@ const locationsTools = require('./locations.tools');
 const documentsTools = require('./documents.tools');
 const codeRepositoriesTools = require('./codeRepositories.tools');
 const businessFunctionsTools = require('./businessFunctions.tools');
+const businessProcessesTools = require('./businessProcesses.tools');
 
 const MODULES = [
   applicationsTools,
@@ -32,6 +33,7 @@ const MODULES = [
   documentsTools,
   codeRepositoriesTools,
   businessFunctionsTools,
+  businessProcessesTools,
 ];
 
 /**
