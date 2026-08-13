@@ -13,6 +13,7 @@ const applicationDependencyRoutes = require('../modules/application-dependencies
 const costRecordRoutes = require('../modules/cost-records/costRecord.routes');
 const performanceAssessmentRoutes = require('../modules/performance-assessments/performanceAssessment.routes');
 const roleRoutes = require('../modules/roles/role.routes');
+const applicationContactRoutes = require('../modules/application-contacts/applicationContact.routes');
 
 router.get('/', (_req, res) => res.json({ message: 'Welcome to Nexus Insight API' }));
 
@@ -28,5 +29,6 @@ router.use('/api/application-dependencies', applicationDependencyRoutes);
 router.use('/api/cost-records', costRecordRoutes);
 router.use('/api/performance-assessments', performanceAssessmentRoutes);
 router.use('/api/roles', roleRoutes);
+router.use('/api/application-contacts', applicationContactRoutes);
 
 module.exports = router;

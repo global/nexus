@@ -74,6 +74,11 @@ tags:
       apm:Role (ontology/apm-ontology.ttl) — the function an actor performs
       in a process, independent of who fulfils it, such as CTO or
       Application Owner. Same role requirements as Applications.
+  - name: ApplicationContacts
+    description: >-
+      apm:ApplicationContact (ontology/apm-ontology.ttl) — an assignment of
+      an actor to a specific contact role for an application, such as CTO or
+      Information Owner. Same role requirements as Applications.
 
 paths:
   /auth/login:
@@ -2175,6 +2180,177 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/ErrorResponse" }
 
+  /application-contacts:
+    get:
+      operationId: listApplicationContacts
+      tags: [ApplicationContacts]
+      summary: List application contacts
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: query
+          name: forApplication
+          schema: { $ref: "#/components/schemas/ObjectId" }
+        - in: query
+          name: contactActor
+          schema: { $ref: "#/components/schemas/ObjectId" }
+        - in: query
+          name: contactRole
+          schema: { $ref: "#/components/schemas/ObjectId" }
+      responses:
+        "200":
+          description: A list of application contacts.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/ApplicationContact" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit reading application contacts.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    post:
+      operationId: createApplicationContact
+      tags: [ApplicationContacts]
+      summary: Create an application contact
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ApplicationContactCreate" }
+      responses:
+        "201":
+          description: The created application contact.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ApplicationContact" }
+        "400":
+          description: The request body failed validation.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit creating application contacts.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
+  /application-contacts/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string }
+        description: MongoDB ObjectId of the application contact.
+    get:
+      operationId: getApplicationContact
+      tags: [ApplicationContacts]
+      summary: Get an application contact by id
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: The application contact.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ApplicationContact" }
+        "400":
+          description: The id is not a valid ObjectId.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit reading application contacts.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: No application contact exists with the given id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    put:
+      operationId: updateApplicationContact
+      tags: [ApplicationContacts]
+      summary: Update an application contact
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ApplicationContactUpdate" }
+      responses:
+        "200":
+          description: The updated application contact.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ApplicationContact" }
+        "400":
+          description: >-
+            The request body failed validation, or the id is not a valid
+            ObjectId.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit updating application contacts.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: No application contact exists with the given id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    delete:
+      operationId: deleteApplicationContact
+      tags: [ApplicationContacts]
+      summary: Delete an application contact
+      security: [{ bearerAuth: [] }]
+      responses:
+        "204":
+          description: The application contact was deleted.
+        "400":
+          description: The id is not a valid ObjectId.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit deleting application contacts (admin only).
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: No application contact exists with the given id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
 components:
   securitySchemes:
     bearerAuth:
@@ -2408,6 +2584,38 @@ components:
         _id: { type: string }
         name: { type: string }
         description: { type: string }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+        __v: { type: integer }
+
+    ApplicationContactCreate:
+      type: object
+      required: [forApplication, contactActor, contactRole]
+      properties:
+        forApplication: { $ref: "#/components/schemas/ObjectId" }
+        contactActor: { $ref: "#/components/schemas/ObjectId" }
+        contactRole: { $ref: "#/components/schemas/ObjectId" }
+
+    ApplicationContactUpdate:
+      type: object
+      description: Same shape as ApplicationContactCreate, but every field is optional.
+      properties:
+        forApplication: { $ref: "#/components/schemas/ObjectId" }
+        contactActor: { $ref: "#/components/schemas/ObjectId" }
+        contactRole: { $ref: "#/components/schemas/ObjectId" }
+
+    ApplicationContact:
+      description: >-
+        The stored representation of an application contact. Only the
+        fields the API guarantees are marked required; additional
+        Mongoose-managed properties are permitted.
+      type: object
+      required: [_id, forApplication, contactActor, contactRole]
+      properties:
+        _id: { type: string }
+        forApplication: { $ref: "#/components/schemas/ObjectId" }
+        contactActor: { $ref: "#/components/schemas/ObjectId" }
+        contactRole: { $ref: "#/components/schemas/ObjectId" }
         createdAt: { type: string, format: date-time }
         updatedAt: { type: string, format: date-time }
         __v: { type: integer }

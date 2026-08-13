@@ -88,6 +88,32 @@ apm:ApplicationDependencyShape a sh:NodeShape ;
 
 
 ### --------------------------------------------------
+### Application Contact
+### --------------------------------------------------
+
+apm:ApplicationContactShape a sh:NodeShape ;
+    sh:targetClass apm:ApplicationContact ;
+    sh:property [
+        sh:path apm:forApplication ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every Application Contact must name exactly one Application." ;
+    ] ;
+    sh:property [
+        sh:path apm:contactActor ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every Application Contact must name exactly one contact Actor." ;
+    ] ;
+    sh:property [
+        sh:path apm:contactRole ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every Application Contact must specify exactly one Role." ;
+    ] .
+
+
+### --------------------------------------------------
 ### Finding
 ### --------------------------------------------------
 
