@@ -79,6 +79,11 @@ tags:
       apm:ApplicationContact (ontology/apm-ontology.ttl) — an assignment of
       an actor to a specific contact role for an application, such as CTO or
       Information Owner. Same role requirements as Applications.
+  - name: Locations
+    description: >-
+      apm:Location (ontology/apm-ontology.ttl) — a place where business
+      activities are performed or architecture elements operate. Same role
+      requirements as Applications.
 
 paths:
   /auth/login:
@@ -2351,6 +2356,182 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/ErrorResponse" }
 
+  /locations:
+    get:
+      operationId: listLocations
+      tags: [Locations]
+      summary: List locations
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: query
+          name: search
+          description: Case-insensitive substring match against name, description, and address.
+          schema: { type: string }
+      responses:
+        "200":
+          description: A list of locations.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Location" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit reading locations.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    post:
+      operationId: createLocation
+      tags: [Locations]
+      summary: Create a location
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/LocationCreate" }
+      responses:
+        "201":
+          description: The created location.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Location" }
+        "400":
+          description: The request body failed validation.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit creating locations.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "409":
+          description: A location with this name already exists.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
+  /locations/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string }
+        description: MongoDB ObjectId of the location.
+    get:
+      operationId: getLocation
+      tags: [Locations]
+      summary: Get a location by id
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: The location.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Location" }
+        "400":
+          description: The id is not a valid ObjectId.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit reading locations.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: No location exists with the given id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    put:
+      operationId: updateLocation
+      tags: [Locations]
+      summary: Update a location
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/LocationUpdate" }
+      responses:
+        "200":
+          description: The updated location.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Location" }
+        "400":
+          description: >-
+            The request body failed validation, or the id is not a valid
+            ObjectId.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit updating locations.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: No location exists with the given id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "409":
+          description: Another location with this name already exists.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    delete:
+      operationId: deleteLocation
+      tags: [Locations]
+      summary: Delete a location
+      security: [{ bearerAuth: [] }]
+      responses:
+        "204":
+          description: The location was deleted.
+        "400":
+          description: The id is not a valid ObjectId.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit deleting locations (admin only).
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: No location exists with the given id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
 components:
   securitySchemes:
     bearerAuth:
@@ -2616,6 +2797,38 @@ components:
         forApplication: { $ref: "#/components/schemas/ObjectId" }
         contactActor: { $ref: "#/components/schemas/ObjectId" }
         contactRole: { $ref: "#/components/schemas/ObjectId" }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+        __v: { type: integer }
+
+    LocationCreate:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string }
+        description: { type: string }
+        address: { type: string }
+
+    LocationUpdate:
+      type: object
+      description: Same shape as LocationCreate, but every field is optional.
+      properties:
+        name: { type: string }
+        description: { type: string }
+        address: { type: string }
+
+    Location:
+      description: >-
+        The stored representation of a location. Only the fields the API
+        guarantees are marked required; additional Mongoose-managed
+        properties are permitted.
+      type: object
+      required: [_id, name]
+      properties:
+        _id: { type: string }
+        name: { type: string }
+        description: { type: string }
+        address: { type: string }
         createdAt: { type: string, format: date-time }
         updatedAt: { type: string, format: date-time }
         __v: { type: integer }
