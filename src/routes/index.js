@@ -17,6 +17,7 @@ const applicationContactRoutes = require('../modules/application-contacts/applic
 const locationRoutes = require('../modules/locations/location.routes');
 const documentRoutes = require('../modules/documents/document.routes');
 const codeRepositoryRoutes = require('../modules/code-repositories/codeRepository.routes');
+const businessFunctionRoutes = require('../modules/business-functions/businessFunction.routes');
 
 router.get('/', (_req, res) => res.json({ message: 'Welcome to Nexus Insight API' }));
 
@@ -36,5 +37,6 @@ router.use('/api/application-contacts', applicationContactRoutes);
 router.use('/api/locations', locationRoutes);
 router.use('/api/documents', documentRoutes);
 router.use('/api/code-repositories', codeRepositoryRoutes);
+router.use('/api/business-functions', businessFunctionRoutes);
 
 module.exports = router;
