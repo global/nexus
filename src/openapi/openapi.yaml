@@ -109,6 +109,11 @@ tags:
       apm:BusinessService (ontology/apm-ontology.ttl) — a unit of business
       functionality, exposed through a defined interface, that supports a
       capability. Same role requirements as Applications.
+  - name: TechnologyServices
+    description: >-
+      apm:TechnologyService (ontology/apm-ontology.ttl) — a technical
+      capability supporting application and infrastructure services. Same
+      role requirements as Applications.
 
 paths:
   /auth/login:
@@ -3426,6 +3431,182 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/ErrorResponse" }
 
+  /technology-services:
+    get:
+      operationId: listTechnologyServices
+      tags: [TechnologyServices]
+      summary: List technology services
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: query
+          name: search
+          description: Case-insensitive substring match against name and description.
+          schema: { type: string }
+      responses:
+        "200":
+          description: A list of technology services.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/TechnologyService" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit reading technology services.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    post:
+      operationId: createTechnologyService
+      tags: [TechnologyServices]
+      summary: Create a technology service
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/TechnologyServiceCreate" }
+      responses:
+        "201":
+          description: The created technology service.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TechnologyService" }
+        "400":
+          description: The request body failed validation.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit creating technology services.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "409":
+          description: A technology service with this name already exists.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
+  /technology-services/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string }
+        description: MongoDB ObjectId of the technology service.
+    get:
+      operationId: getTechnologyService
+      tags: [TechnologyServices]
+      summary: Get a technology service by id
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: The technology service.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TechnologyService" }
+        "400":
+          description: The id is not a valid ObjectId.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit reading technology services.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: No technology service exists with the given id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    put:
+      operationId: updateTechnologyService
+      tags: [TechnologyServices]
+      summary: Update a technology service
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/TechnologyServiceUpdate" }
+      responses:
+        "200":
+          description: The updated technology service.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/TechnologyService" }
+        "400":
+          description: >-
+            The request body failed validation, or the id is not a valid
+            ObjectId.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit updating technology services.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: No technology service exists with the given id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "409":
+          description: Another technology service with this name already exists.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    delete:
+      operationId: deleteTechnologyService
+      tags: [TechnologyServices]
+      summary: Delete a technology service
+      security: [{ bearerAuth: [] }]
+      responses:
+        "204":
+          description: The technology service was deleted.
+        "400":
+          description: The id is not a valid ObjectId.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit deleting technology services (admin only).
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: No technology service exists with the given id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
 components:
   securitySchemes:
     bearerAuth:
@@ -3883,6 +4064,35 @@ components:
         name: { type: string }
         description: { type: string }
         supportsCapability: { $ref: "#/components/schemas/ObjectId" }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+        __v: { type: integer }
+
+    TechnologyServiceCreate:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string }
+        description: { type: string }
+
+    TechnologyServiceUpdate:
+      type: object
+      description: Same shape as TechnologyServiceCreate, but every field is optional.
+      properties:
+        name: { type: string }
+        description: { type: string }
+
+    TechnologyService:
+      description: >-
+        The stored representation of a technology service. Only the fields
+        the API guarantees are marked required; additional Mongoose-managed
+        properties are permitted.
+      type: object
+      required: [_id, name]
+      properties:
+        _id: { type: string }
+        name: { type: string }
+        description: { type: string }
         createdAt: { type: string, format: date-time }
         updatedAt: { type: string, format: date-time }
         __v: { type: integer }

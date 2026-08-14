@@ -20,6 +20,7 @@ const codeRepositoryRoutes = require('../modules/code-repositories/codeRepositor
 const businessFunctionRoutes = require('../modules/business-functions/businessFunction.routes');
 const businessProcessRoutes = require('../modules/business-processes/businessProcess.routes');
 const businessServiceRoutes = require('../modules/business-services/businessService.routes');
+const technologyServiceRoutes = require('../modules/technology-services/technologyService.routes');
 
 router.get('/', (_req, res) => res.json({ message: 'Welcome to Nexus Insight API' }));
 
@@ -42,5 +43,6 @@ router.use('/api/code-repositories', codeRepositoryRoutes);
 router.use('/api/business-functions', businessFunctionRoutes);
 router.use('/api/business-processes', businessProcessRoutes);
 router.use('/api/business-services', businessServiceRoutes);
+router.use('/api/technology-services', technologyServiceRoutes);
 
 module.exports = router;
