@@ -88,6 +88,43 @@ apm:ApplicationDependencyShape a sh:NodeShape ;
 
 
 ### --------------------------------------------------
+### Technology Dependency
+### --------------------------------------------------
+
+apm:TechnologyDependencyShape a sh:NodeShape ;
+    sh:targetClass apm:TechnologyDependency ;
+    sh:property [
+        sh:path apm:upstreamTechnologyComponent ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every Technology Dependency must name exactly one upstream Physical Technology Component." ;
+    ] ;
+    sh:property [
+        sh:path apm:downstreamTechnologyComponent ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every Technology Dependency must name exactly one downstream Physical Technology Component." ;
+    ] ;
+    sh:property [
+        sh:path apm:upstreamTechnologyComponent ;
+        sh:disjoint apm:downstreamTechnologyComponent ;
+        sh:message "A Technology Dependency's upstream and downstream component must be different." ;
+    ] ;
+    sh:property [
+        sh:path apm:usesProtocol ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every Technology Dependency must specify exactly one Dependency Protocol." ;
+    ] ;
+    sh:property [
+        sh:path apm:hasSynchronicity ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every Technology Dependency must specify exactly one Synchronicity." ;
+    ] .
+
+
+### --------------------------------------------------
 ### Application Contact
 ### --------------------------------------------------
 
