@@ -21,6 +21,7 @@ const logicalTechnologyComponentsTools = require('./logicalTechnologyComponents.
 const physicalTechnologyComponentsTools = require('./physicalTechnologyComponents.tools');
 const technologyDependenciesTools = require('./technologyDependencies.tools');
 const logicalApplicationComponentsTools = require('./logicalApplicationComponents.tools');
+const physicalApplicationComponentsTools = require('./physicalApplicationComponents.tools');
 
 const MODULES = [
   applicationsTools,
@@ -46,6 +47,7 @@ const MODULES = [
   physicalTechnologyComponentsTools,
   technologyDependenciesTools,
   logicalApplicationComponentsTools,
+  physicalApplicationComponentsTools,
 ];
 
 /**

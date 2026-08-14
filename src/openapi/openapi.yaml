@@ -136,6 +136,11 @@ tags:
       apm:LogicalApplicationComponent (ontology/apm-ontology.ttl) — an
       encapsulation of application functionality, independent of vendor or
       technology. Same role requirements as Applications.
+  - name: PhysicalApplicationComponents
+    description: >-
+      apm:PhysicalApplicationComponent (ontology/apm-ontology.ttl) — a
+      deployable instance that realises one or more logical application
+      components. Same role requirements as Applications.
 
 paths:
   /auth/login:
@@ -4343,6 +4348,191 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/ErrorResponse" }
 
+  /physical-application-components:
+    get:
+      operationId: listPhysicalApplicationComponents
+      tags: [PhysicalApplicationComponents]
+      summary: List physical application components
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: query
+          name: hasEnvironment
+          schema: { $ref: "#/components/schemas/Environment" }
+        - in: query
+          name: realizesLogicalComponent
+          schema: { $ref: "#/components/schemas/ObjectId" }
+        - in: query
+          name: deployedOn
+          schema: { $ref: "#/components/schemas/ObjectId" }
+        - in: query
+          name: search
+          description: Case-insensitive substring match against name, description, and assetIdentifier.
+          schema: { type: string }
+      responses:
+        "200":
+          description: A list of physical application components.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/PhysicalApplicationComponent" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit reading physical application components.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    post:
+      operationId: createPhysicalApplicationComponent
+      tags: [PhysicalApplicationComponents]
+      summary: Create a physical application component
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PhysicalApplicationComponentCreate" }
+      responses:
+        "201":
+          description: The created physical application component.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PhysicalApplicationComponent" }
+        "400":
+          description: The request body failed validation.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit creating physical application components.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "409":
+          description: A physical application component with this name or assetIdentifier already exists.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
+  /physical-application-components/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string }
+        description: MongoDB ObjectId of the physical application component.
+    get:
+      operationId: getPhysicalApplicationComponent
+      tags: [PhysicalApplicationComponents]
+      summary: Get a physical application component by id
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: The physical application component.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PhysicalApplicationComponent" }
+        "400":
+          description: The id is not a valid ObjectId.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit reading physical application components.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: No physical application component exists with the given id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    put:
+      operationId: updatePhysicalApplicationComponent
+      tags: [PhysicalApplicationComponents]
+      summary: Update a physical application component
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PhysicalApplicationComponentUpdate" }
+      responses:
+        "200":
+          description: The updated physical application component.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PhysicalApplicationComponent" }
+        "400":
+          description: >-
+            The request body failed validation, or the id is not a valid
+            ObjectId.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit updating physical application components.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: No physical application component exists with the given id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "409":
+          description: Another physical application component with this name or assetIdentifier already exists.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    delete:
+      operationId: deletePhysicalApplicationComponent
+      tags: [PhysicalApplicationComponents]
+      summary: Delete a physical application component
+      security: [{ bearerAuth: [] }]
+      responses:
+        "204":
+          description: The physical application component was deleted.
+        "400":
+          description: The id is not a valid ObjectId.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit deleting physical application components (admin only).
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: No physical application component exists with the given id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
 components:
   securitySchemes:
     bearerAuth:
@@ -4963,6 +5153,50 @@ components:
         _id: { type: string }
         name: { type: string }
         description: { type: string }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+        __v: { type: integer }
+
+    PhysicalApplicationComponentCreate:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string }
+        description: { type: string }
+        assetIdentifier: { type: string, description: "e.g. a hostname, IP address, serial number, or instance ID." }
+        hasEnvironment: { $ref: "#/components/schemas/Environment" }
+        realizesLogicalComponent: { $ref: "#/components/schemas/ObjectId" }
+        deployedOn: { $ref: "#/components/schemas/ObjectId", description: "PhysicalTechnologyComponent id hosting this instance." }
+        identifiedBy: { $ref: "#/components/schemas/ObjectId", description: "SoftwareProduct id this instance constitutes." }
+
+    PhysicalApplicationComponentUpdate:
+      type: object
+      description: Same shape as PhysicalApplicationComponentCreate, but every field is optional.
+      properties:
+        name: { type: string }
+        description: { type: string }
+        assetIdentifier: { type: string }
+        hasEnvironment: { $ref: "#/components/schemas/Environment" }
+        realizesLogicalComponent: { $ref: "#/components/schemas/ObjectId" }
+        deployedOn: { $ref: "#/components/schemas/ObjectId" }
+        identifiedBy: { $ref: "#/components/schemas/ObjectId" }
+
+    PhysicalApplicationComponent:
+      description: >-
+        The stored representation of a physical application component.
+        Only the fields the API guarantees are marked required; additional
+        Mongoose-managed properties are permitted.
+      type: object
+      required: [_id, name]
+      properties:
+        _id: { type: string }
+        name: { type: string }
+        description: { type: string }
+        assetIdentifier: { type: string }
+        hasEnvironment: { $ref: "#/components/schemas/Environment" }
+        realizesLogicalComponent: { $ref: "#/components/schemas/ObjectId" }
+        deployedOn: { $ref: "#/components/schemas/ObjectId" }
+        identifiedBy: { $ref: "#/components/schemas/ObjectId" }
         createdAt: { type: string, format: date-time }
         updatedAt: { type: string, format: date-time }
         __v: { type: integer }
