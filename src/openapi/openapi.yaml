@@ -114,6 +114,11 @@ tags:
       apm:TechnologyService (ontology/apm-ontology.ttl) — a technical
       capability supporting application and infrastructure services. Same
       role requirements as Applications.
+  - name: LogicalTechnologyComponents
+    description: >-
+      apm:LogicalTechnologyComponent (ontology/apm-ontology.ttl) — an
+      encapsulation of technology infrastructure, independent of vendor or
+      product. Same role requirements as Applications.
 
 paths:
   /auth/login:
@@ -3607,6 +3612,185 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/ErrorResponse" }
 
+  /logical-technology-components:
+    get:
+      operationId: listLogicalTechnologyComponents
+      tags: [LogicalTechnologyComponents]
+      summary: List logical technology components
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: query
+          name: providesTechnologyService
+          schema: { $ref: "#/components/schemas/ObjectId" }
+        - in: query
+          name: search
+          description: Case-insensitive substring match against name and description.
+          schema: { type: string }
+      responses:
+        "200":
+          description: A list of logical technology components.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/LogicalTechnologyComponent" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit reading logical technology components.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    post:
+      operationId: createLogicalTechnologyComponent
+      tags: [LogicalTechnologyComponents]
+      summary: Create a logical technology component
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/LogicalTechnologyComponentCreate" }
+      responses:
+        "201":
+          description: The created logical technology component.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/LogicalTechnologyComponent" }
+        "400":
+          description: The request body failed validation.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit creating logical technology components.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "409":
+          description: A logical technology component with this name already exists.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
+  /logical-technology-components/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string }
+        description: MongoDB ObjectId of the logical technology component.
+    get:
+      operationId: getLogicalTechnologyComponent
+      tags: [LogicalTechnologyComponents]
+      summary: Get a logical technology component by id
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: The logical technology component.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/LogicalTechnologyComponent" }
+        "400":
+          description: The id is not a valid ObjectId.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit reading logical technology components.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: No logical technology component exists with the given id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    put:
+      operationId: updateLogicalTechnologyComponent
+      tags: [LogicalTechnologyComponents]
+      summary: Update a logical technology component
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/LogicalTechnologyComponentUpdate" }
+      responses:
+        "200":
+          description: The updated logical technology component.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/LogicalTechnologyComponent" }
+        "400":
+          description: >-
+            The request body failed validation, or the id is not a valid
+            ObjectId.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit updating logical technology components.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: No logical technology component exists with the given id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "409":
+          description: Another logical technology component with this name already exists.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    delete:
+      operationId: deleteLogicalTechnologyComponent
+      tags: [LogicalTechnologyComponents]
+      summary: Delete a logical technology component
+      security: [{ bearerAuth: [] }]
+      responses:
+        "204":
+          description: The logical technology component was deleted.
+        "400":
+          description: The id is not a valid ObjectId.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit deleting logical technology components (admin only).
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: No logical technology component exists with the given id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
 components:
   securitySchemes:
     bearerAuth:
@@ -4093,6 +4277,38 @@ components:
         _id: { type: string }
         name: { type: string }
         description: { type: string }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+        __v: { type: integer }
+
+    LogicalTechnologyComponentCreate:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string }
+        description: { type: string }
+        providesTechnologyService: { $ref: "#/components/schemas/ObjectId" }
+
+    LogicalTechnologyComponentUpdate:
+      type: object
+      description: Same shape as LogicalTechnologyComponentCreate, but every field is optional.
+      properties:
+        name: { type: string }
+        description: { type: string }
+        providesTechnologyService: { $ref: "#/components/schemas/ObjectId" }
+
+    LogicalTechnologyComponent:
+      description: >-
+        The stored representation of a logical technology component. Only
+        the fields the API guarantees are marked required; additional
+        Mongoose-managed properties are permitted.
+      type: object
+      required: [_id, name]
+      properties:
+        _id: { type: string }
+        name: { type: string }
+        description: { type: string }
+        providesTechnologyService: { $ref: "#/components/schemas/ObjectId" }
         createdAt: { type: string, format: date-time }
         updatedAt: { type: string, format: date-time }
         __v: { type: integer }
