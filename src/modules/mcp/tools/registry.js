@@ -18,6 +18,7 @@ const businessProcessesTools = require('./businessProcesses.tools');
 const businessServicesTools = require('./businessServices.tools');
 const technologyServicesTools = require('./technologyServices.tools');
 const logicalTechnologyComponentsTools = require('./logicalTechnologyComponents.tools');
+const physicalTechnologyComponentsTools = require('./physicalTechnologyComponents.tools');
 
 const MODULES = [
   applicationsTools,
@@ -40,6 +41,7 @@ const MODULES = [
   businessServicesTools,
   technologyServicesTools,
   logicalTechnologyComponentsTools,
+  physicalTechnologyComponentsTools,
 ];
 
 /**

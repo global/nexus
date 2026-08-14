@@ -22,6 +22,7 @@ const businessProcessRoutes = require('../modules/business-processes/businessPro
 const businessServiceRoutes = require('../modules/business-services/businessService.routes');
 const technologyServiceRoutes = require('../modules/technology-services/technologyService.routes');
 const logicalTechnologyComponentRoutes = require('../modules/logical-technology-components/logicalTechnologyComponent.routes');
+const physicalTechnologyComponentRoutes = require('../modules/physical-technology-components/physicalTechnologyComponent.routes');
 
 router.get('/', (_req, res) => res.json({ message: 'Welcome to Nexus Insight API' }));
 
@@ -46,5 +47,6 @@ router.use('/api/business-processes', businessProcessRoutes);
 router.use('/api/business-services', businessServiceRoutes);
 router.use('/api/technology-services', technologyServiceRoutes);
 router.use('/api/logical-technology-components', logicalTechnologyComponentRoutes);
+router.use('/api/physical-technology-components', physicalTechnologyComponentRoutes);
 
 module.exports = router;
