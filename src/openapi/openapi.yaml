@@ -151,6 +151,11 @@ tags:
       apm:LogicalDataComponent (ontology/apm-ontology.ttl) — a structured
       grouping of data entities, independent of implementation. Same role
       requirements as Applications.
+  - name: PhysicalDataComponents
+    description: >-
+      apm:PhysicalDataComponent (ontology/apm-ontology.ttl) — an
+      implementation-specific realisation of a logical data component,
+      such as a database or file. Same role requirements as Applications.
 
 paths:
   /auth/login:
@@ -4906,6 +4911,185 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/ErrorResponse" }
 
+  /physical-data-components:
+    get:
+      operationId: listPhysicalDataComponents
+      tags: [PhysicalDataComponents]
+      summary: List physical data components
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: query
+          name: realizesLogicalDataComponent
+          schema: { $ref: "#/components/schemas/ObjectId" }
+        - in: query
+          name: search
+          description: Case-insensitive substring match against name and description.
+          schema: { type: string }
+      responses:
+        "200":
+          description: A list of physical data components.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/PhysicalDataComponent" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit reading physical data components.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    post:
+      operationId: createPhysicalDataComponent
+      tags: [PhysicalDataComponents]
+      summary: Create a physical data component
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PhysicalDataComponentCreate" }
+      responses:
+        "201":
+          description: The created physical data component.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PhysicalDataComponent" }
+        "400":
+          description: The request body failed validation.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit creating physical data components.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "409":
+          description: A physical data component with this name already exists.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
+  /physical-data-components/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string }
+        description: MongoDB ObjectId of the physical data component.
+    get:
+      operationId: getPhysicalDataComponent
+      tags: [PhysicalDataComponents]
+      summary: Get a physical data component by id
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: The physical data component.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PhysicalDataComponent" }
+        "400":
+          description: The id is not a valid ObjectId.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit reading physical data components.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: No physical data component exists with the given id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    put:
+      operationId: updatePhysicalDataComponent
+      tags: [PhysicalDataComponents]
+      summary: Update a physical data component
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/PhysicalDataComponentUpdate" }
+      responses:
+        "200":
+          description: The updated physical data component.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/PhysicalDataComponent" }
+        "400":
+          description: >-
+            The request body failed validation, or the id is not a valid
+            ObjectId.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit updating physical data components.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: No physical data component exists with the given id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "409":
+          description: Another physical data component with this name already exists.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    delete:
+      operationId: deletePhysicalDataComponent
+      tags: [PhysicalDataComponents]
+      summary: Delete a physical data component
+      security: [{ bearerAuth: [] }]
+      responses:
+        "204":
+          description: The physical data component was deleted.
+        "400":
+          description: The id is not a valid ObjectId.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit deleting physical data components (admin only).
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: No physical data component exists with the given id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
 components:
   securitySchemes:
     bearerAuth:
@@ -5643,6 +5827,38 @@ components:
         name: { type: string }
         description: { type: string }
         encapsulatesDataEntity: { type: array, items: { $ref: "#/components/schemas/ObjectId" } }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+        __v: { type: integer }
+
+    PhysicalDataComponentCreate:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string }
+        description: { type: string }
+        realizesLogicalDataComponent: { $ref: "#/components/schemas/ObjectId" }
+
+    PhysicalDataComponentUpdate:
+      type: object
+      description: Same shape as PhysicalDataComponentCreate, but every field is optional.
+      properties:
+        name: { type: string }
+        description: { type: string }
+        realizesLogicalDataComponent: { $ref: "#/components/schemas/ObjectId" }
+
+    PhysicalDataComponent:
+      description: >-
+        The stored representation of a physical data component. Only the
+        fields the API guarantees are marked required; additional
+        Mongoose-managed properties are permitted.
+      type: object
+      required: [_id, name]
+      properties:
+        _id: { type: string }
+        name: { type: string }
+        description: { type: string }
+        realizesLogicalDataComponent: { $ref: "#/components/schemas/ObjectId" }
         createdAt: { type: string, format: date-time }
         updatedAt: { type: string, format: date-time }
         __v: { type: integer }
