@@ -125,6 +125,66 @@ apm:TechnologyDependencyShape a sh:NodeShape ;
 
 
 ### --------------------------------------------------
+### SLA Metric
+### --------------------------------------------------
+
+apm:SLAMetricShape a sh:NodeShape ;
+    sh:targetClass apm:SLAMetric ;
+    sh:property [
+        sh:path apm:hasSLACategory ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every SLA Metric must be classified with exactly one SLA Category." ;
+    ] ;
+    sh:property [
+        sh:path apm:targetValue ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every SLA Metric must record exactly one target value." ;
+    ] ;
+    sh:property [
+        sh:path apm:unitOfMeasure ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every SLA Metric must declare exactly one unit of measure." ;
+    ] .
+
+
+### --------------------------------------------------
+### Service Level Agreement
+### --------------------------------------------------
+
+apm:ServiceLevelAgreementShape a sh:NodeShape ;
+    sh:targetClass apm:ServiceLevelAgreement ;
+    sh:property [
+        sh:path apm:appliesToApplication ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every Service Level Agreement must apply to exactly one Application." ;
+    ] ;
+    sh:property [
+        sh:path apm:effectiveFrom ;
+        sh:datatype xsd:date ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every Service Level Agreement must record exactly one effective-from date." ;
+    ] ;
+    sh:property [
+        sh:path apm:effectiveTo ;
+        sh:datatype xsd:date ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every Service Level Agreement must record exactly one effective-to date." ;
+    ] ;
+    sh:property [
+        sh:path apm:hasSLAMetric ;
+        sh:minCount 1 ;
+        sh:message "Every Service Level Agreement must have at least one SLA Metric." ;
+    ] .
+
+
+### --------------------------------------------------
 ### Application Contact
 ### --------------------------------------------------
 
