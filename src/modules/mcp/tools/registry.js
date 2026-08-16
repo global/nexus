@@ -25,6 +25,8 @@ const physicalApplicationComponentsTools = require('./physicalApplicationCompone
 const dataEntitiesTools = require('./dataEntities.tools');
 const logicalDataComponentsTools = require('./logicalDataComponents.tools');
 const physicalDataComponentsTools = require('./physicalDataComponents.tools');
+const slaMetricsTools = require('./slaMetrics.tools');
+const serviceLevelAgreementsTools = require('./serviceLevelAgreements.tools');
 
 const MODULES = [
   applicationsTools,
@@ -54,6 +56,8 @@ const MODULES = [
   dataEntitiesTools,
   logicalDataComponentsTools,
   physicalDataComponentsTools,
+  slaMetricsTools,
+  serviceLevelAgreementsTools,
 ];
 
 /**

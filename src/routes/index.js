@@ -29,6 +29,8 @@ const physicalApplicationComponentRoutes = require('../modules/physical-applicat
 const dataEntityRoutes = require('../modules/data-entities/dataEntity.routes');
 const logicalDataComponentRoutes = require('../modules/logical-data-components/logicalDataComponent.routes');
 const physicalDataComponentRoutes = require('../modules/physical-data-components/physicalDataComponent.routes');
+const slaMetricRoutes = require('../modules/sla-metrics/slaMetric.routes');
+const serviceLevelAgreementRoutes = require('../modules/service-level-agreements/serviceLevelAgreement.routes');
 
 router.get('/', (_req, res) => res.json({ message: 'Welcome to Nexus Insight API' }));
 
@@ -60,5 +62,7 @@ router.use('/api/physical-application-components', physicalApplicationComponentR
 router.use('/api/data-entities', dataEntityRoutes);
 router.use('/api/logical-data-components', logicalDataComponentRoutes);
 router.use('/api/physical-data-components', physicalDataComponentRoutes);
+router.use('/api/sla-metrics', slaMetricRoutes);
+router.use('/api/service-level-agreements', serviceLevelAgreementRoutes);
 
 module.exports = router;
