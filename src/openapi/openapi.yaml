@@ -146,6 +146,11 @@ tags:
       apm:DataEntity (ontology/apm-ontology.ttl) — a business-recognised
       concept of data, independent of its implementation. Same role
       requirements as Applications.
+  - name: LogicalDataComponents
+    description: >-
+      apm:LogicalDataComponent (ontology/apm-ontology.ttl) — a structured
+      grouping of data entities, independent of implementation. Same role
+      requirements as Applications.
 
 paths:
   /auth/login:
@@ -4722,6 +4727,185 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/ErrorResponse" }
 
+  /logical-data-components:
+    get:
+      operationId: listLogicalDataComponents
+      tags: [LogicalDataComponents]
+      summary: List logical data components
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: query
+          name: encapsulatesDataEntity
+          schema: { $ref: "#/components/schemas/ObjectId" }
+        - in: query
+          name: search
+          description: Case-insensitive substring match against name and description.
+          schema: { type: string }
+      responses:
+        "200":
+          description: A list of logical data components.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/LogicalDataComponent" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit reading logical data components.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    post:
+      operationId: createLogicalDataComponent
+      tags: [LogicalDataComponents]
+      summary: Create a logical data component
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/LogicalDataComponentCreate" }
+      responses:
+        "201":
+          description: The created logical data component.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/LogicalDataComponent" }
+        "400":
+          description: The request body failed validation.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit creating logical data components.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "409":
+          description: A logical data component with this name already exists.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
+  /logical-data-components/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string }
+        description: MongoDB ObjectId of the logical data component.
+    get:
+      operationId: getLogicalDataComponent
+      tags: [LogicalDataComponents]
+      summary: Get a logical data component by id
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: The logical data component.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/LogicalDataComponent" }
+        "400":
+          description: The id is not a valid ObjectId.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit reading logical data components.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: No logical data component exists with the given id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    put:
+      operationId: updateLogicalDataComponent
+      tags: [LogicalDataComponents]
+      summary: Update a logical data component
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/LogicalDataComponentUpdate" }
+      responses:
+        "200":
+          description: The updated logical data component.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/LogicalDataComponent" }
+        "400":
+          description: >-
+            The request body failed validation, or the id is not a valid
+            ObjectId.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit updating logical data components.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: No logical data component exists with the given id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "409":
+          description: Another logical data component with this name already exists.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    delete:
+      operationId: deleteLogicalDataComponent
+      tags: [LogicalDataComponents]
+      summary: Delete a logical data component
+      security: [{ bearerAuth: [] }]
+      responses:
+        "204":
+          description: The logical data component was deleted.
+        "400":
+          description: The id is not a valid ObjectId.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit deleting logical data components (admin only).
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: No logical data component exists with the given id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
 components:
   securitySchemes:
     bearerAuth:
@@ -5427,6 +5611,38 @@ components:
           type: array
           items: { $ref: "#/components/schemas/DataSensitivity" }
         retentionPeriod: { type: string }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+        __v: { type: integer }
+
+    LogicalDataComponentCreate:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string }
+        description: { type: string }
+        encapsulatesDataEntity: { type: array, items: { $ref: "#/components/schemas/ObjectId" } }
+
+    LogicalDataComponentUpdate:
+      type: object
+      description: Same shape as LogicalDataComponentCreate, but every field is optional.
+      properties:
+        name: { type: string }
+        description: { type: string }
+        encapsulatesDataEntity: { type: array, items: { $ref: "#/components/schemas/ObjectId" } }
+
+    LogicalDataComponent:
+      description: >-
+        The stored representation of a logical data component. Only the
+        fields the API guarantees are marked required; additional
+        Mongoose-managed properties are permitted.
+      type: object
+      required: [_id, name]
+      properties:
+        _id: { type: string }
+        name: { type: string }
+        description: { type: string }
+        encapsulatesDataEntity: { type: array, items: { $ref: "#/components/schemas/ObjectId" } }
         createdAt: { type: string, format: date-time }
         updatedAt: { type: string, format: date-time }
         __v: { type: integer }
