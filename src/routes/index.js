@@ -26,6 +26,7 @@ const physicalTechnologyComponentRoutes = require('../modules/physical-technolog
 const technologyDependencyRoutes = require('../modules/technology-dependencies/technologyDependency.routes');
 const logicalApplicationComponentRoutes = require('../modules/logical-application-components/logicalApplicationComponent.routes');
 const physicalApplicationComponentRoutes = require('../modules/physical-application-components/physicalApplicationComponent.routes');
+const dataEntityRoutes = require('../modules/data-entities/dataEntity.routes');
 
 router.get('/', (_req, res) => res.json({ message: 'Welcome to Nexus Insight API' }));
 
@@ -54,5 +55,6 @@ router.use('/api/physical-technology-components', physicalTechnologyComponentRou
 router.use('/api/technology-dependencies', technologyDependencyRoutes);
 router.use('/api/logical-application-components', logicalApplicationComponentRoutes);
 router.use('/api/physical-application-components', physicalApplicationComponentRoutes);
+router.use('/api/data-entities', dataEntityRoutes);
 
 module.exports = router;
