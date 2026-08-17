@@ -1,0 +1,73 @@
+jest.mock('../../../src/modules/software-products/softwareProduct.repository');
+
+const repository = require('../../../src/modules/software-products/softwareProduct.repository');
+const service = require('../../../src/modules/software-products/softwareProduct.service');
+const { NotFoundError } = require('../../../src/common/errors');
+
+beforeEach(() => {
+  jest.clearAllMocks();
+});
+
+describe('SoftwareProduct Service', () => {
+  describe('create', () => {
+    it('delegates to the repository', async () => {
+      repository.create.mockResolvedValue({ _id: '1' });
+      const data = { name: 'BuildForge Enterprise', version: '5.4' };
+      const result = await service.create(data);
+      expect(repository.create).toHaveBeenCalledWith(data);
+      expect(result).toEqual({ _id: '1' });
+    });
+  });
+
+  describe('findAll', () => {
+    it('queries everything when no filters are given', async () => {
+      repository.findAll.mockResolvedValue([]);
+      await service.findAll();
+      expect(repository.findAll).toHaveBeenCalledWith({});
+    });
+
+    it('translates suppliedBy and coveredByEntitlement directly and builds a case-insensitive $or search across name and swidTagId', async () => {
+      repository.findAll.mockResolvedValue([]);
+      await service.findAll({ suppliedBy: 'supplier1', coveredByEntitlement: 'ent1', search: 'BuildForge' });
+      expect(repository.findAll).toHaveBeenCalledWith({
+        suppliedBy: 'supplier1',
+        coveredByEntitlement: 'ent1',
+        $or: [
+          { name: { $regex: 'BuildForge', $options: 'i' } },
+          { swidTagId: { $regex: 'BuildForge', $options: 'i' } },
+        ],
+      });
+    });
+  });
+
+  describe('findById', () => {
+    it('returns the product when found', async () => {
+      repository.findById.mockResolvedValue({ _id: '1' });
+      await expect(service.findById('1')).resolves.toEqual({ _id: '1' });
+    });
+
+    it('throws NotFoundError when missing', async () => {
+      repository.findById.mockResolvedValue(null);
+      await expect(service.findById('nonexistent')).rejects.toThrow(NotFoundError);
+    });
+  });
+
+  describe('update', () => {
+    it('returns the updated product', async () => {
+      repository.updateById.mockResolvedValue({ _id: '1', version: '5.5' });
+      await expect(service.update('1', { version: '5.5' })).resolves.toEqual({ _id: '1', version: '5.5' });
+    });
+
+    it('throws NotFoundError when missing', async () => {
+      repository.updateById.mockResolvedValue(null);
+      await expect(service.update('nonexistent', {})).rejects.toThrow(NotFoundError);
+    });
+  });
+
+  describe('remove', () => {
+    it('throws NotFoundError when missing', async () => {
+      repository.deleteById.mockResolvedValue(null);
+      await expect(service.remove('nonexistent')).rejects.toThrow(NotFoundError);
+    });
+  });
+});

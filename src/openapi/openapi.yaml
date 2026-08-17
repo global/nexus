@@ -174,6 +174,16 @@ tags:
       applications, managed together for strategic, budgetary, or
       governance purposes, with a single accountable owner and business
       capability alignment. Same role requirements as Applications.
+  - name: Metrics
+    description: >-
+      apm:Metric (ontology/apm-ontology.ttl, ISO/IEC 19770-3) — the unit
+      used to measure a software entitlement, such as per-user or
+      per-device. Same role requirements as Applications.
+  - name: SoftwareProducts
+    description: >-
+      apm:SoftwareProduct (ontology/apm-ontology.ttl, ISO/IEC 19770-2) — a
+      software asset identified via a SWID tag. Same role requirements as
+      Applications.
 
 paths:
   /auth/login:
@@ -5628,6 +5638,364 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/ErrorResponse" }
 
+  /metrics:
+    get:
+      operationId: listMetrics
+      tags: [Metrics]
+      summary: List metrics
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: query
+          name: search
+          description: Case-insensitive substring match against name and description.
+          schema: { type: string }
+      responses:
+        "200":
+          description: A list of metrics.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Metric" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit reading metrics.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    post:
+      operationId: createMetric
+      tags: [Metrics]
+      summary: Create a metric
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/MetricCreate" }
+      responses:
+        "201":
+          description: The created metric.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Metric" }
+        "400":
+          description: The request body failed validation.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit creating metrics.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "409":
+          description: A metric with this name already exists.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
+  /metrics/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string }
+        description: MongoDB ObjectId of the metric.
+    get:
+      operationId: getMetric
+      tags: [Metrics]
+      summary: Get a metric by id
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: The metric.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Metric" }
+        "400":
+          description: The id is not a valid ObjectId.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit reading metrics.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: No metric exists with the given id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    put:
+      operationId: updateMetric
+      tags: [Metrics]
+      summary: Update a metric
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/MetricUpdate" }
+      responses:
+        "200":
+          description: The updated metric.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Metric" }
+        "400":
+          description: >-
+            The request body failed validation, or the id is not a valid
+            ObjectId.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit updating metrics.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: No metric exists with the given id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "409":
+          description: Another metric with this name already exists.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    delete:
+      operationId: deleteMetric
+      tags: [Metrics]
+      summary: Delete a metric
+      security: [{ bearerAuth: [] }]
+      responses:
+        "204":
+          description: The metric was deleted.
+        "400":
+          description: The id is not a valid ObjectId.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit deleting metrics (admin only).
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: No metric exists with the given id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
+  /software-products:
+    get:
+      operationId: listSoftwareProducts
+      tags: [SoftwareProducts]
+      summary: List software products
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: query
+          name: suppliedBy
+          schema: { $ref: "#/components/schemas/ObjectId" }
+        - in: query
+          name: coveredByEntitlement
+          schema: { $ref: "#/components/schemas/ObjectId" }
+        - in: query
+          name: search
+          description: Case-insensitive substring match against name and swidTagId.
+          schema: { type: string }
+      responses:
+        "200":
+          description: A list of software products.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/SoftwareProduct" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit reading software products.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    post:
+      operationId: createSoftwareProduct
+      tags: [SoftwareProducts]
+      summary: Create a software product
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SoftwareProductCreate" }
+      responses:
+        "201":
+          description: The created software product.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SoftwareProduct" }
+        "400":
+          description: The request body failed validation.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit creating software products.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "409":
+          description: A software product with this name already exists.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
+  /software-products/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string }
+        description: MongoDB ObjectId of the software product.
+    get:
+      operationId: getSoftwareProduct
+      tags: [SoftwareProducts]
+      summary: Get a software product by id
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: The software product.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SoftwareProduct" }
+        "400":
+          description: The id is not a valid ObjectId.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit reading software products.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: No software product exists with the given id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    put:
+      operationId: updateSoftwareProduct
+      tags: [SoftwareProducts]
+      summary: Update a software product
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SoftwareProductUpdate" }
+      responses:
+        "200":
+          description: The updated software product.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SoftwareProduct" }
+        "400":
+          description: >-
+            The request body failed validation, or the id is not a valid
+            ObjectId.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit updating software products.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: No software product exists with the given id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "409":
+          description: Another software product with this name already exists.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    delete:
+      operationId: deleteSoftwareProduct
+      tags: [SoftwareProducts]
+      summary: Delete a software product
+      security: [{ bearerAuth: [] }]
+      responses:
+        "204":
+          description: The software product was deleted.
+        "400":
+          description: The id is not a valid ObjectId.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit deleting software products (admin only).
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: No software product exists with the given id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
 components:
   securitySchemes:
     bearerAuth:
@@ -6521,6 +6889,79 @@ components:
           items: { $ref: "#/components/schemas/ObjectId" }
         portfolioOwner: { $ref: "#/components/schemas/ObjectId" }
         alignsToCapability: { $ref: "#/components/schemas/ObjectId" }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+        __v: { type: integer }
+
+    MetricCreate:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string }
+        description: { type: string }
+
+    MetricUpdate:
+      type: object
+      description: Same shape as MetricCreate, but every field is optional.
+      properties:
+        name: { type: string }
+        description: { type: string }
+
+    Metric:
+      description: >-
+        The stored representation of a metric. Only the fields the API
+        guarantees are marked required; additional Mongoose-managed
+        properties are permitted.
+      type: object
+      required: [_id, name]
+      properties:
+        _id: { type: string }
+        name: { type: string }
+        description: { type: string }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+        __v: { type: integer }
+
+    SoftwareProductCreate:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string }
+        swidTagId: { type: string }
+        version: { type: string }
+        endOfLifeDate: { type: string, description: "ISO 8601 date." }
+        endOfSupportDate: { type: string, description: "ISO 8601 date." }
+        suppliedBy: { $ref: "#/components/schemas/ObjectId" }
+        coveredByEntitlement: { $ref: "#/components/schemas/ObjectId" }
+
+    SoftwareProductUpdate:
+      type: object
+      description: Same shape as SoftwareProductCreate, but every field is optional.
+      properties:
+        name: { type: string }
+        swidTagId: { type: string }
+        version: { type: string }
+        endOfLifeDate: { type: string, description: "ISO 8601 date." }
+        endOfSupportDate: { type: string, description: "ISO 8601 date." }
+        suppliedBy: { $ref: "#/components/schemas/ObjectId" }
+        coveredByEntitlement: { $ref: "#/components/schemas/ObjectId" }
+
+    SoftwareProduct:
+      description: >-
+        The stored representation of a software product. Only the fields
+        the API guarantees are marked required; additional Mongoose-managed
+        properties are permitted.
+      type: object
+      required: [_id, name]
+      properties:
+        _id: { type: string }
+        name: { type: string }
+        swidTagId: { type: string }
+        version: { type: string }
+        endOfLifeDate: { type: string, format: date-time }
+        endOfSupportDate: { type: string, format: date-time }
+        suppliedBy: { $ref: "#/components/schemas/ObjectId" }
+        coveredByEntitlement: { $ref: "#/components/schemas/ObjectId" }
         createdAt: { type: string, format: date-time }
         updatedAt: { type: string, format: date-time }
         __v: { type: integer }
