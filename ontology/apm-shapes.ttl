@@ -408,3 +408,44 @@ apm:SoftwareEntitlementShape a sh:NodeShape ;
         sh:maxCount 1 ;
         sh:message "Every Software Entitlement must be assessed by exactly one Metric." ;
     ] .
+
+
+### --------------------------------------------------
+### Resource Utilization Record
+### --------------------------------------------------
+
+apm:ResourceUtilizationRecordShape a sh:NodeShape ;
+    sh:targetClass apm:ResourceUtilizationRecord ;
+    sh:property [
+        sh:path apm:measuresProduct ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every Resource Utilization Record must measure exactly one Software Product." ;
+    ] ;
+    sh:property [
+        sh:path apm:measuredAgainstMetric ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every Resource Utilization Record must be expressed against exactly one Metric." ;
+    ] ;
+    sh:property [
+        sh:path apm:measuredValue ;
+        sh:datatype xsd:decimal ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every Resource Utilization Record must record exactly one measured value." ;
+    ] ;
+    sh:property [
+        sh:path apm:measurementPeriodStart ;
+        sh:datatype xsd:date ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every Resource Utilization Record must record exactly one measurement period start date." ;
+    ] ;
+    sh:property [
+        sh:path apm:measurementPeriodEnd ;
+        sh:datatype xsd:date ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every Resource Utilization Record must record exactly one measurement period end date." ;
+    ] .
