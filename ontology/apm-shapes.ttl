@@ -362,3 +362,28 @@ apm:PerformanceAssessmentShape a sh:NodeShape ;
         sh:maxCount 1 ;
         sh:message "Every Performance Assessment must record exactly one assessment date." ;
     ] .
+
+
+### --------------------------------------------------
+### Portfolio
+### --------------------------------------------------
+
+apm:PortfolioShape a sh:NodeShape ;
+    sh:targetClass apm:Portfolio ;
+    sh:property [
+        sh:path apm:containsApplication ;
+        sh:minCount 1 ;
+        sh:message "Every Portfolio must contain at least one Application." ;
+    ] ;
+    sh:property [
+        sh:path apm:portfolioOwner ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every Portfolio must have exactly one accountable owner." ;
+    ] ;
+    sh:property [
+        sh:path apm:alignsToCapability ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every Portfolio must align to exactly one Business Capability." ;
+    ] .
