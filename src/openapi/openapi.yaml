@@ -189,6 +189,13 @@ tags:
       apm:SoftwareEntitlement (ontology/apm-ontology.ttl, ISO/IEC 19770-3)
       — the legal usage rights held for a software asset, expressed as a
       quantity against a Metric. Same role requirements as Applications.
+  - name: ResourceUtilizationRecords
+    description: >-
+      apm:ResourceUtilizationRecord (ontology/apm-ontology.ttl, ISO/IEC
+      19770-4) — a recorded measurement of actual resource consumption for
+      a software product over a specific period, enabling direct
+      usage-versus-entitlement comparison. Same role requirements as
+      Applications.
 
 paths:
   /auth/login:
@@ -6166,6 +6173,174 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/ErrorResponse" }
 
+  /resource-utilization-records:
+    get:
+      operationId: listResourceUtilizationRecords
+      tags: [ResourceUtilizationRecords]
+      summary: List resource utilization records
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: query
+          name: measuresProduct
+          schema: { $ref: "#/components/schemas/ObjectId" }
+        - in: query
+          name: measuredAgainstMetric
+          schema: { $ref: "#/components/schemas/ObjectId" }
+      responses:
+        "200":
+          description: A list of resource utilization records.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/ResourceUtilizationRecord" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit reading resource utilization records.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    post:
+      operationId: createResourceUtilizationRecord
+      tags: [ResourceUtilizationRecords]
+      summary: Create a resource utilization record
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ResourceUtilizationRecordCreate" }
+      responses:
+        "201":
+          description: The created resource utilization record.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ResourceUtilizationRecord" }
+        "400":
+          description: The request body failed validation.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit creating resource utilization records.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
+  /resource-utilization-records/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string }
+        description: MongoDB ObjectId of the resource utilization record.
+    get:
+      operationId: getResourceUtilizationRecord
+      tags: [ResourceUtilizationRecords]
+      summary: Get a resource utilization record by id
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: The resource utilization record.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ResourceUtilizationRecord" }
+        "400":
+          description: The id is not a valid ObjectId.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit reading resource utilization records.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: No resource utilization record exists with the given id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    put:
+      operationId: updateResourceUtilizationRecord
+      tags: [ResourceUtilizationRecords]
+      summary: Update a resource utilization record
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ResourceUtilizationRecordUpdate" }
+      responses:
+        "200":
+          description: The updated resource utilization record.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ResourceUtilizationRecord" }
+        "400":
+          description: >-
+            The request body failed validation, or the id is not a valid
+            ObjectId.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit updating resource utilization records.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: No resource utilization record exists with the given id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    delete:
+      operationId: deleteResourceUtilizationRecord
+      tags: [ResourceUtilizationRecords]
+      summary: Delete a resource utilization record
+      security: [{ bearerAuth: [] }]
+      responses:
+        "204":
+          description: The resource utilization record was deleted.
+        "400":
+          description: The id is not a valid ObjectId.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit deleting resource utilization records (admin only).
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: No resource utilization record exists with the given id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
 components:
   securitySchemes:
     bearerAuth:
@@ -7161,6 +7336,44 @@ components:
         _id: { type: string }
         entitledQuantity: { type: integer }
         measuredByMetric: { $ref: "#/components/schemas/ObjectId" }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+        __v: { type: integer }
+
+    ResourceUtilizationRecordCreate:
+      type: object
+      required: [measuresProduct, measuredAgainstMetric, measuredValue, measurementPeriodStart, measurementPeriodEnd]
+      properties:
+        measuresProduct: { $ref: "#/components/schemas/ObjectId" }
+        measuredAgainstMetric: { $ref: "#/components/schemas/ObjectId" }
+        measuredValue: { type: number }
+        measurementPeriodStart: { type: string, description: "ISO 8601 date." }
+        measurementPeriodEnd: { type: string, description: "ISO 8601 date." }
+
+    ResourceUtilizationRecordUpdate:
+      type: object
+      description: Same shape as ResourceUtilizationRecordCreate, but every field is optional.
+      properties:
+        measuresProduct: { $ref: "#/components/schemas/ObjectId" }
+        measuredAgainstMetric: { $ref: "#/components/schemas/ObjectId" }
+        measuredValue: { type: number }
+        measurementPeriodStart: { type: string, description: "ISO 8601 date." }
+        measurementPeriodEnd: { type: string, description: "ISO 8601 date." }
+
+    ResourceUtilizationRecord:
+      description: >-
+        The stored representation of a resource utilization record. Only
+        the fields the API guarantees are marked required; additional
+        Mongoose-managed properties are permitted.
+      type: object
+      required: [_id, measuresProduct, measuredAgainstMetric, measuredValue, measurementPeriodStart, measurementPeriodEnd]
+      properties:
+        _id: { type: string }
+        measuresProduct: { $ref: "#/components/schemas/ObjectId" }
+        measuredAgainstMetric: { $ref: "#/components/schemas/ObjectId" }
+        measuredValue: { type: number }
+        measurementPeriodStart: { type: string, format: date-time }
+        measurementPeriodEnd: { type: string, format: date-time }
         createdAt: { type: string, format: date-time }
         updatedAt: { type: string, format: date-time }
         __v: { type: integer }
