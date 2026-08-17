@@ -387,3 +387,24 @@ apm:PortfolioShape a sh:NodeShape ;
         sh:maxCount 1 ;
         sh:message "Every Portfolio must align to exactly one Business Capability." ;
     ] .
+
+
+### --------------------------------------------------
+### Software Entitlement
+### --------------------------------------------------
+
+apm:SoftwareEntitlementShape a sh:NodeShape ;
+    sh:targetClass apm:SoftwareEntitlement ;
+    sh:property [
+        sh:path apm:entitledQuantity ;
+        sh:datatype xsd:integer ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every Software Entitlement must record exactly one entitled quantity." ;
+    ] ;
+    sh:property [
+        sh:path apm:measuredByMetric ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:message "Every Software Entitlement must be assessed by exactly one Metric." ;
+    ] .
