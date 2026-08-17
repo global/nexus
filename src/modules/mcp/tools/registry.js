@@ -30,6 +30,7 @@ const serviceLevelAgreementsTools = require('./serviceLevelAgreements.tools');
 const portfoliosTools = require('./portfolios.tools');
 const metricsTools = require('./metrics.tools');
 const softwareProductsTools = require('./softwareProducts.tools');
+const softwareEntitlementsTools = require('./softwareEntitlements.tools');
 
 const MODULES = [
   applicationsTools,
@@ -64,6 +65,7 @@ const MODULES = [
   portfoliosTools,
   metricsTools,
   softwareProductsTools,
+  softwareEntitlementsTools,
 ];
 
 /**

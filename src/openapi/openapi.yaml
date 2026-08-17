@@ -184,6 +184,11 @@ tags:
       apm:SoftwareProduct (ontology/apm-ontology.ttl, ISO/IEC 19770-2) — a
       software asset identified via a SWID tag. Same role requirements as
       Applications.
+  - name: SoftwareEntitlements
+    description: >-
+      apm:SoftwareEntitlement (ontology/apm-ontology.ttl, ISO/IEC 19770-3)
+      — the legal usage rights held for a software asset, expressed as a
+      quantity against a Metric. Same role requirements as Applications.
 
 paths:
   /auth/login:
@@ -5996,6 +6001,171 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/ErrorResponse" }
 
+  /software-entitlements:
+    get:
+      operationId: listSoftwareEntitlements
+      tags: [SoftwareEntitlements]
+      summary: List software entitlements
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - in: query
+          name: measuredByMetric
+          schema: { $ref: "#/components/schemas/ObjectId" }
+      responses:
+        "200":
+          description: A list of software entitlements.
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/SoftwareEntitlement" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit reading software entitlements.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    post:
+      operationId: createSoftwareEntitlement
+      tags: [SoftwareEntitlements]
+      summary: Create a software entitlement
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SoftwareEntitlementCreate" }
+      responses:
+        "201":
+          description: The created software entitlement.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SoftwareEntitlement" }
+        "400":
+          description: The request body failed validation.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit creating software entitlements.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
+  /software-entitlements/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string }
+        description: MongoDB ObjectId of the software entitlement.
+    get:
+      operationId: getSoftwareEntitlement
+      tags: [SoftwareEntitlements]
+      summary: Get a software entitlement by id
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: The software entitlement.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SoftwareEntitlement" }
+        "400":
+          description: The id is not a valid ObjectId.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit reading software entitlements.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: No software entitlement exists with the given id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    put:
+      operationId: updateSoftwareEntitlement
+      tags: [SoftwareEntitlements]
+      summary: Update a software entitlement
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SoftwareEntitlementUpdate" }
+      responses:
+        "200":
+          description: The updated software entitlement.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/SoftwareEntitlement" }
+        "400":
+          description: >-
+            The request body failed validation, or the id is not a valid
+            ObjectId.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit updating software entitlements.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: No software entitlement exists with the given id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+    delete:
+      operationId: deleteSoftwareEntitlement
+      tags: [SoftwareEntitlements]
+      summary: Delete a software entitlement
+      security: [{ bearerAuth: [] }]
+      responses:
+        "204":
+          description: The software entitlement was deleted.
+        "400":
+          description: The id is not a valid ObjectId.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit deleting software entitlements (admin only).
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: No software entitlement exists with the given id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
 components:
   securitySchemes:
     bearerAuth:
@@ -6962,6 +7132,35 @@ components:
         endOfSupportDate: { type: string, format: date-time }
         suppliedBy: { $ref: "#/components/schemas/ObjectId" }
         coveredByEntitlement: { $ref: "#/components/schemas/ObjectId" }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+        __v: { type: integer }
+
+    SoftwareEntitlementCreate:
+      type: object
+      required: [entitledQuantity, measuredByMetric]
+      properties:
+        entitledQuantity: { type: integer }
+        measuredByMetric: { $ref: "#/components/schemas/ObjectId" }
+
+    SoftwareEntitlementUpdate:
+      type: object
+      description: Same shape as SoftwareEntitlementCreate, but every field is optional.
+      properties:
+        entitledQuantity: { type: integer }
+        measuredByMetric: { $ref: "#/components/schemas/ObjectId" }
+
+    SoftwareEntitlement:
+      description: >-
+        The stored representation of a software entitlement. Only the
+        fields the API guarantees are marked required; additional
+        Mongoose-managed properties are permitted.
+      type: object
+      required: [_id, entitledQuantity, measuredByMetric]
+      properties:
+        _id: { type: string }
+        entitledQuantity: { type: integer }
+        measuredByMetric: { $ref: "#/components/schemas/ObjectId" }
         createdAt: { type: string, format: date-time }
         updatedAt: { type: string, format: date-time }
         __v: { type: integer }
