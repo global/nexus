@@ -32,6 +32,7 @@ const metricsTools = require('./metrics.tools');
 const softwareProductsTools = require('./softwareProducts.tools');
 const softwareEntitlementsTools = require('./softwareEntitlements.tools');
 const resourceUtilizationRecordsTools = require('./resourceUtilizationRecords.tools');
+const dependencyIntelligenceTools = require('./dependencyIntelligence.tools');
 
 const MODULES = [
   applicationsTools,
@@ -68,6 +69,7 @@ const MODULES = [
   softwareProductsTools,
   softwareEntitlementsTools,
   resourceUtilizationRecordsTools,
+  dependencyIntelligenceTools,
 ];
 
 /**

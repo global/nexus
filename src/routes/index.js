@@ -36,6 +36,7 @@ const metricRoutes = require('../modules/metrics/metric.routes');
 const softwareProductRoutes = require('../modules/software-products/softwareProduct.routes');
 const softwareEntitlementRoutes = require('../modules/software-entitlements/softwareEntitlement.routes');
 const resourceUtilizationRecordRoutes = require('../modules/resource-utilization-records/resourceUtilizationRecord.routes');
+const dependencyIntelligenceRoutes = require('../modules/dependency-intelligence/dependencyIntelligence.routes');
 
 router.get('/', (_req, res) => res.json({ message: 'Welcome to Nexus Insight API' }));
 
@@ -74,5 +75,6 @@ router.use('/api/metrics', metricRoutes);
 router.use('/api/software-products', softwareProductRoutes);
 router.use('/api/software-entitlements', softwareEntitlementRoutes);
 router.use('/api/resource-utilization-records', resourceUtilizationRecordRoutes);
+router.use('/api/dependency-intelligence', dependencyIntelligenceRoutes);
 
 module.exports = router;

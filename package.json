@@ -28,6 +28,7 @@
     "keycloak": "docker compose -f keycloak/docker-compose.yml up -d",
     "validate:ontology": "node ontology/validate-ttl.js",
     "validate:competency-queries": "node ontology/validate-competency-queries.js",
+    "seed:sample-data": "node ontology/seed-sample-data.js",
     "test": "cross-env NODE_ENV=dev jest --testTimeout=10000 --runInBand --silent --passWithNoTests"
   },
   "dependencies": {

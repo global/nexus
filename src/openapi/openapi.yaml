@@ -196,6 +196,13 @@ tags:
       a software product over a specific period, enabling direct
       usage-versus-entitlement comparison. Same role requirements as
       Applications.
+  - name: DependencyIntelligence
+    description: >-
+      Read-only graph analysis over the apm:ApplicationDependency and
+      apm:TechnologyDependency graphs — breadth-first reachability
+      ("blast radius") with shortest-hop-count distances, plus
+      depth-first circular-dependency detection. Same role requirements
+      as Applications (read-only; no create/update/delete surface).
 
 paths:
   /auth/login:
@@ -6341,6 +6348,106 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/ErrorResponse" }
 
+  /dependency-intelligence/applications/{id}/blast-radius:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string }
+        description: MongoDB ObjectId of the starting Application.
+      - in: query
+        name: maxDepth
+        schema: { type: integer, minimum: 1 }
+        description: >-
+          Maximum number of hops to traverse. Omit for the full,
+          unbounded blast radius.
+    get:
+      operationId: getApplicationBlastRadius
+      tags: [DependencyIntelligence]
+      summary: Breadth-first blast radius over the ApplicationDependency graph
+      description: >-
+        Every Application transitively downstream of the given
+        Application, with the shortest-hop-count distance to each
+        (breadth-first search), and whether the traversed subgraph
+        contains a circular dependency (depth-first cycle detection).
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: The blast radius.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/BlastRadius" }
+        "400":
+          description: The id is not a valid ObjectId.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit reading dependency intelligence data.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: No application exists with the given id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
+  /dependency-intelligence/technology-components/{id}/blast-radius:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema: { type: string }
+        description: MongoDB ObjectId of the starting PhysicalTechnologyComponent.
+      - in: query
+        name: maxDepth
+        schema: { type: integer, minimum: 1 }
+        description: >-
+          Maximum number of hops to traverse. Omit for the full,
+          unbounded blast radius.
+    get:
+      operationId: getTechnologyBlastRadius
+      tags: [DependencyIntelligence]
+      summary: Breadth-first blast radius over the TechnologyDependency graph
+      description: >-
+        Every PhysicalTechnologyComponent transitively downstream of the
+        given component, with the shortest-hop-count distance to each,
+        and whether the traversed subgraph contains a circular
+        dependency.
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200":
+          description: The blast radius.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/BlastRadius" }
+        "400":
+          description: The id is not a valid ObjectId.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "401":
+          description: Missing, malformed, or invalid bearer token.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "403":
+          description: The caller's role does not permit reading dependency intelligence data.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+        "404":
+          description: No physical technology component exists with the given id.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ErrorResponse" }
+
 components:
   securitySchemes:
     bearerAuth:
@@ -7377,6 +7484,43 @@ components:
         createdAt: { type: string, format: date-time }
         updatedAt: { type: string, format: date-time }
         __v: { type: integer }
+
+    BlastRadiusNode:
+      type: object
+      required: [id, hop, edge]
+      properties:
+        id: { type: string, description: "The reachable node's MongoDB id." }
+        hop: { type: integer, description: "Hop count of the shortest dependency path from the start node (breadth-first search)." }
+        edge:
+          type: object
+          description: Metadata of the specific dependency edge that first discovered this node.
+          properties:
+            dependencyId: { type: string }
+            usesProtocol: { type: string }
+            hasSynchronicity: { type: string }
+
+    BlastRadius:
+      description: >-
+        The result of a breadth-first traversal of a dependency graph
+        (ApplicationDependency or TechnologyDependency) from a given
+        start node, plus depth-first circular-dependency detection over
+        the same reachable subgraph.
+      type: object
+      required: [startId, maxDepth, reachable, hasCycle, cycle]
+      properties:
+        startId: { type: string }
+        maxDepth: { type: integer, nullable: true, description: "The maxDepth query parameter, or null if the traversal was unbounded." }
+        reachable:
+          type: array
+          items: { $ref: "#/components/schemas/BlastRadiusNode" }
+        hasCycle: { type: boolean }
+        cycle:
+          type: array
+          nullable: true
+          items: { type: string }
+          description: >-
+            The node ids forming one detected cycle, in traversal order
+            with the repeated node at both ends, or null if none exists.
 
     ControlCreate:
       type: object

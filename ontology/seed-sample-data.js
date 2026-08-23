@@ -5,24 +5,14 @@
  * API (not direct Mongoose inserts), so the seeded data is guaranteed to
  * pass the same Joi/OpenAPI/Mongoose validation the live system enforces.
  *
- * This gives the evaluation harness (Chapter 6, O5/O6) a persistent,
- * reproducible dataset that mirrors the ontology's own sample instances —
- * the same entities/relationships used to hand-verify the SPARQL
- * competency-question results in apm-competency-queries.sparql and
- * validate-competency-queries.js, now also queryable through /api and /mcp.
- *
- * Entities are created in dependency order (mirroring
- * docs/architecture/ontology-coverage-roadmap.md's 25-step sequence) so
- * every ObjectId reference resolves against an already-created document.
- * Progress is written to .seed-manifest.json (gitignored) as
- * `"<Model>:<ontologyLocalName>": "<mongoId>"` pairs, which is what makes
- * the script both idempotent (a second run without --reset is a no-op)
- * and reversible (--reset deletes every id in the manifest before
- * reseeding).
+ * This gives a reproducible dataset that allow us to verify if the results
+ * will be equivalent to SPARQL deterministic queries against the ontology
+ * and provide a reliable basis for testing and evaluation.
+ * 
  *
  * Usage:
  *   node ontology/seed-sample-data.js            # seed once; no-op if already seeded
- *   node ontology/seed-sample-data.js --reset     # delete the previous seed, then reseed
+ *   node ontology/seed-sample-data.js --reset    # delete the previous seed, then reseed
  *
  * Requires the dev server, MongoDB, and Keycloak all running
  * (npm run mongo / npm run keycloak / npm run env:dev).
@@ -39,7 +29,7 @@ const MANIFEST_PATH = path.join(__dirname, '.seed-manifest.json');
 const RESET = process.argv.includes('--reset');
 
 let token = null;
-const manifest = {}; // "<Model>:<localName>" -> mongoId, also drives --reset deletion
+const manifest = {};
 
 function loadManifest() {
   if (fs.existsSync(MANIFEST_PATH)) {
