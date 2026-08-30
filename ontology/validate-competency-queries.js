@@ -126,12 +126,16 @@ function assertSetEquals(actualValues, expectedValues, label) {
 const COMPETENCY_QUESTIONS = [
   {
     id: 'CQ-1',
-    description: 'Capabilities affected by a BuildFarmServer outage',
+    description: 'Capabilities affected by a BuildFarmServer outage (direct + cascading)',
     assert([rows]) {
-      assertRowCount(rows, 2, 'CQ-1');
-      assertSetEquals(rows.map((r) => r.affectedApp), ['apm:DeployTrackReleaseManager'], 'CQ-1 affectedApp');
-      assertSetEquals(rows.map((r) => r.affectedTechComponent), ['apm:DeployTrackAppServer'], 'CQ-1 affectedTechComponent');
-      assertSetEquals(rows.map((r) => r.capability), ['apm:DevOpsReleaseManagement', 'apm:QualityAssuranceTesting'], 'CQ-1 capability');
+      assertRowCount(rows, 4, 'CQ-1');
+      assertSetEquals(rows.map((r) => r.affectedApp), ['apm:BuildForgePlatform', 'apm:DeployTrackReleaseManager'], 'CQ-1 affectedApp');
+      assertSetEquals(rows.map((r) => r.affectedTechComponent), ['apm:BuildFarmServer', 'apm:DeployTrackAppServer'], 'CQ-1 affectedTechComponent');
+      assertSetEquals(
+        rows.map((r) => r.capability),
+        ['apm:SoftwareEngineering', 'apm:DevOpsReleaseManagement', 'apm:QualityAssuranceTesting'],
+        'CQ-1 capability'
+      );
     },
   },
   {
