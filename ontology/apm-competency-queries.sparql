@@ -21,26 +21,38 @@ PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
 # CQ-1: Which business capabilities would be affected if a specified
 # physical technology component experienced an outage?
 #
-# Traversal: TechnologyDependency (the failing component as upstream) ->
-# downstream technology component -> physical application component
-# deployed on it -> owning Application -> capabilities it enables.
+# Traversal: two impact paths, unioned --
+#   (a) Direct: applications deployed on the failing component itself.
+#   (b) Cascading: TechnologyDependency (the failing component as upstream)
+#       -> downstream technology component -> physical application
+#       component deployed on it.
+# Both paths resolve application component -> owning Application ->
+# capabilities it enables.
 #
 # Parameter: apm:BuildFarmServer (bind a different component to re-run
 # for a different outage scenario).
 #
-# Expected result against the sample data: an outage on the build farm
-# server takes down the DeployTrack Application Server (a Synchronous
-# DatabaseConnection dependency), which hosts DeployTrack Release Manager,
-# which enables DevOps & Release Management and Quality Assurance & Testing.
+# Expected result against the sample data (4 rows, 3 distinct capabilities):
+# an outage on the build farm server directly takes down BuildForge CI/CD
+# Platform (deployed on it), enabling Software Engineering and DevOps &
+# Release Management -- and also cascades to the DeployTrack Application
+# Server (a Synchronous DatabaseConnection dependency), which hosts
+# DeployTrack Release Manager, enabling DevOps & Release Management (again)
+# and Quality Assurance & Testing.
 ##############################################################################
 
 SELECT DISTINCT ?affectedTechComponent ?affectedApp ?affectedAppLabel
                  ?capability ?capabilityLabel
 WHERE {
-  ?techDep a apm:TechnologyDependency ;
-           apm:upstreamTechnologyComponent apm:BuildFarmServer ;
-           apm:downstreamTechnologyComponent ?affectedTechComponent .
-  ?appComponent apm:deployedOn ?affectedTechComponent .
+  {
+    BIND(apm:BuildFarmServer AS ?affectedTechComponent)
+    ?appComponent apm:deployedOn apm:BuildFarmServer .
+  } UNION {
+    ?techDep a apm:TechnologyDependency ;
+             apm:upstreamTechnologyComponent apm:BuildFarmServer ;
+             apm:downstreamTechnologyComponent ?affectedTechComponent .
+    ?appComponent apm:deployedOn ?affectedTechComponent .
+  }
   ?affectedApp apm:hasDeployment ?appComponent ;
                apm:enablesCapability ?capability ;
                rdfs:label ?affectedAppLabel .
