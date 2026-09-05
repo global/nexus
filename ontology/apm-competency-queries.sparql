@@ -29,8 +29,7 @@ PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
 # Both paths resolve application component -> owning Application ->
 # capabilities it enables.
 #
-# Parameter: apm:BuildFarmServer (bind a different component to re-run
-# for a different outage scenario).
+# Parameter: apm:BuildFarmServer
 #
 # Expected result against the sample data (4 rows, 3 distinct capabilities):
 # an outage on the build farm server directly takes down BuildForge CI/CD
