@@ -9,8 +9,9 @@ An intelligent Application Portfolio Management (APM) hub — a central registry
 - **Validation** — Joi
 - **Identity** — [Keycloak](https://www.keycloak.org/) (OAuth2/OIDC); the API verifies Keycloak-issued JWTs, it does not store credentials itself
 - **API contract** — OpenAPI 3.0, served as interactive docs (Swagger UI) and enforced at runtime for every request/response under `/api`
-- **AI access** — [Model Context Protocol](https://modelcontextprotocol.io/) server (`@modelcontextprotocol/sdk`) exposing read-only tools over the same service layer as the REST API, so an LLM client can answer portfolio questions in plain English
+- **AI access** — [Model Context Protocol](https://modelcontextprotocol.io/) server exposing read-only tools over the same service layer as the REST API, so an LLM client can answer portfolio questions in plain English
 - **Testing** — Jest + Supertest
+- **Evaluation** — an agentic-equivalence harness that compares an MCP-tool-using agent's answers — Claude, an open-source model, or both — against SPARQL ground truth — see [Evaluating agentic equivalence](#evaluating-agentic-equivalence)
 
 ## Getting Started
 
@@ -63,7 +64,6 @@ The server starts on `http://localhost:3000` by default (configurable via `PORT`
 | `KEYCLOAK_URL` | Base URL of the Keycloak server, e.g. `http://localhost:8080` |
 | `KEYCLOAK_REALM` | Keycloak realm name |
 | `KEYCLOAK_CLIENT_ID` | Public client id tokens are issued to |
-| `TOKEN_SECRET` | Legacy — predates the move to Keycloak-issued JWTs; not currently used |
 
 Environment files: `.env.dev`, `.env.test`, `.env.prod`.
 
@@ -134,11 +134,22 @@ All routes require a Bearer token (`authenticate`); write/delete access is addit
 
 The two abstract ontology superclasses, `apm:Dependency` and `apm:LinkedResource`, are never instantiated directly (`ApplicationDependency`/`TechnologyDependency` and `Document`/`CodeRepository` are their concrete subclasses) and so have no module of their own — every other class does. All 14 SPARQL competency questions in [`apm-competency-queries.sparql`](ontology/apm-competency-queries.sparql) are answerable through this API.
 
+### Dependency Intelligence Engine
+
+[`src/modules/dependency-intelligence/`](src/modules/dependency-intelligence/) is the one module that isn't a 1:1 ontology-class CRUD resource — it's a read-only graph-analysis layer over the `ApplicationDependency`/`TechnologyDependency` edges the modules above already store, answering "what would be affected if this went down?" questions:
+
+| Method | Path | Description |
+| --- | --- | --- |
+| `GET` | `/api/dependency-intelligence/applications/:id/blast-radius` | Every application transitively downstream of the given one, via BFS over `ApplicationDependency` |
+| `GET` | `/api/dependency-intelligence/technology-components/:id/blast-radius` | Every physical technology component transitively downstream of the given one, via BFS over `TechnologyDependency` |
+
+Both accept an optional `?maxDepth=<n>` query param to bound the traversal, and both also run a DFS cycle check over the reachable subgraph, returning `hasCycle` (and the cycle itself, if found).
+
 ## MCP Server
 
 `POST /mcp` exposes a [Model Context Protocol](https://modelcontextprotocol.io/) server ([`src/modules/mcp/`](src/modules/mcp/)) so an LLM client can query the portfolio in plain English instead of writing SPARQL or calling REST endpoints directly. It runs in-process inside the same Express app (Streamable HTTP transport, stateless — no session store), requires the same Bearer token and roles as the REST API (`authenticate` + `authorize('admin', 'portfolio-manager', 'viewer')`), and every call is recorded to the audit log alongside REST calls.
 
-Each of the 34 domain modules above contributes a `list_<resource>`/`get_<resource>` tool pair (registered in [`src/modules/mcp/tools/registry.js`](src/modules/mcp/tools/registry.js)) — 69 tools in total, including one extra (`get_application_stats`). Every tool is a thin, read-only wrapper around the same `*.service.js` the REST controller calls — no separate business logic, no create/update/delete tools yet. `list_*` tools accept the same filters as their REST `GET` list endpoint; a `NotFoundError` from the service layer is returned as an in-band MCP tool error (`isError: true`) rather than a protocol-level failure.
+Each of the 34 ontology-mapped domain modules above contributes a `list_<resource>`/`get_<resource>` tool pair, and the Dependency Intelligence Engine contributes two more (`get_application_blast_radius`, `get_technology_blast_radius`) — 71 tools in total, registered in [`src/modules/mcp/tools/registry.js`](src/modules/mcp/tools/registry.js) and including one extra beyond the list/get pairs (`get_application_stats`). Every tool is a thin, read-only wrapper around the same `*.service.js` the REST controller calls — no separate business logic, no create/update/delete tools yet. `list_*` tools accept the same filters as their REST `GET` list endpoint;
 
 To point an MCP-aware client (e.g. Claude Code) at it, configure a Streamable HTTP server entry for `http://localhost:3000/mcp` with an `Authorization: Bearer <token>` header, using a token from [`/api/auth/login`](#auth-endpoints). To exercise it directly:
 
@@ -156,9 +167,9 @@ Interactive Swagger UI is served at `http://localhost:3000/docs` once the server
 
 ## Audit Logging
 
-Every call under `/api` is recorded to an `AuditLog` MongoDB collection by [`middleware/logger.js`](src/middleware/logger.js): method, path, status code, duration, caller IP, and — when the route ran `authenticate` beforehand — the identity that made the call (`userId`, `username`, `roles`; recorded as `"anonymous"` otherwise). Logging happens on the response's `finish` event, so it captures the actual outcome and still records calls the OpenAPI validator itself rejects.
+Every call under `/api` is recorded to an `AuditLog` MongoDB collection by [`middleware/logger.js`](src/middleware/logger.js): method, path, status code, duration, caller IP, and — when the route ran `authenticate` beforehand — the identity that made the call (`userId`, `username`, `roles`; recorded as `"anonymous"` otherwise).
 
-Request/response bodies and headers are deliberately never recorded — that would otherwise put the password from `/api/auth/login` or bearer tokens straight into the audit trail. A failed write to the audit log is logged to the console but never blocks or fails the actual response.
+Request/response bodies and headers are deliberately never recorded — that would otherwise put the password from `/api/auth/login` or bearer tokens straight into the audit trail.
 
 There is currently no endpoint to read these entries back through the API — querying them today means going straight to MongoDB.
 
@@ -172,8 +183,10 @@ The ontology itself lives in [`ontology/`](ontology/):
 | `apm-shapes.ttl` | SHACL shapes constraining the ontology's classes/properties |
 | `apm-instances-sample.ttl` | A sample instance dataset used to exercise the ontology |
 | `apm-competency-queries.sparql` | SPARQL competency questions answered against the sample dataset |
+| `seed-sample-data.js` | Loads `apm-instances-sample.ttl`'s scenario into MongoDB — see [Seeding sample data](#seeding-sample-data) |
+| `evaluate-agentic-equivalence.js` | Compares an MCP-tool-using agent against SPARQL ground truth — see [Evaluating agentic equivalence](#evaluating-agentic-equivalence) |
 
-Every concrete class the ontology defines has a backend module and SHACL shapes constrain the classes where cardinality is unambiguous — see [Domain Modules & REST API](#domain-modules--rest-api) for the full mapping.
+Every concrete class the ontology defines has a backend module and SHACL shapes constrain the classes where cardinality is unambiguous.
 
 ### Validating Turtle syntax
 
@@ -192,6 +205,36 @@ npm run validate:competency-queries
 Runs [`ontology/validate-competency-queries.js`](ontology/validate-competency-queries.js), which parses every SPARQL query straight out of `apm-competency-queries.sparql` (so the `.sparql` file stays the single source of truth for the queries themselves), executes each one against `apm-ontology.ttl` + `apm-instances-sample.ttl` via [Comunica](https://comunica.dev/), and asserts the actual results against hand-verified expectations. This is a regression test for the ontology + sample dataset pairing — if an edit to either file changes what a competency question returns, this catches it and exits non-zero.
 
 The expectations are based on running each query and checking its real output, not on blindly trusting the `.sparql` file's "Expected result" comments.
+
+### Seeding sample data
+
+```bash
+npm run seed:sample-data              # seed once; no-op if already seeded
+npm run seed:sample-data -- --reset   # delete the previous seed, then reseed
+```
+
+Runs [`ontology/seed-sample-data.js`](ontology/seed-sample-data.js), which loads `apm-instances-sample.ttl`'s scenario into MongoDB through the real REST API (not direct Mongoose inserts), so the seeded data is guaranteed to pass the same Joi/OpenAPI/Mongoose validation the live system enforces. This gives a reproducible dataset whose results should agree with the SPARQL queries run directly against the ontology — the shared basis for both the competency-question regression tests and the agentic-equivalence evaluation below. Requires MongoDB and the dev server running (`npm run mongo`, `npm run env:dev`).
+
+### Evaluating agentic equivalence
+
+```bash
+npm run evaluate:agentic-equivalence
+npm run evaluate:agentic-equivalence -- --only=CQ-1,CQ-14
+npm run evaluate:agentic-equivalence -- --providers=anthropic,openai-compatible
+```
+
+Runs [`ontology/evaluate-agentic-equivalence.js`](ontology/evaluate-agentic-equivalence.js): for each of the 14 competency questions, an agent equipped with the same MCP tool surface the REST API's controllers use ([`src/modules/mcp`](src/modules/mcp/)) is given the question as a natural-language prompt, explores the portfolio via real tool calls against the live (seeded) MongoDB data, and submits its final answer through a harness-only `submit_answer` tool. That structured answer — not the agent's free-text commentary — is compared against the ground truth produced by running the equivalent SPARQL query over `apm-ontology.ttl` + `apm-instances-sample.ttl`, and results are reported per-trial and as an overall agreement rate.
+
+This is the project's central evaluation: it tests whether an LLM agent using the MCP tool surface is *equivalent* to a deterministic SPARQL query over the same ontology, not just whether the tools work in isolation. Requires MongoDB seeded to match `apm-instances-sample.ttl` (see [Seeding sample data](#seeding-sample-data) above).
+
+Two model providers are supported, run side by side via `--providers=` (or the `EVAL_PROVIDERS` env var) — a comma-separated list, defaulting to `anthropic` alone so existing invocations are unaffected:
+
+| Provider | Description | Required environment |
+| --- | --- | --- |
+| `anthropic` | Claude, via the Messages API | `ANTHROPIC_API_KEY`; optionally `ANTHROPIC_EVAL_MODEL` (default `claude-sonnet-5`) |
+| `openai-compatible` | Any open-source model behind an OpenAI-compatible `/chat/completions` endpoint with function calling — e.g. [Ollama](https://ollama.com/), vLLM, LM Studio | `OSS_EVAL_MODEL` (e.g. `llama3.1`, `qwen2.5:14b`); optionally `OSS_EVAL_BASE_URL` (default `http://localhost:11434/v1`) and `OSS_EVAL_API_KEY` |
+
+Ground truth is computed once per competency question and shared across every provider in the run, so the printed and saved results are directly comparable model-to-model — the point being not just "does this model answer correctly" but "is a self-hosted open-source model an equivalent substitute for Claude here."
 
 ## Project Structure
 
@@ -216,10 +259,13 @@ src/
     │                           #   (see Domain Modules & REST API above)
     ├── auth/                   # Login/refresh/logout/me, backed by Keycloak
     ├── audit/                  # AuditLog Mongoose schema
+    ├── dependency-intelligence/ # BFS blast-radius + DFS cycle detection — no schema of its own
+    │                           #   (see Dependency Intelligence Engine above)
     └── mcp/
         ├── server.js           # McpServer factory
         ├── mcp.router.js       # Express router — Streamable HTTP transport, mounted at /mcp
-        └── tools/              # One list_x/get_x tools file per domain module + registry.js
+        └── tools/              # One list_x/get_x tools file per domain module, plus
+                                 #   dependencyIntelligence.tools.js + registry.js
 
 ontology/
 ├── apm-ontology.ttl                  # The Nexus Insight APM Ontology (OWL/Turtle)
@@ -227,7 +273,9 @@ ontology/
 ├── apm-instances-sample.ttl          # Sample instance dataset
 ├── apm-competency-queries.sparql     # SPARQL competency questions
 ├── validate-ttl.js                   # `npm run validate:ontology`
-└── validate-competency-queries.js    # `npm run validate:competency-queries`
+├── validate-competency-queries.js    # `npm run validate:competency-queries`
+├── seed-sample-data.js               # `npm run seed:sample-data`
+└── evaluate-agentic-equivalence.js   # `npm run evaluate:agentic-equivalence`
 
 keycloak/
 ├── docker-compose.yml          # `npm run keycloak`
