@@ -30,6 +30,7 @@
     "validate:competency-queries": "node ontology/validate-competency-queries.js",
     "seed:sample-data": "node ontology/seed-sample-data.js",
     "evaluate:agentic-equivalence": "node ontology/evaluate-agentic-equivalence.js",
+    "connect:mcp": "node scripts/connect-mcp.js",
     "test": "cross-env NODE_ENV=dev jest --testTimeout=10000 --runInBand --silent --passWithNoTests"
   },
   "dependencies": {

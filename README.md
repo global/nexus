@@ -11,7 +11,7 @@ An intelligent Application Portfolio Management (APM) hub — a central registry
 - **API contract** — OpenAPI 3.0, served as interactive docs (Swagger UI) and enforced at runtime for every request/response under `/api`
 - **AI access** — [Model Context Protocol](https://modelcontextprotocol.io/) server exposing read-only tools over the same service layer as the REST API, so an LLM client can answer portfolio questions in plain English
 - **Testing** — Jest + Supertest
-- **Evaluation** — an agentic-equivalence harness that compares an MCP-tool-using agent's answers — Claude, an open-source model, or both — against SPARQL ground truth — see [Evaluating agentic equivalence](#evaluating-agentic-equivalence)
+- **Evaluation** — an agentic-equivalence harness that compares an MCP-tool-using Claude agent's answers against SPARQL ground truth — see [Evaluating agentic equivalence](#evaluating-agentic-equivalence)
 
 ## Getting Started
 
@@ -220,21 +220,11 @@ Runs [`ontology/seed-sample-data.js`](ontology/seed-sample-data.js), which loads
 ```bash
 npm run evaluate:agentic-equivalence
 npm run evaluate:agentic-equivalence -- --only=CQ-1,CQ-14
-npm run evaluate:agentic-equivalence -- --providers=anthropic,openai-compatible
 ```
 
-Runs [`ontology/evaluate-agentic-equivalence.js`](ontology/evaluate-agentic-equivalence.js): for each of the 14 competency questions, an agent equipped with the same MCP tool surface the REST API's controllers use ([`src/modules/mcp`](src/modules/mcp/)) is given the question as a natural-language prompt, explores the portfolio via real tool calls against the live (seeded) MongoDB data, and submits its final answer through a harness-only `submit_answer` tool. That structured answer — not the agent's free-text commentary — is compared against the ground truth produced by running the equivalent SPARQL query over `apm-ontology.ttl` + `apm-instances-sample.ttl`, and results are reported per-trial and as an overall agreement rate.
+Runs [`ontology/evaluate-agentic-equivalence.js`](ontology/evaluate-agentic-equivalence.js): for each of the 14 competency questions, a Claude agent equipped with the same MCP tool surface the REST API's controllers use ([`src/modules/mcp`](src/modules/mcp/)) is given the question as a natural-language prompt, explores the portfolio via real tool calls against the live (seeded) MongoDB data, and submits its final answer through a harness-only `submit_answer` tool. That structured answer is compared against the truth produced by running the equivalent SPARQL query over `apm-ontology.ttl` + `apm-instances-sample.ttl`, and results are reported per-trial and as an overall agreement rate.
 
-This is the project's central evaluation: it tests whether an LLM agent using the MCP tool surface is *equivalent* to a deterministic SPARQL query over the same ontology, not just whether the tools work in isolation. Requires MongoDB seeded to match `apm-instances-sample.ttl` (see [Seeding sample data](#seeding-sample-data) above).
-
-Two model providers are supported, run side by side via `--providers=` (or the `EVAL_PROVIDERS` env var) — a comma-separated list, defaulting to `anthropic` alone so existing invocations are unaffected:
-
-| Provider | Description | Required environment |
-| --- | --- | --- |
-| `anthropic` | Claude, via the Messages API | `ANTHROPIC_API_KEY`; optionally `ANTHROPIC_EVAL_MODEL` (default `claude-sonnet-5`) |
-| `openai-compatible` | Any open-source model behind an OpenAI-compatible `/chat/completions` endpoint with function calling — e.g. [Ollama](https://ollama.com/), vLLM, LM Studio | `OSS_EVAL_MODEL` (e.g. `llama3.1`, `qwen2.5:14b`); optionally `OSS_EVAL_BASE_URL` (default `http://localhost:11434/v1`) and `OSS_EVAL_API_KEY` |
-
-Ground truth is computed once per competency question and shared across every provider in the run, so the printed and saved results are directly comparable model-to-model — the point being not just "does this model answer correctly" but "is a self-hosted open-source model an equivalent substitute for Claude here."
+This is the project's central evaluation: it tests whether an LLM agent using the MCP tool surface is *equivalent* to a deterministic SPARQL query over the same ontology, not just whether the tools work in isolation. Requires MongoDB seeded to match `apm-instances-sample.ttl` (see [Seeding sample data](#seeding-sample-data) above) and `ANTHROPIC_API_KEY` set (in `.env.dev` or the shell environment; optionally `ANTHROPIC_EVAL_MODEL`, default `claude-sonnet-5`).
 
 ## Project Structure
 
@@ -254,19 +244,16 @@ src/
 ├── routes/
 │   └── index.js                # Root router — mounts all module routes
 └── modules/
-    ├── applications/           # apm:Application, and 33 sibling directories —
-    ├── .../                    #   one per ontology class, same six-layer shape
-    │                           #   (see Domain Modules & REST API above)
+    ├── applications/           # apm:Application, and sibling directories —
+    ├── .../                    #   one per ontology class
     ├── auth/                   # Login/refresh/logout/me, backed by Keycloak
     ├── audit/                  # AuditLog Mongoose schema
-    ├── dependency-intelligence/ # BFS blast-radius + DFS cycle detection — no schema of its own
-    │                           #   (see Dependency Intelligence Engine above)
+    ├── dependency-intelligence/ # BFS blast-radius + DFS cycle detection
     └── mcp/
         ├── server.js           # McpServer factory
         ├── mcp.router.js       # Express router — Streamable HTTP transport, mounted at /mcp
         └── tools/              # One list_x/get_x tools file per domain module, plus
                                  #   dependencyIntelligence.tools.js + registry.js
-
 ontology/
 ├── apm-ontology.ttl                  # The Nexus Insight APM Ontology (OWL/Turtle)
 ├── apm-shapes.ttl                    # SHACL shapes
@@ -279,5 +266,5 @@ ontology/
 
 keycloak/
 ├── docker-compose.yml          # `npm run keycloak`
-└── realm-export.json           # Realm, client, roles, and test users (auto-imported)
+└── realm-export.json           # Realm, client, roles, and test users
 ```
