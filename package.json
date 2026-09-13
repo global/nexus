@@ -24,11 +24,12 @@
     "env:dev": "cross-env NODE_ENV=dev nodemon server.js",
     "env:test": "cross-env NODE_ENV=test nodemon server.js",
     "env:prod": "cross-env NODE_ENV=prod node server.js",
-    "mongo": "docker run -d --name mongo -p 27017:27017 mongo:7",
+    "mongo": "docker compose -f mongo/docker-compose.yml up -d",
     "keycloak": "docker compose -f keycloak/docker-compose.yml up -d",
     "validate:ontology": "node ontology/validate-ttl.js",
     "validate:competency-queries": "node ontology/validate-competency-queries.js",
     "seed:sample-data": "node ontology/seed-sample-data.js",
+    "dev:fresh": "node scripts/fresh-start.js",
     "evaluate:agentic-equivalence": "node ontology/evaluate-agentic-equivalence.js",
     "connect:mcp": "node scripts/connect-mcp.js",
     "test": "cross-env NODE_ENV=dev jest --testTimeout=10000 --runInBand --silent --passWithNoTests"

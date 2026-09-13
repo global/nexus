@@ -1,0 +1,6 @@
+services:
+  nexus-mongo:
+    image: mongo:7
+    container_name: nexus-mongo
+    ports:
+      - "27017:27017"
