@@ -26,6 +26,16 @@ An intelligent Application Portfolio Management (APM) hub — a central registry
 npm install
 ```
 
+### Quick start (all-in-one)
+
+```bash
+npm run dev:fresh
+```
+
+Runs [`scripts/fresh-start.js`](scripts/fresh-start.js) to bring up a fully working local environment in one step: starts MongoDB and Keycloak via Docker Compose, waits for the `nexus-insight` realm to be imported, starts the dev server if one isn't already running on `http://localhost:3000`, resets and reseeds the sample data (`npm run seed:sample-data -- --reset`), and registers the Nexus MCP server with the Claude Code CLI (`npm run connect:mcp`. A warning is printed if the `claude` CLI isn't on `PATH`). If it started the server itself, it keeps it running in the foreground until you press Ctrl+C.
+
+Use this for manual testing and demos; use the steps below when you want to start/control each piece individually.
+
 ### Start MongoDB
 
 ```bash
@@ -54,6 +64,22 @@ npm run env:prod
 ```
 
 The server starts on `http://localhost:3000` by default (configurable via `PORT` in the relevant `.env` file).
+
+### Run with Docker
+
+```bash
+docker build -t nexus-insight .
+
+docker run --rm -p 3000:3000 \
+  -e PORT=3000 \
+  -e DB_CONNECTOR="mongodb://host.docker.internal:27017/nexus" \
+  -e KEYCLOAK_URL="http://host.docker.internal:8080" \
+  -e KEYCLOAK_REALM="nexus-insight" \
+  -e KEYCLOAK_CLIENT_ID="nexus-api" \
+  nexus-insight
+```
+
+Configuration is supplied entirely through environment variables at `docker run` time (see [Environment Variables](#environment-variables) below), and the process runs as the non-root `node` user. MongoDB and Keycloak still run separately (`npm run mongo` / `npm run keycloak`, or your own instances) — point `DB_CONNECTOR`/`KEYCLOAK_URL` at them; `host.docker.internal` reaches services running on the host from inside the container on Docker Desktop (Windows/Mac).
 
 ## Environment Variables
 
@@ -267,4 +293,11 @@ ontology/
 keycloak/
 ├── docker-compose.yml          # `npm run keycloak`
 └── realm-export.json           # Realm, client, roles, and test users
+
+mongo/
+└── docker-compose.yml          # `npm run mongo`
+
+scripts/
+├── fresh-start.js               # `npm run dev:fresh` — one-shot local environment setup
+└── connect-mcp.js               # `npm run connect:mcp` — registers the MCP server with the Claude Code CLI
 ```
